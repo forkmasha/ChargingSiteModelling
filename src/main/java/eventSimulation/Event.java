@@ -7,7 +7,7 @@ public class Event {
     private Client client;
     private EventType eventType;
 
-    protected Event(double time) {
+    public Event(double time) {
         this.execTime = time;
     }
 

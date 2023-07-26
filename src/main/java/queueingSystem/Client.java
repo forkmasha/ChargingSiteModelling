@@ -5,11 +5,26 @@ import distributions.DistributionType;
 
 public class Client {
     private double meanServiceTime;
+    private double timeInSystem;
+    private double timeInQueue;
+    private double arrivalTime;
     private QueueingSystem system;
     private Distribution serviceTimeDistribution;
 
     public QueueingSystem getSystem() {
         return system;
+    }
+
+    public void setTimeInSystem(double time) {
+        this.timeInSystem = time-this.arrivalTime;
+    }
+
+    public void setTimeInQueue(double time) {
+        this.timeInQueue = time-this.arrivalTime;
+    }
+
+    public void setArrivalTime(double arrivalTime) {
+        this.arrivalTime = arrivalTime;
     }
 
     public void setSystem(QueueingSystem system) {
@@ -24,9 +39,26 @@ public class Client {
         this.meanServiceTime = meanServiceTime;
     }
 
+    public double getTimeInSystem() {
+        return timeInSystem;
+    }
+
+    public double getTimeInQueue() {
+        return timeInQueue;
+    }
+
+    public double getArrivalTime() {
+        return arrivalTime;
+    }
 
     public Client(double meanServiceTime) {
         this.meanServiceTime = meanServiceTime;
+    }
+
+    public Client(double meanServiceTime, DistributionType type, QueueingSystem system) {
+        this.meanServiceTime = meanServiceTime;
+        this.system = system;
+        this.setServiceTimeDistribution(type);
     }
 
     public double getMeanServiceTime() {

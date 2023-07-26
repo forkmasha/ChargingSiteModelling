@@ -1,48 +1,48 @@
 package eventSimulation;
 
+import distributions.DistributionType;
+import queueingSystem.Client;
+import queueingSystem.QueueingSystem;
+import queueingSystem.Server;
+
 public class EventProcessor {
     Event nextEvent;
+    Server nextServer;
     double deltaTime = 0;
-    int i, j, k = 0;
+    int i, j, k, q = 0;
 
 
     public void processEvent(Event event) {
         deltaTime = event.getExecTime() - EventSimulation.getCurrentTime();
-        System.out.println("\n delta-Time: " + deltaTime);
         EventSimulation.setCurrentTime(event.getExecTime());
-        switch (event.getEventType()) {
-            case ARRIVAL:
-                i++;
-                if (EventSimulation.getNumberOfEvents() < EventSimulation.getMaxEvents()) {
-                    nextEvent = new Event(event.getExecTime()
-                            + event.getClient().getSystem().getArrivalTimeDistribution().
-                            getSample(event.getClient().getSystem().getMeanInterArrivalTime()));
-                    nextEvent.setEventType(EventType.ARRIVAL);
-                    EventSimulation.eventStack.addEvent(nextEvent);
-                }
-                event.setEventType(EventType.DEPARTURE);
-                if (true) {
-                    nextEvent = new Event(event.getExecTime()
-                            + event.getClient().getServiceTimeDistribution().
-                            getSample(event.getClient().getMeanServiceTime()));
-                    nextEvent.setEventType(EventType.DEPARTURE);
-                    EventSimulation.eventStack.addEvent(nextEvent);
-                }
-                break;
-            case DEPARTURE:
-                j++;
-                EventSimulation.eventStack.removeEvent(event);
-                break;
-            case QUEUEING:
-                break;
-            case BLOCKING:
-                k++;
-                EventSimulation.eventStack.removeEvent(event);
-                break;
+
+        if (event.getClient() != null) {
+            switch (event.getEventType()) {
+                case ARRIVAL:
+                    i++;
+                    event.getClient().getSystem().processArrival(event);
+                    break;
+                case DEPARTURE:
+                    j++;
+                    event.getClient().getSystem().processDeparture(event);
+                    break;
+                case QUEUEING:
+                    q++;
+                    event.getClient().getSystem().processQueueing(event);
+                    break;
+                case BLOCKING:
+                    k++;
+                    EventSimulation.eventStack.removeEvent(event);
+                    break;
+            }
+        } else {
+            System.out.println("Warning: Events client is null");
         }
+        System.out.println("delta-Time(" + i + "/" + j + "/" + q + "/" + k + "): " + deltaTime);
     }
-    public void printCounters(){
-        System.out.println("EventCounters: " + i + "/" + j+"/"+k);
+
+    public void printCounters() {
+        System.out.println("EventCounters: " + i + "/" + j + "/" + q + "/" + k);
 
     }
 }

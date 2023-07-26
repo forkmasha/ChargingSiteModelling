@@ -5,5 +5,12 @@ import java.util.List;
 public class Server {
     double serviceTime;
     private List<Double> serviceTimes;
-    Client client;
+    Client servedClient;
+
+    public Server() {
+    }
+
+    public void setClient(Client client) {
+        this.servedClient = client;
+    }
 }

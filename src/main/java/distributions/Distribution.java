@@ -1,6 +1,10 @@
 package distributions;
+
+import java.util.Random;
+
 public abstract class Distribution {
     private DistributionType type;
+    private static Random random = new Random();
     public double getSample(double mean) {
         return 0;
     }

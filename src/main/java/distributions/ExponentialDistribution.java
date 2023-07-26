@@ -4,9 +4,10 @@ import java.util.Random;
 
 public class ExponentialDistribution extends Distribution {
 
+    static Random random = new Random();
     @Override
     public double getSample(double mean) {
-        Random random = new Random();
+        //
         return mean * (-Math.log(1 - random.nextDouble()));
     }
     public static double createSample(double mean) {

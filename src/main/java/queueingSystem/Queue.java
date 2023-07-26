@@ -1,4 +1,6 @@
 package queueingSystem;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Queue {
@@ -7,8 +9,12 @@ public class Queue {
 
     private List<Client> queuedClients;
 
+    public int getSize() {
+        return size;
+    }
 
     public Queue(int size) {
+        this.queuedClients = new ArrayList<>(size);
         this.size = size;
     }
 
@@ -16,12 +22,12 @@ public class Queue {
         return occupation;
     }
 
-    public void addClientToQueue(Client client){
+    public void addClientToQueue(Client client) {
         occupation++;
         queuedClients.add(client);
     }
 
-    public void removeClient(Client client){
+    public void removeClient(Client client) {
         occupation--;
         queuedClients.remove(client);
     }

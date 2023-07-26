@@ -1,16 +1,25 @@
 package chargingSite;
 
+import results.Histogram;
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class SimulationApp {
     public static void main(String[] args) {
 
-        int numServers = 5;
+      /*  int numServers = 5;
         int queueLength = 10;
         int numStates = numServers + queueLength + 1;
         int maxCars = 50000;
-        double meanServiceTime = 0.5;
+        double meanServiceTime = 0.5;*/
+
+       Simulation simulation = new Simulation();
+        simulation.runSimulation();
+
+
+
 
         // int count = 100000;
         // double samples[] = new double[count];
@@ -23,7 +32,7 @@ public class SimulationApp {
         // GasStationSimulation.generateServiceTimeHistogram(samples, pdf);
 
 
-        List<Double> arrivalRates = new ArrayList<>();
+      /*  List<Double> arrivalRates = new ArrayList<>();
         List<Double> meanSystemTimes = new ArrayList<>();
         List<Double> meanQueueTimes = new ArrayList<>();
         List<Double> meanServiceTimes = new ArrayList<>();

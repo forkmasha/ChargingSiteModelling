@@ -11,8 +11,14 @@ public class EventSimulation {
     private static double currentTime = 0;
     public static double meanServiceTime = 0.5;
 
-    public void setMaxEvents(int maxEvents) {
-        this.maxEvents = maxEvents;
+    public static void setMaxEvents(int number) {
+        EventSimulation.maxEvents = number;
+    }
+    public static void reset(){
+        EventSimulation.numberOfEvents = 0;
+        EventSimulation.currentTime = 0;
+        EventProcessor.reset();
+
     }
 
     public static void incNumberOfEvents() {
@@ -39,8 +45,21 @@ public class EventSimulation {
     public static EventStack eventStack = new EventStack();
 
     //public static QueueingSystem system = new QueueingSystem();
+    public static void run(Client myClient) {
+        EventSimulation.reset();
+        Event firstEvent = new Event(0.0); // execution time
+        firstEvent.setEventType(EventType.ARRIVAL);
+        firstEvent.setClient(myClient);
+        eventStack.addEvent(firstEvent);
+        //maxEvents = 1000;
+        while (!eventStack.isEmpty()) {
+            eventProcessor.processEvent(eventStack.getNextEvent());
+        }
+        eventProcessor.printCounters();
 
-    public static void main(String[] args) {
+    }
+
+ /*   public static void main(String[] args) {
         QueueingSystem mySystem = new QueueingSystem();
         mySystem.setNumberOfServers(5);
         mySystem.setDistributionType(DistributionType.EXPONENTIAL);
@@ -69,6 +88,5 @@ public class EventSimulation {
                 + calc.getStd(mySystem.getTimesInSystem()) + "/"
                 + calc.getConfidenceInterval(mySystem.getTimesInSystem(),95));
 
-
-    }
+    }*/
 }

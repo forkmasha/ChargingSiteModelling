@@ -37,4 +37,8 @@ public class EventStack {
     public List<Event> getEvents() {
         return events;
     }
+
+    public void clear(){
+        events.clear();
+    }
 }

@@ -8,10 +8,16 @@ import queueingSystem.Server;
 public class EventProcessor {
     Event nextEvent;
     Server nextServer;
-    double deltaTime = 0;
-    int i, j, k, q = 0;
+    static double deltaTime = 0;
+    static int i, j, k, q = 0;
 
-
+public static void reset(){
+    i=0;
+    j=0;
+    k=0;
+    q=0;
+    deltaTime=0;
+}
     public void processEvent(Event event) {
         deltaTime = event.getExecTime() - EventSimulation.getCurrentTime();
         EventSimulation.setCurrentTime(event.getExecTime());
@@ -36,9 +42,9 @@ public class EventProcessor {
                     break;
             }
         } else {
-            System.out.println("Warning: Events client is null");
+            System.out.println("Warning: Events' client is null");
         }
-        System.out.println("delta-Time(" + i + "/" + j + "/" + q + "/" + k + "): " + deltaTime);
+        //System.out.println("delta-Time(" + i + "/" + j + "/" + q + "/" + k + "): " + deltaTime);
     }
 
     public void printCounters() {

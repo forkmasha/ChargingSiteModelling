@@ -1,96 +1,81 @@
 package chargingSite;
 
-import distributions.Distribution;
 import distributions.DistributionType;
+import eventSimulation.*;
+import queueingSystem.Client;
 import queueingSystem.QueueingSystem;
+import results.Statistics;
+import results.Times;
 
-import java.util.Random;
-
-import static java.lang.Math.log;
 
 public class Simulation {
-    private int numServers;
-    private int queueLength;
-    private int numStates;
-    private int maxCars;
-    private double meanArrivalInterval;
-    private double meanServiceTime;
+    private static final double MIN_ARRIVAL_RATE = 0.5;
+    private static final double MAX_ARRIVAL_RATE = 20.0;
+    private static final double ARRIVAL_RATE_STEP = 0.5;
+    private static final int MAX_EVENTS = 1000;
+    private static final int NUMBER_OF_SERVERS = 5;
+    private static final int QUEUE_SIZE = 10;
+    private static final double MEAN_SERVICE_TIME = 0.5;
 
-    private Distribution arrivalDistribution;
-    private Distribution serviceDistribution;
-    private Distribution demandDistribution;
-
-
-    public Simulation(int numServers, int queueLength, int numStates, int maxCars,
-                                double meanArrivalInterval, double meanServiceTime) {
-        this.numServers = numServers;
-        this.queueLength = queueLength;
-        this.numStates = numStates;
-        this.maxCars = maxCars;
-        this.meanArrivalInterval = meanArrivalInterval;
-        this.meanServiceTime = meanServiceTime;
-
-        //this.distributionType=distributionType;
-        System.out.println("\n#########################");
-        System.out.println("Simulation Parameters");
-        System.out.println("#########################");
-        System.out.println("MeanInterArrivalTime " + meanArrivalInterval);
-        System.out.println("MeanServiceTime " + meanServiceTime);
-        System.out.println("Number of servers " + numServers);
-        System.out.println("Queue length " + queueLength);
-
-        /*k = 0;
-        j = 0;
-        i = 0;
-        time = 0.0;
-        previousTime = 0.0;
-
-        servicedCars.clear();
-        queueStartTimes.clear();
-
-        systemTimeList.clear();
-        queueTimeList.clear();
-
-        systemTimes.clear();
-        queueTimes.clear();
-        serviceTimes.clear();
-
-        arrivalRateList.clear();
-
-        eventStack.events.clear();
-        eventStack.addEvent(new ArrivalEvent(0.0));   // insert initial arrival
-*/
-
-        // Головний цикл моделювання
- /*       while (!eventStack.isEmpty()) {
-            // Отримуємо наступну подію зі стеку
-            Event event = eventStack.getNextEvent();
-            double eventTime = event.getTime();
-            // Оновлюємо час моделювання та розраховуємо різницю з попереднім часом
-            time = eventTime;
-            double deltaTime = time - previousTime;
-
-            // Оновлюємо часи перебування в системі та черзі для автомобілів
-            updateCarTimes(deltaTime);
-            // Обробляємо подію залежно від її типу
-            if (event instanceof ArrivalEvent) {
-                processArrivalEvent(eventTime);
-            } else if (event instanceof DepartureEvent) {
-                processDepartureEvent(eventTime);
-            }
-            // Оновлюємо попередній час
-            previousTime = time;
-        }
-        // Генеруємо статистику симуляції
-        generateStatistics();
-        //  generateServiceTimeHistogram();
-    }
-*/
-
-}
+    private static int confLevel=95;
+    private static Times meanServiceTimes = new Times("ArrivalRate","MeanServiceTime");
+    private static Times meanQueueingTimes = new Times("ArrivalRate","MeanQueueingTime");
+    private static Times meanSystemTimes = new Times("ArrivalRate","MeanSystemTime");
 
     public void runSimulation() {
-        //QueueingSystem gasStation = new QueueingSystem(numServers, queueLength, numStates, maxCars, meanArrivalInterval,arrivalDistribution, meanServiceTime,serviceDistribution);
-        //gasStation.simulate();
+        EventSimulation.setMaxEvents(MAX_EVENTS);
+        QueueingSystem mySystem = new QueueingSystem();
+        mySystem.setNumberOfServers(NUMBER_OF_SERVERS);
+        mySystem.setDistributionType(DistributionType.EXPONENTIAL);
+        mySystem.setQueueSize(QUEUE_SIZE);
+
+        for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
+            mySystem.setMeanInterArrivalTime(1.0 / arrivalRate); //mean inter-arrival time
+
+            Client myFirstClient = new Client(MEAN_SERVICE_TIME);  // mean service time
+            myFirstClient.setServiceTimeDistribution(DistributionType.UNIFORM);
+            myFirstClient.setSystem(mySystem);
+
+
+            EventSimulation.run(myFirstClient);
+
+            meanServiceTimes.addMean(mySystem.getTimesInService());
+            meanServiceTimes.addStds(mySystem.getTimesInService());
+            meanServiceTimes.addConfidence(mySystem.getTimesInService(),confLevel);
+
+            meanQueueingTimes.addMean(mySystem.getTimesInQueue());
+            meanQueueingTimes.addStds(mySystem.getTimesInQueue());
+            meanQueueingTimes.addConfidence(mySystem.getTimesInQueue(),confLevel);
+
+            meanSystemTimes.addMean(mySystem.getTimesInSystem());
+            meanSystemTimes.addStds(mySystem.getTimesInSystem());
+            meanSystemTimes.addConfidence(mySystem.getTimesInSystem(),confLevel);
+
+
+            Statistics calc = new Statistics();
+            System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
+            System.out.println("Service Time: " + calc.getMean(mySystem.getTimesInService()) + "/"
+                    + calc.getStd(mySystem.getTimesInService()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getTimesInService(), 95));
+            System.out.println("Queueing Time: " + calc.getMean(mySystem.getTimesInQueue()) + "/"
+                    + calc.getStd(mySystem.getTimesInQueue()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), 95));
+            System.out.println("System Time: " + calc.getMean(mySystem.getTimesInSystem()) + "/"
+                    + calc.getStd(mySystem.getTimesInSystem()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), 95));
+
+
+            System.out.println("----------------------");
+        }
+        //meanServiceTimes.drawGraph();
+        //meanQueueingTimes.drawGraph();
+        //meanSystemTimes.drawGraph();
+
+        //meanSystemTimes.createLineChart();
+        meanSystemTimes.plotGraph();
     }
 }
+
+
+
+

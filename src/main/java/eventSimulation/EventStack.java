@@ -18,6 +18,7 @@ public class EventStack {
             EventSimulation.incNumberOfEvents();
         }
     }
+
     public void removeEvent(Event event) {
         events.remove(event);
     }
@@ -38,7 +39,7 @@ public class EventStack {
         return events;
     }
 
-    public void clear(){
+    public void clear() {
         events.clear();
     }
 }

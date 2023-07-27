@@ -18,8 +18,8 @@ public class Monitor {
     }
 
     public Monitor() {
+
     }
 
     public List<Double> values = new ArrayList<>();
-
 }

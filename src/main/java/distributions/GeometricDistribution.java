@@ -4,14 +4,20 @@ import java.util.Random;
 
 class GeometricDistribution extends Distribution {
 
+    public GeometricDistribution(DistributionType type) {
+        super(type);
+    }
+
     public double getSample(double mean) {
         Random random = new Random();
         return Math.round(exponentialDistribution(mean));
     }
+
     public static double createSample(double mean) {
         Random random = new Random();
         return Math.round(exponentialDistribution(mean));
     }
+
     @Override
     public double[] getSamples(double mean, int count) {
         double[] samples = new double[count];
@@ -20,6 +26,7 @@ class GeometricDistribution extends Distribution {
         }
         return samples;
     }
+
     @Override
     public double[] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
@@ -36,6 +43,7 @@ class GeometricDistribution extends Distribution {
 
         return pdf;
     }
+
     private static double exponentialDistribution(double mean) {
         Random random = new Random();
         return mean * (-Math.log(1 - random.nextDouble()));

@@ -14,8 +14,8 @@ public class Statistics {
         return this.calculateStandardDeviation(values);
     }
 
-    public double getConfidenceInterval(List<Double> values,int level) {
-        return this.calculateConfidenceInterval(values,level);
+    public double getConfidenceInterval(List<Double> values, int level) {
+        return this.calculateConfidenceInterval(values, level);
     }
 
     private double calculateMean(List<Double> values) {
@@ -187,5 +187,4 @@ public class Statistics {
 
         return marginOfError;
     }
-
 }

@@ -4,6 +4,10 @@ import java.util.Random;
 
 public class UniformDistribution extends Distribution {
 
+    public UniformDistribution(DistributionType type) {
+        super(type);
+    }
+
     public double getSample(double mean) {
         Random random = new Random();
         return 2 * mean * (random.nextDouble());

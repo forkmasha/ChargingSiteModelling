@@ -14,7 +14,8 @@ public class EventSimulation {
     public static void setMaxEvents(int number) {
         EventSimulation.maxEvents = number;
     }
-    public static void reset(){
+
+    public static void reset() {
         EventSimulation.numberOfEvents = 0;
         EventSimulation.currentTime = 0;
         EventProcessor.reset();

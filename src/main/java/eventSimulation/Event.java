@@ -18,6 +18,7 @@ public class Event {
     public void setClient(Client client) {
         this.client = client;
     }
+
     public EventType getEventType() {
         return eventType;
     }

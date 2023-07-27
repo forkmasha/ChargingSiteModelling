@@ -7,7 +7,8 @@ public class BetaDistribution extends Distribution {
     private double alpha = 5;
     private double beta = 2;
 
-    public BetaDistribution() {
+    public BetaDistribution(DistributionType type) {
+        super(type);
         random = new Random();
         this.alpha = 5;
         this.beta = 2;
@@ -27,6 +28,7 @@ public class BetaDistribution extends Distribution {
         double sample = factor * betaDistribution(alpha, beta);
         return sample;
     }
+
     private static double betaDistribution(double alpha, double beta) {
         double gamma1 = gammaDistribution(alpha, 1.0);
         double gamma2 = gammaDistribution(beta, 1.0);

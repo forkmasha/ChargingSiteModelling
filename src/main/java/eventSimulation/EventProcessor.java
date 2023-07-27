@@ -1,8 +1,5 @@
 package eventSimulation;
 
-import distributions.DistributionType;
-import queueingSystem.Client;
-import queueingSystem.QueueingSystem;
 import queueingSystem.Server;
 
 public class EventProcessor {
@@ -11,13 +8,14 @@ public class EventProcessor {
     static double deltaTime = 0;
     static int i, j, k, q = 0;
 
-public static void reset(){
-    i=0;
-    j=0;
-    k=0;
-    q=0;
-    deltaTime=0;
-}
+    public static void reset() {
+        i = 0;
+        j = 0;
+        k = 0;
+        q = 0;
+        deltaTime = 0;
+    }
+
     public void processEvent(Event event) {
         deltaTime = event.getExecTime() - EventSimulation.getCurrentTime();
         EventSimulation.setCurrentTime(event.getExecTime());
@@ -49,6 +47,5 @@ public static void reset(){
 
     public void printCounters() {
         System.out.println("EventCounters: " + i + "/" + j + "/" + q + "/" + k);
-
     }
 }

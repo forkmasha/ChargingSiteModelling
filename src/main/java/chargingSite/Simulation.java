@@ -7,20 +7,19 @@ import queueingSystem.QueueingSystem;
 import results.Statistics;
 import results.Times;
 
-
 public class Simulation {
     private static final double MIN_ARRIVAL_RATE = 0.5;
-    private static final double MAX_ARRIVAL_RATE = 20.0;
+    private static final double MAX_ARRIVAL_RATE = 30.0;
     private static final double ARRIVAL_RATE_STEP = 0.5;
     private static final int MAX_EVENTS = 1000;
     private static final int NUMBER_OF_SERVERS = 5;
     private static final int QUEUE_SIZE = 10;
     private static final double MEAN_SERVICE_TIME = 0.5;
 
-    private static int confLevel=95;
-    private static Times meanServiceTimes = new Times("ArrivalRate","MeanServiceTime");
-    private static Times meanQueueingTimes = new Times("ArrivalRate","MeanQueueingTime");
-    private static Times meanSystemTimes = new Times("ArrivalRate","MeanSystemTime");
+    private static int confLevel = 95;
+    private static Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
+    private static Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
+    private static Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
 
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);
@@ -32,24 +31,23 @@ public class Simulation {
         for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
             mySystem.setMeanInterArrivalTime(1.0 / arrivalRate); //mean inter-arrival time
 
-            Client myFirstClient = new Client(MEAN_SERVICE_TIME);  // mean service time
-            myFirstClient.setServiceTimeDistribution(DistributionType.UNIFORM);
-            myFirstClient.setSystem(mySystem);
-
-
+            Client myFirstClient = new Client(MEAN_SERVICE_TIME, DistributionType.BETA, mySystem);  // set service time
             EventSimulation.run(myFirstClient);
 
+            meanServiceTimes.addStep(arrivalRate);
             meanServiceTimes.addMean(mySystem.getTimesInService());
             meanServiceTimes.addStds(mySystem.getTimesInService());
-            meanServiceTimes.addConfidence(mySystem.getTimesInService(),confLevel);
+            meanServiceTimes.addConfidence(mySystem.getTimesInService(), confLevel);
 
+            meanQueueingTimes.addStep(arrivalRate);
             meanQueueingTimes.addMean(mySystem.getTimesInQueue());
             meanQueueingTimes.addStds(mySystem.getTimesInQueue());
-            meanQueueingTimes.addConfidence(mySystem.getTimesInQueue(),confLevel);
+            meanQueueingTimes.addConfidence(mySystem.getTimesInQueue(), confLevel);
 
+            meanSystemTimes.addStep(arrivalRate);
             meanSystemTimes.addMean(mySystem.getTimesInSystem());
             meanSystemTimes.addStds(mySystem.getTimesInSystem());
-            meanSystemTimes.addConfidence(mySystem.getTimesInSystem(),confLevel);
+            meanSystemTimes.addConfidence(mySystem.getTimesInSystem(), confLevel);
 
 
             Statistics calc = new Statistics();
@@ -64,15 +62,12 @@ public class Simulation {
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInSystem(), 95));
 
-
             System.out.println("----------------------");
         }
-        //meanServiceTimes.drawGraph();
-        //meanQueueingTimes.drawGraph();
-        //meanSystemTimes.drawGraph();
 
-        //meanSystemTimes.createLineChart();
-        meanSystemTimes.plotGraph();
+        meanServiceTimes.drawGraph();
+        meanSystemTimes.drawGraph();
+        meanQueueingTimes.drawGraph();
     }
 }
 

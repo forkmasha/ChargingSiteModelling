@@ -1,9 +1,12 @@
 package distributions;
 
-
 import java.util.Random;
 
 class ErlangDistribution extends Distribution {
+
+    public ErlangDistribution(DistributionType type) {
+        super(type);
+    }
 
     public double getSample(double mean) {
         Random random = new Random();
@@ -16,6 +19,7 @@ class ErlangDistribution extends Distribution {
         double sample = exponentialDistribution(mean);
         return sample;
     }
+
     @Override
     public double[] getSamples(double mean, int count) {
         double[] samples = new double[count];
@@ -24,6 +28,7 @@ class ErlangDistribution extends Distribution {
         }
         return samples;
     }
+
     @Override
     public double[] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
@@ -49,9 +54,9 @@ class ErlangDistribution extends Distribution {
         }
         return result;
     }
+
     private static double exponentialDistribution(double mean) {
         Random random = new Random();
         return mean * (-Math.log(1 - random.nextDouble()));
     }
-
 }

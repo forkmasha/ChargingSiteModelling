@@ -5,15 +5,22 @@ import java.util.Random;
 public class ExponentialDistribution extends Distribution {
 
     static Random random = new Random();
+
+    public ExponentialDistribution(DistributionType type) {
+        super(type);
+    }
+
     @Override
     public double getSample(double mean) {
         //
         return mean * (-Math.log(1 - random.nextDouble()));
     }
+
     public static double createSample(double mean) {
         Random random = new Random();
         return mean * (-Math.log(1 - random.nextDouble()));
     }
+
     @Override
     public double[] getSamples(double mean, int count) {
         double[] samples = new double[count];

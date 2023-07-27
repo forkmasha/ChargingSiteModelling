@@ -7,7 +7,6 @@ import eventSimulation.EventSimulation;
 import eventSimulation.EventType;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class QueueingSystem {
@@ -122,7 +121,11 @@ public class QueueingSystem {
                 System.out.println("Warning: Zero Mean Inter-Arrival Time: " + this.getMeanInterArrivalTime());
             }
             nextEvent.setEventType(EventType.ARRIVAL);
-            nextEvent.setClient(new Client(EventSimulation.meanServiceTime, DistributionType.UNIFORM, this));
+            nextEvent.setClient(new Client(
+                    currentClient.getMeanServiceTime(),
+                    currentClient.getServiceTimeDistribution().getType(),
+                    currentClient.getSystem()
+            ));
             EventSimulation.eventStack.addEvent(nextEvent);
         }
         //event.setEventType(EventType.DEPARTURE);
@@ -139,7 +142,7 @@ public class QueueingSystem {
     public void processDeparture(Event departure) {
         currentTime = departure.getExecTime();
         currentClient = departure.getClient();
-        currentClient.setTimeInSystem(currentTime);
+        currentClient.setTimeInSystem(currentTime-currentClient.getArrivalTime());
         this.removeServer(this.getServer(currentClient));
         this.timesInSystem.add(currentClient.getTimeInSystem());
         this.timesInQueue.add(currentClient.getTimeInQueue());  // includes zero queueing times
@@ -169,18 +172,16 @@ public class QueueingSystem {
     public void scheduleNextDeparture(Event currentEvent){
         currentTime = currentEvent.getExecTime();
         currentClient = currentEvent.getClient();
-        currentClient.setTimeInQueue(currentTime);
+        currentClient.setTimeInQueue(currentTime-currentClient.getArrivalTime());
         nextServer = getIdleServer();
         if(nextServer == null){
             System.out.println("NO Server available: " + servers.size());
             return;
         }
-        nextEvent = new Event(currentTime +
-                currentClient.getServiceTimeDistribution().
-                        getSample(currentClient.getMeanServiceTime()));
+        nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
         if (nextEvent.getExecTime() <= currentTime) {
-            System.out.println("Warning: Zero Service Time: " + currentClient.getServiceTimeDistribution().
-                    getSample(currentClient.getMeanServiceTime()));
+            System.out.println("Warning: Zero Service Time: " +
+                    currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
             System.out.println("Warning: Zero Mean Service Time: " + currentClient.getMeanServiceTime());
         }
         nextEvent.setEventType(EventType.DEPARTURE);

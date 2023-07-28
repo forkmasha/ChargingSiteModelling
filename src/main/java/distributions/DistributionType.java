@@ -6,5 +6,6 @@ public enum DistributionType {
     EXPONENTIAL,
     ERLANG,
     UNIFORM,
-    BETA
+    BETA,
+    DETERMINISTIC
 }

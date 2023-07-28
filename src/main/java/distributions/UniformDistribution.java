@@ -9,8 +9,9 @@ public class UniformDistribution extends Distribution {
     }
 
     public double getSample(double mean) {
-        Random random = new Random();
-        return 2 * mean * (random.nextDouble());
+        //Random random = new Random();
+        //return 2 * mean * (random.nextDouble());
+        return createSample(mean);
     }
     public static double createSample(double mean) {
         Random random = new Random();

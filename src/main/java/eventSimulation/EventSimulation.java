@@ -9,7 +9,6 @@ public class EventSimulation {
     private static int maxEvents = 100000;
     private static int numberOfEvents = 0;
     private static double currentTime = 0;
-    public static double meanServiceTime = 0.5;
 
     public static void setMaxEvents(int number) {
         EventSimulation.maxEvents = number;
@@ -41,6 +40,9 @@ public class EventSimulation {
     public static void setCurrentTime(double currentTime) {
         EventSimulation.currentTime = currentTime;
     }
+    public static double getBlockingRate(){
+        return ((double)EventProcessor.k)/EventProcessor.i;
+    }
 
     public static EventProcessor eventProcessor = new EventProcessor();
     public static EventStack eventStack = new EventStack();
@@ -56,8 +58,9 @@ public class EventSimulation {
         while (!eventStack.isEmpty()) {
             eventProcessor.processEvent(eventStack.getNextEvent());
         }
+        System.out.print(";\n");
+        myClient.getSystem().setBlockingRate(EventSimulation.getBlockingRate());
         eventProcessor.printCounters();
-
     }
 
  /*   public static void main(String[] args) {

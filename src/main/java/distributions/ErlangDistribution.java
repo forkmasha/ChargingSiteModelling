@@ -4,14 +4,23 @@ import java.util.Random;
 
 class ErlangDistribution extends Distribution {
 
+    private int level;
     public ErlangDistribution(DistributionType type) {
         super(type);
+        this.level=2; // k=2 is used by default
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     public double getSample(double mean) {
         Random random = new Random();
-        double sample = exponentialDistribution(mean);
-        return sample;
+        double sample = 0;
+        for(int i=0; i<level; i++){
+            sample += exponentialDistribution(mean);
+        }
+        return sample/level;
     }
 
     public static double createSample(double mean) {

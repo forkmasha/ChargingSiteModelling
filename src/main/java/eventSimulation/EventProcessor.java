@@ -18,7 +18,9 @@ public class EventProcessor {
 
     public void processEvent(Event event) {
         deltaTime = event.getExecTime() - EventSimulation.getCurrentTime();
-        EventSimulation.setCurrentTime(event.getExecTime());
+        if (deltaTime>0) {
+            EventSimulation.setCurrentTime(event.getExecTime());
+        }
 
         if (event.getClient() != null) {
             switch (event.getEventType()) {
@@ -42,10 +44,14 @@ public class EventProcessor {
         } else {
             System.out.println("Warning: Events' client is null");
         }
+        if(i % 1000 == 0){
+            System.out.print(".");
+        }
         //System.out.println("delta-Time(" + i + "/" + j + "/" + q + "/" + k + "): " + deltaTime);
     }
 
     public void printCounters() {
-        System.out.println("EventCounters: " + i + "/" + j + "/" + q + "/" + k);
+        System.out.print("EventCounters: " + i + "/" + j + "/" + q + "/" + k);
+        System.out.println("\t BlockingRate: " + ((double) k)/i);
     }
 }

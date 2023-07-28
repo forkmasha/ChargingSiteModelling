@@ -23,15 +23,11 @@ public class Client {
         this.timeInQueue = time;
     }
 
-    public void setArrivalTime(double arrivalTime) {
-        this.arrivalTime = arrivalTime;
+    public void setArrivalTime(double time) {
+        this.arrivalTime = time;
     }
 
-    public void setSystem(QueueingSystem system) {
-        this.system = system;
-    }
-
-    public void addServiceTimeDistribution(DistributionType type) {
+        public void addServiceTimeDistribution(DistributionType type) {
         this.serviceTimeDistribution = Distribution.create(type);
     }
 
@@ -51,10 +47,10 @@ public class Client {
         return arrivalTime;
     }
 
-    public Client(double meanServiceTime, DistributionType type, QueueingSystem system) {
+    public Client(double meanServiceTime, DistributionType serviceType, QueueingSystem system) {
         this.meanServiceTime = meanServiceTime;
         this.system = system;
-        this.addServiceTimeDistribution(type);
+        this.addServiceTimeDistribution(serviceType);
     }
 
     public double getMeanServiceTime() {

@@ -40,6 +40,9 @@ public abstract class Distribution {
             case BETA -> {
                 return new BetaDistribution(DistributionType.BETA);
             }
+            case DETERMINISTIC -> {
+                return new DetermanisticDistribution(DistributionType.DETERMINISTIC);
+            }
             default -> {
                 System.out.println("Warning: unsupported Distribution Type");
                 return null;

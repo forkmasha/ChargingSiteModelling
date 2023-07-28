@@ -5,14 +5,17 @@ import distributions.DistributionType;
 import eventSimulation.Event;
 import eventSimulation.EventSimulation;
 import eventSimulation.EventType;
+import results.Monitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class QueueingSystem {
+    private String systemName;
     private int numberOfServers;
     private int occupiedServers = 0;
     private int queueSize;
+    private double blockingRate = 0;
     private double meanInterArrivalTime;
     private Distribution arrivalTimeDistribution;
     private DistributionType distributionType;
@@ -27,6 +30,7 @@ public class QueueingSystem {
     private List<Double> timesInQueue = new ArrayList<>();
     private List<Double> timesInSystem = new ArrayList<>();
     private List<Double> timesInService = new ArrayList<>();
+    private Monitor blocking = new Monitor();
 
     public List<Double> getTimesInQueue() {
         return timesInQueue;
@@ -42,6 +46,18 @@ public class QueueingSystem {
 
     public Queue getMyQueue() {
         return myQueue;
+    }
+
+    public double getBlockingRate() {
+        return blockingRate;
+    }
+
+    public QueueingSystem(String name) {
+        this.systemName = name;
+    }
+
+    public void setBlockingRate(double blockingRate) {
+        this.blockingRate = blockingRate;
     }
 
     public void addServer(Server newServer) {
@@ -133,21 +149,27 @@ public class QueueingSystem {
         if (occupiedServers < numberOfServers) {
             scheduleNextDeparture(arrival);
         } else {
-            nextEvent = new Event(currentTime);
+            nextEvent = new Event(currentTime - 0.0000001);
             nextEvent.setEventType(EventType.QUEUEING);
             nextEvent.setClient(currentClient);
             EventSimulation.eventStack.addEvent(nextEvent);
         }
     }
+
     public void processDeparture(Event departure) {
         currentTime = departure.getExecTime();
         currentClient = departure.getClient();
-        currentClient.setTimeInSystem(currentTime-currentClient.getArrivalTime());
+        currentClient.setTimeInSystem(currentTime - currentClient.getArrivalTime());
         this.removeServer(this.getServer(currentClient));
         this.timesInSystem.add(currentClient.getTimeInSystem());
-        this.timesInQueue.add(currentClient.getTimeInQueue());  // includes zero queueing times
-        this.timesInService.add(currentClient.getTimeInSystem()-currentClient.getTimeInQueue());
-        //this.servers.remove(currentClient);
+         if (currentClient.getTimeInQueue() > 0) {
+            this.timesInQueue.add(currentClient.getTimeInQueue());
+            this.timesInService.add(currentClient.getTimeInSystem() - currentClient.getTimeInQueue());
+        } else {
+             this.timesInQueue.add(currentClient.getTimeInQueue());  // use to include zero queueing times
+             this.timesInService.add(currentClient.getTimeInSystem());
+        }
+        //this.timesInService.add(currentClient.getTimeInSystem()-currentClient.getTimeInQueue());
         if (this.getMyQueue().getOccupation() > 0) {
             scheduleNextDeparture(departure);
             this.getMyQueue().removeClient(currentClient);
@@ -161,7 +183,7 @@ public class QueueingSystem {
         if (this.getMyQueue().getOccupation() < this.getMyQueue().getSize()) {
             this.getMyQueue().addClientToQueue(currentClient);
         } else {
-            nextEvent=new Event(currentTime);
+            nextEvent = new Event(currentTime - 0.00000001);
             nextEvent.setEventType(EventType.BLOCKING);
             nextEvent.setClient(currentClient);
             EventSimulation.eventStack.addEvent(nextEvent);
@@ -169,12 +191,12 @@ public class QueueingSystem {
         EventSimulation.eventStack.removeEvent(goInQueue);
     }
 
-    public void scheduleNextDeparture(Event currentEvent){
+    public void scheduleNextDeparture(Event currentEvent) {
         currentTime = currentEvent.getExecTime();
         currentClient = currentEvent.getClient();
-        currentClient.setTimeInQueue(currentTime-currentClient.getArrivalTime());
+        currentClient.setTimeInQueue(currentTime - currentClient.getArrivalTime());
         nextServer = getIdleServer();
-        if(nextServer == null){
+        if (nextServer == null) {
             System.out.println("NO Server available: " + servers.size());
             return;
         }

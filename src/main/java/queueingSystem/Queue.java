@@ -24,11 +24,19 @@ public class Queue {
 
     public void addClientToQueue(Client client) {
         occupation++;
+        System.out.print("+");
+        if(occupation>size){
+            System.out.println("Error: There are more clients in the queue than it is configured to host!");
+        }
         queuedClients.add(client);
     }
 
     public void removeClient(Client client) {
         occupation--;
+        if(occupation<0){
+            System.out.println("Error: There are less than zero clients in the queue!");
+        }
+        System.out.print("-");
         queuedClients.remove(client);
     }
 }

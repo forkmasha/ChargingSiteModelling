@@ -8,6 +8,8 @@ import java.util.List;
 public class Monitor {
     private QueueingSystem source;
     private String name;
+    public List<Double> values = new ArrayList<>();
+
 
     public void setSource(QueueingSystem source) {
         this.source = source;
@@ -21,5 +23,4 @@ public class Monitor {
 
     }
 
-    public List<Double> values = new ArrayList<>();
-}
+    }

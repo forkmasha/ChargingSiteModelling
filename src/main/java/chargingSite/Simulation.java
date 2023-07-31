@@ -23,11 +23,11 @@ import static org.jfree.chart.ChartFactory.createXYLineChart;
 
 public class Simulation {
     private static final double MIN_ARRIVAL_RATE = 0.5;
-    private static final double MAX_ARRIVAL_RATE = 10.0;
+    private static final double MAX_ARRIVAL_RATE = 30.0;
     private static final double ARRIVAL_RATE_STEP = 0.5;
     private static final int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);
     private static final int MAX_EVENTS = 1000;
-    private static final int NUMBER_OF_SERVERS = 1;
+    private static final int NUMBER_OF_SERVERS = 5;
     private static final int QUEUE_SIZE = 10;
     private static final double MEAN_SERVICE_TIME = 0.5;
     private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL;
@@ -80,6 +80,9 @@ public class Simulation {
             System.out.println("System Time: " + calc.getMean(mySystem.getTimesInSystem()) + "/"
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInSystem(), 95));
+
+            System.out.println("Queue state: " + mySystem.getMyQueue().getOccupation());
+            System.out.println("Server state: " + mySystem.getNumberOfServersInUse());
 
             System.out.println(">--------- Simulation step# " + stepCounter + " done -----------<");
         }

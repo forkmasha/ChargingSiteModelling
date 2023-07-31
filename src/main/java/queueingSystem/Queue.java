@@ -23,20 +23,28 @@ public class Queue {
     }
 
     public void addClientToQueue(Client client) {
+        //System.out.print("+");
+        queuedClients.add(client);
         occupation++;
-        System.out.print("+");
         if(occupation>size){
             System.out.println("Error: There are more clients in the queue than it is configured to host!");
         }
-        queuedClients.add(client);
+        if(queuedClients.size()>size){
+            System.out.println("Error: Queue size exceeded! " + queuedClients.size() + " > " + size);
+        }
     }
 
     public void removeClient(Client client) {
+        //System.out.print("-");
+        queuedClients.remove(0);
+        //queuedClients.remove(client); // somehow that does not do it...
         occupation--;
         if(occupation<0){
             System.out.println("Error: There are less than zero clients in the queue!");
+        //} else if (occupation==0) { System.out.println("Queue is empty again :-)");
         }
-        System.out.print("-");
-        queuedClients.remove(client);
+        if(queuedClients.size()!=occupation){
+            System.out.println("Error: Queue size mismatch! " + queuedClients.size() + " > " + occupation);
+        }
     }
 }

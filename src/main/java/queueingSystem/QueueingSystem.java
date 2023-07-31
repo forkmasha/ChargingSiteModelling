@@ -65,9 +65,20 @@ public class QueueingSystem {
         occupiedServers++;
     }
 
-    public void removeServer(Server server) {
-        servers.remove(server);
+    public void removeServer() {
+        servers.remove(0);
+        //servers.remove(server); // somehow that does not remove the server from the list...
         occupiedServers--;
+    }
+    public void removeServer(Client client) {
+        //servers.remove(0);
+        System.out.println("ERROR: This method seems not to work!");
+        servers.remove(getServer(client));
+        occupiedServers--;
+    }
+
+    public int getNumberOfServersInUse() {
+        return this.servers.size();
     }
 
     public Server getIdleServer() {
@@ -160,7 +171,8 @@ public class QueueingSystem {
         currentTime = departure.getExecTime();
         currentClient = departure.getClient();
         currentClient.setTimeInSystem(currentTime - currentClient.getArrivalTime());
-        this.removeServer(this.getServer(currentClient));
+        this.removeServer();
+        //this.removeServer(currentClient); does not do it!
         this.timesInSystem.add(currentClient.getTimeInSystem());
          if (currentClient.getTimeInQueue() > 0) {
             this.timesInQueue.add(currentClient.getTimeInQueue());

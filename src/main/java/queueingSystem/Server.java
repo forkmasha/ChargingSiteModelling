@@ -13,4 +13,5 @@ public class Server {
     public void setClient(Client client) {
         this.servedClient = client;
     }
+
 }

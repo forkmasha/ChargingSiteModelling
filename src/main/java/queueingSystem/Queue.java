@@ -34,6 +34,10 @@ public class Queue {
         }
     }
 
+    public Client getNextClient() {
+        occupation--;
+        return queuedClients.remove(0);
+    }
     public void removeClient(Client client) {
         //System.out.print("-");
         queuedClients.remove(0);

@@ -23,15 +23,15 @@ import static org.jfree.chart.ChartFactory.createXYLineChart;
 
 public class Simulation {
     private static final double MIN_ARRIVAL_RATE = 0.5;
-    private static final double MAX_ARRIVAL_RATE = 30.0;
+    private static final double MAX_ARRIVAL_RATE = 25.0;
     private static final double ARRIVAL_RATE_STEP = 0.5;
     private static final int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);
-    private static final int MAX_EVENTS = 1000;
+    private static final int MAX_EVENTS = 500;
     private static final int NUMBER_OF_SERVERS = 5;
     private static final int QUEUE_SIZE = 10;
     private static final double MEAN_SERVICE_TIME = 0.5;
     private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL;
-    private static final DistributionType SERVICE_TYPE = DistributionType.ERLANG;
+    private static final DistributionType SERVICE_TYPE = DistributionType.EXPONENTIAL;
 
     private static int confLevel = 95;
     private static Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");

@@ -38,15 +38,19 @@ public class EventProcessor {
                     break;
                 case BLOCKING:
                     k++;
-                    EventSimulation.eventStack.removeEvent(event);
+                    // do nothing -> the client is deflected into nirvana
                     break;
+                default:
+                    System.out.println("ERROR: Unknown EventType cannot be handled!");
             }
         } else {
-            System.out.println("Warning: Events' client is null");
+            System.out.println("Warning: Events' client is NULL");
         }
         if(i % 1000 == 0){
-            System.out.print(".");
+            System.out.print("."); //System.exit(1);
         }
+        //System.out.println("EventStackSize: " + EventSimulation.eventStack.events.size());
+        EventSimulation.eventStack.removeEvent(event);
         //System.out.println("delta-Time(" + i + "/" + j + "/" + q + "/" + k + "): " + deltaTime);
     }
 

@@ -50,10 +50,11 @@ public class EventSimulation {
     //public static QueueingSystem system = new QueueingSystem();
     public static void run(Client myClient) {
         EventSimulation.reset();
+        Event.resetEventCounter();
         Event firstEvent = new Event(0.0); // execution time
         firstEvent.setEventType(EventType.ARRIVAL);
         firstEvent.setClient(myClient);
-        eventStack.addEvent(firstEvent);
+        numberOfEvents = 1;
         //maxEvents = 1000;
         while (!eventStack.isEmpty()) {
             eventProcessor.processEvent(eventStack.getNextEvent());

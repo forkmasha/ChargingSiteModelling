@@ -5,8 +5,8 @@ import distributions.DistributionType;
 
 public class Client {
     private double meanServiceTime;
-    private double timeInSystem;
-    private double timeInQueue;
+    private double timeInSystem = 0;
+    private double timeInQueue = 0;
     private double arrivalTime;
     private QueueingSystem system;
     private Distribution serviceTimeDistribution;

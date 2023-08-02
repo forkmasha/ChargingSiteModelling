@@ -1,5 +1,8 @@
 package results;
 
+import org.jfree.data.xy.XYBarDataset;
+import org.jfree.data.xy.XYDataset;
+
 import java.util.List;
 
 public class Statistics {
@@ -9,11 +12,12 @@ public class Statistics {
     public double getMean(List<Double> values) {
         return this.calculateMean(values);
     }
-
+    public double getVariance(List<Double> values) {
+        return this.calculateVariance(values);
+    }
     public double getStd(List<Double> values) {
         return this.calculateStandardDeviation(values);
     }
-
     public double getConfidenceInterval(List<Double> values, int level) {
         return this.calculateConfidenceInterval(values, level);
     }
@@ -26,20 +30,32 @@ public class Statistics {
         return sum / values.size();
     }
 
-    private double calculateStandardDeviation(List<Double> values) {
+    private double calculateVariance(List<Double> values) {
+        if (values.size() < 2) {
+            return Double.MAX_VALUE; // infinite
+        }
         double mean = calculateMean(values);
         double sumSquaredDifferences = 0.0;
         for (Double value : values) {
             double difference = value - mean;
             sumSquaredDifferences += difference * difference;
         }
-        double variance = sumSquaredDifferences / values.size();
-        return Math.sqrt(variance);
+        return sumSquaredDifferences / (values.size() - 1);
+    }
+
+    private double calculateStandardDeviation(List<Double> values) {
+        if (values.size() < 2) {
+            return Double.MAX_VALUE; // infinite
+        }
+        return Math.sqrt(calculateVariance(values));
     }
 
     private double calculateConfidenceInterval(List<Double> values, int level) {
-
-        double[][] data = {
+        if (values.size() < 2) {
+            return Double.MAX_VALUE; // infinite
+        }
+        String[] columnNames = {"Degrees of Freedom", "80%", "90%", "95%", "98%", "99%"};
+        double[][] zScoreTable = {
                 {1, 3.078, 6.314, 12.706, 31.821, 63.65},
                 {2, 1.886, 2.920, 4.303, 6.965, 9.925},
                 {3, 1.638, 2.353, 3.182, 4.541, 5.841},
@@ -80,7 +96,6 @@ public class Statistics {
                 {38, 1.304, 1.686, 2.024, 2.429, 2.712},
                 {39, 1.304, 1.685, 2.023, 2.426, 2.708},
                 {40, 1.303, 1.684, 2.021, 2.423, 2.704},
-
                 {41, 1.303, 1.683, 2.020, 2.421, 2.701},
                 {42, 1.302, 1.682, 2.018, 2.418, 2.698},
                 {43, 1.302, 1.681, 2.017, 2.416, 2.695},
@@ -148,43 +163,41 @@ public class Statistics {
                 {105, 1.290, 1.659, 1.983, 2.362, 2.623},
                 {999, 1.280, 1.645, 1.960, 2.330, 2.575},
         };
-        String[] columnNames = {"Degrees of Freedom", "80%", "90%", "95%", "98%", "99%"};
         double mean = calculateMean(values);
         double stdDev = calculateStandardDeviation(values);
+        double zScore = 100;
         //int level = 95;
         int levelID = 0;
-        double zScore = 100;
 
         switch (level) {
-            case 80:
-                levelID = 1;
-                break;
-            case 90:
-                levelID = 2;
-                break;
-            case 95:
-                levelID = 3;
-                break;
-            case 98:
-                levelID = 4;
-                break;
-            case 99:
-                levelID = 5;
-                break;
-            default:
-                System.out.println("Error: Confidence level is not available in table");
+            case 80 -> levelID = 1;
+            case 90 -> levelID = 2;
+            case 95 -> levelID = 3;
+            case 98 -> levelID = 4;
+            case 99 -> levelID = 5;
+            default -> System.out.println("Error: Confidence level "+levelID+"% is not available in table");
         }
 
         // Calculate the confidence interval
         if (values.size() > 105) {
-            zScore = data[105][levelID]; // For a 95% confidence interval (assuming a large enough sample size)
+            zScore = zScoreTable[105][levelID]; // large enough sample size to work with default zScores
         } else {
-            zScore = data[values.size()][levelID]; // For a 95% confidence interval (assuming a large enough sample size)
+            zScore = zScoreTable[values.size()][levelID]; // use the higher zScores from the table
         }
-        double marginOfError = zScore * (stdDev / Math.sqrt(values.size()));
+        double marginOfError = (zScore * stdDev) / Math.sqrt(values.size());
         double lowerBound = mean - marginOfError;
         double upperBound = mean + marginOfError;
 
         return marginOfError;
+    }
+
+    private XYDataset calculateHistogram(List<Double> values, double maxValue, int bins) {
+        System.out.println("The method calculateHistogram is yet not implemented!");
+        System.exit(404); // every modern programmer will virtually kill you for using this command.
+        XYDataset histogram;
+
+        histogram = null; // to be implemented when needed...
+
+        return histogram;
     }
 }

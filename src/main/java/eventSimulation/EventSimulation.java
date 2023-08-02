@@ -48,19 +48,22 @@ public class EventSimulation {
     public static EventStack eventStack = new EventStack();
 
     //public static QueueingSystem system = new QueueingSystem();
-    public static void run(Client myClient) {
+    public static void run(Client[] myClients) {
         EventSimulation.reset();
         Event.resetEventCounter();
-        Event firstEvent = new Event(0.0); // execution time
-        firstEvent.setEventType(EventType.ARRIVAL);
-        firstEvent.setClient(myClient);
-        numberOfEvents = 1;
+        for(Client myClient : myClients) {
+            Event initialEvent = new Event(0.0); // execution time
+            initialEvent.setEventType(EventType.ARRIVAL);
+            initialEvent.setClient(myClient);
+            numberOfEvents++;
+        }
         //maxEvents = 1000;
         while (!eventStack.isEmpty()) {
             eventProcessor.processEvent(eventStack.getNextEvent());
         }
         System.out.print(";\n");
-        myClient.getSystem().setBlockingRate(EventSimulation.getBlockingRate());
+        // assuming all clients belong to the same system!
+        myClients[0].getSystem().setBlockingRate(EventSimulation.getBlockingRate());
         eventProcessor.printCounters();
     }
 

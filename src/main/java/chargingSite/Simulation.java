@@ -30,17 +30,24 @@ public class Simulation {
     private static final int NUMBER_OF_SERVERS = 5;
     private static final int QUEUE_SIZE = 10;
     private static final double MEAN_SERVICE_TIME = 0.5;
-    private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL;
-    private static final DistributionType SERVICE_TYPE = DistributionType.EXPONENTIAL;
+    private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL; // EXPONENTIAL is common
+    private static final DistributionType SERVICE_TYPE = DistributionType.ERLANGD;   // ERLANGD is a good choice
 
-    private static int confLevel = 95;
+    private static int confLevel = 98;
     private static Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private static Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
     private static Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
 
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);
-        QueueingSystem mySystem = new QueueingSystem(" "+ ARRIVAL_TYPE + "/" + SERVICE_TYPE + "/" + NUMBER_OF_SERVERS + "/" + NUMBER_OF_SERVERS+QUEUE_SIZE);
+        int numberOfClientTypes = 1;
+        Client[] myFirstClients = new Client[numberOfClientTypes];;
+        QueueingSystem mySystem = new QueueingSystem();
+        if (numberOfClientTypes > 1) {
+            mySystem.setName(ARRIVAL_TYPE + "/MIXED/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS+QUEUE_SIZE));
+        } else {
+            mySystem.setName(ARRIVAL_TYPE + "/" + SERVICE_TYPE + "/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS+QUEUE_SIZE));
+        }
         mySystem.setNumberOfServers(NUMBER_OF_SERVERS);
         mySystem.setDistributionType(ARRIVAL_TYPE);
         mySystem.setQueueSize(QUEUE_SIZE);
@@ -48,10 +55,14 @@ public class Simulation {
 
         for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
             stepCounter++;
-            mySystem.setMeanInterArrivalTime(1.0 / arrivalRate); //mean inter-arrival time
+            mySystem.setMeanInterArrivalTime(myFirstClients.length / arrivalRate); //mean inter-arrival time per client
 
-            Client myFirstClient = new Client(MEAN_SERVICE_TIME, SERVICE_TYPE, mySystem);  // set service time
-            EventSimulation.run(myFirstClient);
+            myFirstClients[0] = new Client(MEAN_SERVICE_TIME, SERVICE_TYPE, mySystem);  // set service time per client
+            // add as manny client types as necessary -> adjust the numberOfClientTypes accordingly!
+            //myFirstClients[1] = new Client(0.5*MEAN_SERVICE_TIME, DistributionType.BETA, mySystem);  // set service time per client
+            //myFirstClients[2] = new Client(1.5*MEAN_SERVICE_TIME, DistributionType.EXPONENTIAL, mySystem);  // set service time per client
+
+            EventSimulation.run(myFirstClients);
 
             meanServiceTimes.addStep(arrivalRate);
             meanServiceTimes.addMean(mySystem.getTimesInService());
@@ -84,7 +95,7 @@ public class Simulation {
             System.out.println("Queue state: " + mySystem.getMyQueue().getOccupation());
             System.out.println("Server state: " + mySystem.getNumberOfServersInUse());
 
-            System.out.println(">--------- Simulation step# " + stepCounter + " done -----------<");
+            System.out.println(">--------- "+mySystem.getSystemName()+" Simulation step# " + stepCounter + " done -----------<");
         }
 
         drawGraph();

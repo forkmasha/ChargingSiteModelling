@@ -45,6 +45,9 @@ public class QueueingSystem {
         return timesInService;
     }
 
+    public String getSystemName() {
+        return systemName;
+    }
     public Queue getMyQueue() {
         return myQueue;
     }
@@ -53,9 +56,12 @@ public class QueueingSystem {
         return blockingRate;
     }
 
+    public QueueingSystem() { }
     public QueueingSystem(String name) {
         this.systemName = name;
     }
+
+    public void setName(String name) { this.systemName = name; }
 
     public void setBlockingRate(double blockingRate) {
         this.blockingRate = blockingRate;
@@ -67,20 +73,16 @@ public class QueueingSystem {
     }
 
     public void removeServer() {
-        servers.remove(0);
-        //servers.remove(server); // somehow that does not remove the server from the list...
+        servers.remove(0); //removes the first (longest occupied) server
         occupiedServers--;
     }
     public void removeServer(Client client) {
-        System.out.println("ERROR: This method seems not to work!");
         servers.remove(getServer(client));
-        //servers.remove(0);
         occupiedServers--;
     }
     public void removeServer(Server idle) {
         System.out.println("ERROR: This method seems not to work!");
         servers.remove(idle);
-        //servers.remove(0);
         occupiedServers--;
     }
 
@@ -90,9 +92,6 @@ public class QueueingSystem {
 
     public Server getIdleServer() {
         Server newServer;
-        //if (servers.isEmpty()) {
-        //    return new Server();
-        //} else if (servers.size() < numberOfServers) {
         if (occupiedServers < numberOfServers) {
             newServer = new Server();
             servers.add(newServer);
@@ -106,9 +105,9 @@ public class QueueingSystem {
         //System.out.println("Error "+servers.size());
         if (!servers.isEmpty()) {
             //servers.sort(Comparator.comparingInt(Server::));
-            for (Server i : servers) {
-                if (i.servedClient == client) {
-                    return i;
+            for (Server s : servers) {
+                if (s.servedClient.equals(client)) {
+                    return s;
                 }
             }
         }
@@ -187,17 +186,18 @@ public class QueueingSystem {
         double timeInSystem = currentTime - currentClient.getArrivalTime();
         double timeInQueue = currentClient.getTimeInQueue();
         currentClient.setTimeInSystem(timeInSystem);
-        this.removeServer();
-        //this.removeServer(currentClient); // does not do it?
+        //this.removeServer(getServer(currentClient)); // also works, below is 'easier'
+        this.removeServer(currentClient);
         this.timesInSystem.add(timeInSystem);
         if (timeInQueue > 0.0) {
             this.timesInQueue.add(timeInQueue);
             this.timesInService.add(timeInSystem - timeInQueue);
-            if (timeInQueue > 2 * myQueue.getSize()/(numberOfServers/currentClient.getMeanServiceTime())) {
+            // use in case queueing time appears to be too big to get some info
+            /*if (timeInQueue > 2 * myQueue.getSize()/(numberOfServers/currentClient.getMeanServiceTime())) {
                 System.out.println("Warning: Time in queue "+ timeInQueue +" is exceptionally long for "
                         + myQueue.getOccupation() +" clients waiting and a total service rate of "
                         + numberOfServers/currentClient.getMeanServiceTime() +" clients per time unit!");
-            }
+            }*/
         } else {
             this.timesInQueue.add(0.0);  // use to include zero queueing times
             this.timesInService.add(timeInSystem);
@@ -232,6 +232,7 @@ public class QueueingSystem {
             System.out.println("NO Server available: " + servers.size());
             return;
         }
+        nextServer.setClient(currentClient);
         nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
         if (nextEvent.getExecTime() <= currentTime) {
             System.out.println("Warning: Zero Service Time: " +

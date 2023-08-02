@@ -34,6 +34,9 @@ public abstract class Distribution {
             case ERLANG -> {
                 return new ErlangDistribution(DistributionType.ERLANG);
             }
+            case ERLANGD -> {
+                return new DiscreteErlangDistribution(DistributionType.ERLANGD);
+            }
             case UNIFORM -> {
                 return new UniformDistribution(DistributionType.UNIFORM);
             }

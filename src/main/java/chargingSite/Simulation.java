@@ -31,7 +31,7 @@ public class Simulation {
     private static final int QUEUE_SIZE = 10;
     private static final double MEAN_SERVICE_TIME = 0.5;
     private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL; // EXPONENTIAL is common
-    private static final DistributionType SERVICE_TYPE = DistributionType.ERLANGD;   // ERLANGD is a good choice
+    private static final DistributionType SERVICE_TYPE = DistributionType.BETA;   // ERLANGD is a good choice
 
     private static int confLevel = 98;
     private static Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
@@ -158,9 +158,10 @@ public class Simulation {
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
         }
-        renderer.setSeriesPaint(i++, Color.magenta);
-        renderer.setSeriesPaint(i, Color.darkGray);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.5f));
+        renderer.setSeriesPaint(i, Color.magenta);
+        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+        renderer.setSeriesPaint(i, Color.magenta);
+        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
         // draw second time results (service times)
         while (i < 2 * (SIM_STEPS + 2) ) {
@@ -168,9 +169,10 @@ public class Simulation {
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
         }
-        renderer.setSeriesPaint(i++, Color.blue);
-        renderer.setSeriesPaint(i, Color.cyan);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.5f));
+        renderer.setSeriesPaint(i, Color.blue); // do wider line-width
+        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+        renderer.setSeriesPaint(i, Color.blue);
+        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
         // draw third time results (queueing times)
         while (i < 3 * (SIM_STEPS + 2) +1) {
@@ -178,9 +180,10 @@ public class Simulation {
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
         }
-        renderer.setSeriesPaint(i++, Color.RED);
-        renderer.setSeriesPaint(i, Color.orange);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.5f));
+        renderer.setSeriesPaint(i, Color.red);
+        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+        renderer.setSeriesPaint(i, Color.red);
+        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
         plot.setRenderer(renderer);
 
         ChartPanel chartPanel = new ChartPanel(chart);

@@ -22,15 +22,15 @@ public class QueueingSystem {
     private double meanTimeInSystem;
     private ArrayList<Server> servers = new ArrayList<>();
 
-    private Queue myQueue;
+    private final Queue myQueue;
     private Event nextEvent;
     private Server nextServer;
     private Client currentClient;
     private Client nextClient;
     private double currentTime;
-    private List<Double> timesInQueue = new ArrayList<>();
-    private List<Double> timesInSystem = new ArrayList<>();
-    private List<Double> timesInService = new ArrayList<>();
+    private final List<Double> timesInQueue = new ArrayList<>();
+    private final List<Double> timesInSystem = new ArrayList<>();
+    private final List<Double> timesInService = new ArrayList<>();
     private Monitor blockingRates = new Monitor();
 
     public List<Double> getTimesInQueue() {
@@ -56,9 +56,21 @@ public class QueueingSystem {
         return blockingRate;
     }
 
-    public QueueingSystem() { }
+     public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
+        this.myQueue = new Queue(queueSize,queueingType);
+        this.numberOfServers = numberOfServers;
+        this.resetQueueingSystem();
+    }
+    /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!
     public QueueingSystem(String name) {
         this.systemName = name;
+    }*/
+    public void resetQueueingSystem() {
+        timesInQueue.clear();
+        timesInSystem.clear();
+        timesInService.clear();
+        blockingRates.values.clear();
+        Client.resetClientCounter();
     }
 
     public void setName(String name) { this.systemName = name; }
@@ -81,7 +93,6 @@ public class QueueingSystem {
         occupiedServers--;
     }
     public void removeServer(Server idle) {
-        System.out.println("ERROR: This method seems not to work!");
         servers.remove(idle);
         occupiedServers--;
     }
@@ -120,7 +131,7 @@ public class QueueingSystem {
 
     public void setQueueSize(int queueSize) {
         this.queueSize = queueSize;
-        this.myQueue = new Queue(queueSize);
+        //this.myQueue = new Queue(queueSize);
     }
 
     public void setDistributionType(DistributionType distributionType) {
@@ -148,31 +159,29 @@ public class QueueingSystem {
     public void processArrival(Event arrival) {
         currentTime = arrival.getExecTime();
         currentClient = arrival.getClient();
-        currentClient.setArrivalTime(currentTime);
         if (EventSimulation.getNumberOfEvents() < EventSimulation.getMaxEvents()) {
             EventSimulation.incNumberOfEvents();
             nextEvent = new Event(currentTime +
                     this.getArrivalTimeDistribution().getSample(this.getMeanInterArrivalTime()));
             nextEvent.setEventType(EventType.ARRIVAL);
             nextClient = new Client(  // schedule the arrival of the next client with the same properties the currently arriving client has
+                    nextEvent.getExecTime(),
                     currentClient.getMeanServiceTime(),
                     currentClient.getServiceTimeDistribution().getType(),
                     currentClient.getSystem()
             );
             nextEvent.setClient(nextClient);
-            if (nextEvent.getExecTime() <= currentTime) {
+            /*if (nextEvent.getExecTime() <= currentTime) {
                 System.out.println("Warning: Zero InterArrivalTime: " + this.getArrivalTimeDistribution().
                         getSample(this.getMeanInterArrivalTime()));
                 System.out.println("Warning: Zero Mean Inter-Arrival Time: " + this.getMeanInterArrivalTime());
-            }
+            }*/
             //if (nextClient.getTimeInQueue()>0) { System.out.println("Error: A new Client with TimeInQueue > zero is initialised."); }
         }
-        //event.setEventType(EventType.DEPARTURE);
-        //nextServer = this.getIdleServer();
         if (getNumberOfServersInUse() < numberOfServers) {
             scheduleNextDeparture(currentTime, currentClient);
         } else {
-            currentClient.setTimeInQueue(0.0);
+            //currentClient.setTimeInQueue(0.0);
             nextEvent = new Event(currentTime);
             nextEvent.setEventType(EventType.QUEUEING);
             nextEvent.setClient(currentClient);
@@ -202,10 +211,11 @@ public class QueueingSystem {
             this.timesInQueue.add(0.0);  // use to include zero queueing times
             this.timesInService.add(timeInSystem);
         }
-        //this.timesInService.add(currentClient.getTimeInSystem()-currentClient.getTimeInQueue());
-        if (this.getMyQueue().getOccupation() > 0) {
-            nextClient = this.getMyQueue().getNextClient();
-            nextClient.setTimeInQueue(currentTime - nextClient.getArrivalTime());
+        if (myQueue.getOccupation() > 0) {
+            nextClient = myQueue.pullNextClientFromQueue(currentTime);
+            if (nextClient.getTimeInQueue() <= 0.0) {
+                System.out.println("Error: A Client with TimeInQueue = " + nextClient.getTimeInQueue() + " has been taken from the queue!");
+            }
             scheduleNextDeparture(currentTime, nextClient);
         }
     }
@@ -213,8 +223,8 @@ public class QueueingSystem {
     public void processQueueing(Event goInQueue) {
         currentTime = goInQueue.getExecTime();
         currentClient = goInQueue.getClient();
-        if (this.getMyQueue().getOccupation() < this.getMyQueue().getSize()) {
-            this.getMyQueue().addClientToQueue(currentClient);
+        if (myQueue.getOccupation() < this.getMyQueue().getSize()) {
+            myQueue.addClientToQueue(currentClient);
             //currentClient.setTimeInQueue(0.0);
             //currentClient.setArrivalTime(currentTime);
         } else {
@@ -226,20 +236,16 @@ public class QueueingSystem {
     }
 
     public void scheduleNextDeparture(double currentTime, Client currentClient) {
-        currentClient.setTimeInQueue(currentTime - currentClient.getArrivalTime());
         nextServer = getIdleServer();
         if (nextServer == null) {
-            System.out.println("NO Server available: " + servers.size());
+            System.out.println("Error: Cannot schedule next Departure - NO Server available: " + servers.size());
             return;
         }
         nextServer.setClient(currentClient);
         nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
-        if (nextEvent.getExecTime() <= currentTime) {
-            System.out.println("Warning: Zero Service Time: " +
-                    currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
-            System.out.println("Warning: Zero Mean Service Time: " + currentClient.getMeanServiceTime());
-        }
+        //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
         nextEvent.setEventType(EventType.DEPARTURE);
+        currentClient.setTimeInService(nextEvent.getExecTime() - currentTime);
         nextEvent.setClient(currentClient);
     }
 

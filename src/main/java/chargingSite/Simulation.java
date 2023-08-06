@@ -12,6 +12,8 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import queueingSystem.Client;
+import queueingSystem.Queue;
+import queueingSystem.Queue.QueueingType;
 import queueingSystem.QueueingSystem;
 import results.Statistics;
 import results.Times;
@@ -26,12 +28,14 @@ public class Simulation {
     private static final double MAX_ARRIVAL_RATE = 25.0;
     private static final double ARRIVAL_RATE_STEP = 0.5;
     private static final int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);
-    private static final int MAX_EVENTS = 500;
+    private static final int NUMBER_OF_CLIENT_TYPES = 1;
+    private static final int MAX_EVENTS = 2500;
     private static final int NUMBER_OF_SERVERS = 5;
     private static final int QUEUE_SIZE = 10;
+    private static final QueueingType QUEUEING_TYPE = QueueingType.FIFO;
     private static final double MEAN_SERVICE_TIME = 0.5;
     private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL; // EXPONENTIAL is common
-    private static final DistributionType SERVICE_TYPE = DistributionType.BETA;   // ERLANGD is a good choice
+    private static final DistributionType SERVICE_TYPE = DistributionType.ERLANGD;   // ERLANGD is a good choice
 
     private static int confLevel = 98;
     private static Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
@@ -40,27 +44,25 @@ public class Simulation {
 
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);
-        int numberOfClientTypes = 1;
-        Client[] myFirstClients = new Client[numberOfClientTypes];;
-        QueueingSystem mySystem = new QueueingSystem();
-        if (numberOfClientTypes > 1) {
+        Client[] myFirstClients = new Client[NUMBER_OF_CLIENT_TYPES];
+        QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS,QUEUE_SIZE,QUEUEING_TYPE);
+        if (NUMBER_OF_CLIENT_TYPES > 1) {
             mySystem.setName(ARRIVAL_TYPE + "/MIXED/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS+QUEUE_SIZE));
         } else {
             mySystem.setName(ARRIVAL_TYPE + "/" + SERVICE_TYPE + "/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS+QUEUE_SIZE));
         }
-        mySystem.setNumberOfServers(NUMBER_OF_SERVERS);
         mySystem.setDistributionType(ARRIVAL_TYPE);
-        mySystem.setQueueSize(QUEUE_SIZE);
         int stepCounter = 0;
 
         for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
             stepCounter++;
+            mySystem.resetQueueingSystem();
             mySystem.setMeanInterArrivalTime(myFirstClients.length / arrivalRate); //mean inter-arrival time per client
 
-            myFirstClients[0] = new Client(MEAN_SERVICE_TIME, SERVICE_TYPE, mySystem);  // set service time per client
+            myFirstClients[0] = new Client(0.0, MEAN_SERVICE_TIME, SERVICE_TYPE, mySystem);  // set service time per client
             // add as manny client types as necessary -> adjust the numberOfClientTypes accordingly!
-            //myFirstClients[1] = new Client(0.5*MEAN_SERVICE_TIME, DistributionType.BETA, mySystem);  // set service time per client
-            //myFirstClients[2] = new Client(1.5*MEAN_SERVICE_TIME, DistributionType.EXPONENTIAL, mySystem);  // set service time per client
+            //myFirstClients[1] = new Client(0.0, 0.5*MEAN_SERVICE_TIME, DistributionType.BETA, mySystem);  // set service time per client
+            //myFirstClients[2] = new Client(0.0, 1.5*MEAN_SERVICE_TIME, DistributionType.EXPONENTIAL, mySystem);  // set service time per client
 
             EventSimulation.run(myFirstClients);
 
@@ -82,18 +84,22 @@ public class Simulation {
 
             Statistics calc = new Statistics();
             System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
-            System.out.println("Service Time: " + calc.getMean(mySystem.getTimesInService()) + "/"
+            System.out.println("Service Time (" + mySystem.getTimesInService().size() + "): "
+                    + calc.getMean(mySystem.getTimesInService()) + "/"
                     + calc.getStd(mySystem.getTimesInService()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInService(), 95));
-            System.out.println("Queueing Time: " + calc.getMean(mySystem.getTimesInQueue()) + "/"
+            System.out.println("Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
+                    + calc.getMean(mySystem.getTimesInQueue()) + "/"
                     + calc.getStd(mySystem.getTimesInQueue()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInQueue(), 95));
-            System.out.println("System Time: " + calc.getMean(mySystem.getTimesInSystem()) + "/"
+            System.out.println("System Time (" + mySystem.getTimesInSystem().size() + "): "
+                    + calc.getMean(mySystem.getTimesInSystem()) + "/"
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInSystem(), 95));
 
-            System.out.println("Queue state: " + mySystem.getMyQueue().getOccupation());
-            System.out.println("Server state: " + mySystem.getNumberOfServersInUse());
+            System.out.print("Queue state: " + mySystem.getMyQueue().getOccupation());
+            System.out.print("\t Server state: " + mySystem.getNumberOfServersInUse());
+            System.out.println("\t Clients done: " + Client.getClientCounter());
 
             System.out.println(">--------- "+mySystem.getSystemName()+" Simulation step# " + stepCounter + " done -----------<");
         }
@@ -135,7 +141,6 @@ public class Simulation {
         meanSystemTimes.addGraphs(dataset);
         meanServiceTimes.addGraphs(dataset);
         meanQueueingTimes.addGraphs(dataset);
-
 
         JFreeChart chart = createXYLineChart(
                 title,

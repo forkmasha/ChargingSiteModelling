@@ -63,7 +63,7 @@ public class EventSimulation {
         }
         System.out.print(";\n");
         // assuming all clients belong to the same system!
-        myClients[0].getSystem().setBlockingRate(EventSimulation.getBlockingRate());
+        myClients[0].getSystem().setBlockingRate(getBlockingRate());
         eventProcessor.printCounters();
     }
 

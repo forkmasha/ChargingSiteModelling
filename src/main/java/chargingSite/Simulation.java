@@ -8,11 +8,9 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import queueingSystem.Client;
-import queueingSystem.Queue;
 import queueingSystem.Queue.QueueingType;
 import queueingSystem.QueueingSystem;
 import results.Statistics;
@@ -24,7 +22,7 @@ import java.awt.*;
 import static org.jfree.chart.ChartFactory.createXYLineChart;
 
 public class Simulation {
-    private static final double MIN_ARRIVAL_RATE = 0.5;
+    /*   private static final double MIN_ARRIVAL_RATE = 0.5;
     private static final double MAX_ARRIVAL_RATE = 25.0;
     private static final double ARRIVAL_RATE_STEP = 0.5;
     private static final int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);
@@ -36,11 +34,94 @@ public class Simulation {
     private static final double MEAN_SERVICE_TIME = 0.5;
     private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL; // EXPONENTIAL is common
     private static final DistributionType SERVICE_TYPE = DistributionType.ERLANGD;   // ERLANGD is a good choice
+    private static int confLevel = 98;*/
 
-    private static int confLevel = 98;
+    private double MIN_ARRIVAL_RATE;
+    private double MAX_ARRIVAL_RATE;
+    private double ARRIVAL_RATE_STEP;
+    private int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);;
+    private int NUMBER_OF_CLIENT_TYPES;
+    private int MAX_EVENTS;
+    private int NUMBER_OF_SERVERS;
+    private int QUEUE_SIZE;
+    private QueueingType QUEUEING_TYPE;
+    private double MEAN_SERVICE_TIME;
+    private DistributionType ARRIVAL_TYPE;
+    private DistributionType SERVICE_TYPE;
+    private int confLevel;
+
     private static Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private static Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
     private static Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
+
+
+    public double getMIN_ARRIVAL_RATE() {
+        return MIN_ARRIVAL_RATE;
+    }
+
+    public void setMIN_ARRIVAL_RATE(double MIN_ARRIVAL_RATE) {
+        this.MIN_ARRIVAL_RATE = MIN_ARRIVAL_RATE;
+    }
+
+    public double getMAX_ARRIVAL_RATE() {
+        return MAX_ARRIVAL_RATE;
+    }
+
+    public void setMAX_ARRIVAL_RATE(double MAX_ARRIVAL_RATE) {
+        this.MAX_ARRIVAL_RATE = MAX_ARRIVAL_RATE;
+    }
+
+    public double getARRIVAL_RATE_STEP() {
+        return ARRIVAL_RATE_STEP;
+    }
+
+    public void setARRIVAL_RATE_STEP(double ARRIVAL_RATE_STEP) {
+        this.ARRIVAL_RATE_STEP = ARRIVAL_RATE_STEP;
+    }
+
+
+    public void setSIM_STEPS(int SIM_STEPS) {
+        this.SIM_STEPS = SIM_STEPS;
+    }
+
+
+    public void setNUMBER_OF_CLIENT_TYPES(int NUMBER_OF_CLIENT_TYPES) {
+        this.NUMBER_OF_CLIENT_TYPES = NUMBER_OF_CLIENT_TYPES;
+    }
+
+
+    public void setMAX_EVENTS(int MAX_EVENTS) {
+        this.MAX_EVENTS = MAX_EVENTS;
+    }
+
+
+    public void setNUMBER_OF_SERVERS(int NUMBER_OF_SERVERS) {
+        this.NUMBER_OF_SERVERS = NUMBER_OF_SERVERS;
+    }
+
+    public void setQUEUE_SIZE(int QUEUE_SIZE) {
+        this.QUEUE_SIZE = QUEUE_SIZE;
+    }
+
+    public void setQUEUEING_TYPE(QueueingType QUEUEING_TYPE) {
+        this.QUEUEING_TYPE = QUEUEING_TYPE;
+    }
+
+    public void setMEAN_SERVICE_TIME(double MEAN_SERVICE_TIME) {
+        this.MEAN_SERVICE_TIME = MEAN_SERVICE_TIME;
+    }
+
+    public void setARRIVAL_TYPE(DistributionType ARRIVAL_TYPE) {
+        this.ARRIVAL_TYPE = ARRIVAL_TYPE;
+    }
+
+    public void setSERVICE_TYPE(DistributionType SERVICE_TYPE) {
+        this.SERVICE_TYPE = SERVICE_TYPE;
+    }
+
+    public void setConfLevel(int confLevel) {
+        this.confLevel = confLevel;
+    }
 
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);

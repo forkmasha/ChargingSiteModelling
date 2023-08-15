@@ -49,4 +49,3 @@ class GeometricDistribution extends Distribution {
         return mean * (-Math.log(1 - random.nextDouble()));
     }
 }
-

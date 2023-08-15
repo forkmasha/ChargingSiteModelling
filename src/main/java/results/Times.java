@@ -105,16 +105,16 @@ public class Times {
         dataset.addSeries(stdSeries);
     }
 
-      private void drawGraph() {                                  // Working version with confidence Interval
+    private void drawGraph() {                                  // Working version with confidence Interval
         String title = yAxis + " vs " + xAxis;
         XYSeriesCollection dataset = new XYSeriesCollection();
         XYSeries meanSeries = new XYSeries("Mean");
         XYSeries stdSeries = new XYSeries("Std");
         //XYSeries upperSeries = new XYSeries("Mean+");
-       // XYSeries lowerSeries = new XYSeries("Mean-");
-          XYSeries[] confBars = new XYSeries[steps.size()];
-                  ;
-          for (int i = 0; i < steps.size(); i++) {
+        // XYSeries lowerSeries = new XYSeries("Mean-");
+        XYSeries[] confBars = new XYSeries[steps.size()];
+        ;
+        for (int i = 0; i < steps.size(); i++) {
             double step = steps.get(i);
             double mean = means.get(i);
             double std = stds.get(i);
@@ -123,16 +123,16 @@ public class Times {
 
             meanSeries.add(step, mean);
             stdSeries.add(step, std);
-          //  lowerSeries.add(step, mean - conf);
-         //   upperSeries.add(step, mean + conf);
+            //  lowerSeries.add(step, mean - conf);
+            //   upperSeries.add(step, mean + conf);
             confBars[i].add(step, mean - conf);
             confBars[i].add(step, mean + conf);
             dataset.addSeries(confBars[i]);
-          }
+        }
 
         dataset.addSeries(meanSeries);
-            // dataset.addSeries(upperSeries);
-          // dataset.addSeries(lowerSeries);
+        // dataset.addSeries(upperSeries);
+        // dataset.addSeries(lowerSeries);
         dataset.addSeries(stdSeries);
 
         JFreeChart chart = createXYLineChart(
@@ -150,9 +150,9 @@ public class Times {
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
         for(int i=0;i<confBars.length;i++){
-           renderer.setSeriesPaint(i,Color.BLUE);
-          // renderer.setSeriesShape();
-           //renderer.setSeriesShape(i, ShapeUtilities.createDiagonalCross(3,1));
+            renderer.setSeriesPaint(i,Color.BLUE);
+            // renderer.setSeriesShape();
+            //renderer.setSeriesShape(i, ShapeUtilities.createDiagonalCross(3,1));
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f,1.5f));
         }
         plot.setRenderer(renderer);

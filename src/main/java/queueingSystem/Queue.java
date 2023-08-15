@@ -72,7 +72,7 @@ public class Queue {
         if( occupation < 0 ){
             System.out.println("Error: There are less than zero clients left in the queue!");
             return null;
-        //} else if (occupation==0) { System.out.println("Queue is empty again :-)");
+            //} else if (occupation==0) { System.out.println("Queue is empty again :-)");
         }
 
         return nextClient;

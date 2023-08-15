@@ -56,7 +56,7 @@ public class QueueingSystem {
         return blockingRate;
     }
 
-     public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
+    public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
         this.myQueue = new Queue(queueSize,queueingType);
         this.numberOfServers = numberOfServers;
         this.resetQueueingSystem();

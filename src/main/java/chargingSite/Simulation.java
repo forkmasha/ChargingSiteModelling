@@ -4,8 +4,7 @@ import distributions.DistributionType;
 import eventSimulation.*;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
+import org.jfree.chart.*;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -30,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import static org.jfree.chart.ChartFactory.createXYLineChart;
 
@@ -213,8 +213,7 @@ public class Simulation {
         }
 
         drawGraph();
-
-
+        
 
   /*      JFrame frame = new JFrame("Simulation Results");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -255,7 +254,7 @@ public class Simulation {
                 "Mean and Std",
                 dataset,
                 PlotOrientation.VERTICAL,
-                false,
+                true,
                 true,
                 false
         );
@@ -297,6 +296,36 @@ public class Simulation {
         renderer.setSeriesPaint(i, Color.red);
         renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
         plot.setRenderer(renderer);
+
+        LegendItemCollection legendItems = new LegendItemCollection();
+
+        // ArrayList<String> legendLabels {"service time", "queueing time", "system time"};
+        ArrayList<String> legendLabels = new ArrayList<String>();
+        legendLabels.add("service time");
+        legendLabels.add("queueing time");
+        legendLabels.add("system time");
+
+        for(LegendItemSource lt : MyChart.getLegend().getSources())
+        {
+
+            int len =  lt.getLegendItems().getItemCount();
+            for(int j = 0; j < len; j++)
+            {
+                if(!lt.getLegendItems().get(j).getSeriesKey().toString().contains("confBar") && !lt.getLegendItems().get(j).getSeriesKey().toString().contains("Std")){
+                    legendItems.add(new LegendItem(legendLabels.get(0), lt.getLegendItems().get(j).getFillPaint()));
+                    legendLabels.remove(0);
+                }
+            }
+
+        }
+
+        LegendItemSource source = new LegendItemSource() {
+            @Override
+            public LegendItemCollection getLegendItems() {
+                return legendItems;
+            } };
+        MyChart.getLegend().setSources(new LegendItemSource[]{source});
+
 
         ChartPanel chartPanel = new ChartPanel(MyChart);
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));

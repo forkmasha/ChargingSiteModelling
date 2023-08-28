@@ -2,42 +2,50 @@ package chargingSite;
 
 import distributions.DistributionType;
 import queueingSystem.Queue;
+
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import java.awt.*;
+
 public class SimulationGUI {
     public static void runSimulationGUI() {
 
-        Simulation simulation = new Simulation();
-
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setBackground(new Color(200, 200, 240)); // Set background color
-        frame.setPreferredSize(new Dimension(400, 600));
+        frame.getContentPane().setBackground(new Color(200, 200, 240));
+        frame.setPreferredSize(new Dimension(400, 525));
 
         JTextField minArrivalRate = new JTextField();
         minArrivalRate.setText("0.5");
+
         JTextField maxArrivalRate = new JTextField();
         maxArrivalRate.setText("25.0");
+
         JTextField arrivalRateStep = new JTextField();
         arrivalRateStep.setText("0.5");
-        JTextField numberOfClientTypes = new JTextField();
-        numberOfClientTypes.setText("1");
-        JTextField maxEvents = new JTextField();
-        maxEvents.setText("2500");
-        JTextField numberOfServers = new JTextField();
-        numberOfServers.setText("5");
-        JTextField queueSize = new JTextField();
-        queueSize.setText("10");
-        // JTextField simSteps = new JTextField();
-        // simSteps.setText("2500");
+
+        SpinnerModel numberOfClientTypesModel = new SpinnerNumberModel(1, 1, 2, 1);
+        JSpinner numberOfClientTypes = new JSpinner(numberOfClientTypesModel);
+        SpinnerModel maxEventsModel = new SpinnerNumberModel(2500, 1, Integer.MAX_VALUE, 1);
+        JSpinner maxEvents = new JSpinner(maxEventsModel);
+
+
+        SpinnerModel numberOfServersMod = new SpinnerNumberModel(5, 1, Integer.MAX_VALUE, 1);
+        JSpinner numberOfServers = new JSpinner(numberOfServersMod);
+
+
+        SpinnerModel queueSizeMod = new SpinnerNumberModel(10, 1, Integer.MAX_VALUE, 1);
+        JSpinner queueSize = new JSpinner(queueSizeMod);
+
         JTextField meanServiceTime = new JTextField();
         meanServiceTime.setText("0.5");
-        JTextField confLevel = new JTextField();
-        confLevel.setText("98");
+
+
+        SpinnerModel confLevelMod = new SpinnerNumberModel(98, 95, 99, 1);
+        JSpinner confLevel = new JSpinner(confLevelMod);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox queueingType = new JComboBox(queueingTypes);
@@ -50,18 +58,19 @@ public class SimulationGUI {
 
 
         JButton runSimulation = new JButton("Run Simulation");
-        runSimulation.setFont(new Font("Arial", Font.BOLD, 14)); // Set font style
-        runSimulation.setForeground(Color.WHITE); // Set text color
-        runSimulation.setBackground(new Color(136, 186, 242));// Set background color
+        runSimulation.setFont(new Font("Arial", Font.BOLD, 14));
+        runSimulation.setForeground(Color.WHITE);
+        runSimulation.setBackground(new Color(136, 186, 242));
         runSimulation.addActionListener(e -> {
+            Simulation simulation = new Simulation();
             simulation.setMIN_ARRIVAL_RATE(Double.parseDouble(minArrivalRate.getText()));
             simulation.setMAX_ARRIVAL_RATE(Double.parseDouble(maxArrivalRate.getText()));
             simulation.setARRIVAL_RATE_STEP(Double.parseDouble(arrivalRateStep.getText()));
             simulation.setSIM_STEPS((int) Math.ceil((simulation.getMAX_ARRIVAL_RATE() - simulation.getMIN_ARRIVAL_RATE()) / simulation.getARRIVAL_RATE_STEP()));
-            simulation.setNUMBER_OF_CLIENT_TYPES(Integer.parseInt(numberOfClientTypes.getText()));
-            simulation.setMAX_EVENTS(Integer.parseInt(maxEvents.getText()));
-            simulation.setNUMBER_OF_SERVERS(Integer.parseInt(numberOfServers.getText()));
-            simulation.setQUEUE_SIZE(Integer.parseInt(queueSize.getText()));
+            simulation.setNUMBER_OF_CLIENT_TYPES(Integer.parseInt(numberOfClientTypes.getValue().toString()));
+            simulation.setMAX_EVENTS((Integer) maxEvents.getValue());
+            simulation.setNUMBER_OF_SERVERS(Integer.parseInt(numberOfServers.getValue().toString()));
+            simulation.setQUEUE_SIZE(Integer.parseInt(queueSize.getValue().toString()));
             String queueingTypeString = (String) queueingType.getSelectedItem();
             switch (queueingTypeString) {
                 case "FIFO" -> simulation.setQUEUEING_TYPE(Queue.QueueingType.FIFO);
@@ -89,35 +98,43 @@ public class SimulationGUI {
                 case "BETA" -> simulation.setSERVICE_TYPE(DistributionType.BETA);
                 case "DETERMINISTIC" -> simulation.setSERVICE_TYPE(DistributionType.DETERMINISTIC);
             }
-            simulation.setConfLevel(Integer.parseInt(confLevel.getText()));
+            simulation.setConfLevel(Integer.parseInt(confLevel.getValue().toString()));
             simulation.runSimulation();
+
+            frame.dispose();
+
         });
-        runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Top, left, bottom, right
+
+
+        runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
         setDocumentFilterDouble(minArrivalRate);
         setDocumentFilterDouble(maxArrivalRate);
         setDocumentFilterDouble(arrivalRateStep);
-        setDocumentFilterInt(numberOfClientTypes);
-        setDocumentFilterInt(maxEvents);
-        setDocumentFilterInt(numberOfServers);
-        setDocumentFilterInt(queueSize);
-        //setDocumentFilterInt(simSteps);
+        setSpinnerModelInt(numberOfClientTypes);
+        setSpinnerModelInt(maxEvents);
+        setSpinnerModelInt(numberOfServers);
+        setSpinnerModelInt(queueSize);
         setDocumentFilterDouble(meanServiceTime);
-        setDocumentFilterInt(confLevel);
+        setSpinnerModelInt(confLevel);
 
-        // create verticalBox to hold all the input components
         Box verticalBox = Box.createVerticalBox();
 
-        verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add empty borders
+        verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        verticalBox.add(new JLabel("Min Arrival Rate"));
-        verticalBox.add(minArrivalRate);
-        verticalBox.add(new JLabel("Max Arrival Rate"));
-        verticalBox.add(maxArrivalRate);
-        verticalBox.add(new JLabel("Arrival Rate Step"));
-        verticalBox.add(arrivalRateStep);
-        //verticalBox.add(new JLabel("Simulation Steps"));
-        //verticalBox.add(simSteps);
+
+        JPanel toppanel = new JPanel();
+        toppanel.setLayout(new GridLayout(2, 3));
+        toppanel.add(new JLabel("Min Arrival Rate"));
+        toppanel.add(new JLabel("Arrival Rate Step"));
+        toppanel.add(new JLabel("Max Arrival Rate"));
+        toppanel.add(minArrivalRate);
+        toppanel.add(maxArrivalRate);
+        toppanel.add(arrivalRateStep);
+        toppanel.setBackground(new Color(200, 200, 240));
+
+        verticalBox.add(toppanel);
+
         verticalBox.add(new JLabel("Number of Client Types"));
         verticalBox.add(numberOfClientTypes);
         verticalBox.add(new JLabel("Max Events"));
@@ -137,61 +154,30 @@ public class SimulationGUI {
         verticalBox.add(new JLabel("Confidence Level"));
         verticalBox.add(confLevel);
 
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add empty borders
-        buttonPanel.add(runSimulation);
-
         frame.getContentPane().add(runSimulation, BorderLayout.SOUTH);
-
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
 
     }
 
-    public static void setDocumentFilterDouble(JTextField textField) {
-
-        textField.setBorder(BorderFactory.createCompoundBorder(
-                textField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 5, 0, 0)
-        ));
-
-        ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
-            public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-                if (string == null) return;
-                if (isValid(string)) super.insertString(fb, offset, string, attr);
-            }
-
-            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-                if (text == null) return;
-                if (isValid(text)) super.replace(fb, offset, length, text, attrs);
-            }
-
-            private boolean isValid(String text) {
-                if (text.charAt(0) == '0') {
-                    return true;
-                }
-                if (text.contains(".")) {
-                    return true;
-                }
-                try {
-                    double value = Double.parseDouble(text);
-                    return value > 0;
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-            }
-        });
+    public static void setSpinnerModelInt(JSpinner spinner) {
+        JComponent editor = spinner.getEditor();
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JSpinner.DefaultEditor defaultEditor = (JSpinner.DefaultEditor) editor;
+            defaultEditor.getTextField().setHorizontalAlignment(JTextField.LEFT);
+            defaultEditor.getTextField().setBorder(BorderFactory.createCompoundBorder(
+                    defaultEditor.getTextField().getBorder(),
+                    BorderFactory.createEmptyBorder(0, 7, 0, 0)
+            ));
+        }
     }
 
-    public static void setDocumentFilterInt(JTextField textField) {
-
+    public static void setDocumentFilterDouble(JTextField textField) {
         textField.setBorder(BorderFactory.createCompoundBorder(
                 textField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 5, 0, 0)
+                BorderFactory.createEmptyBorder(0, 7, 0, 0)
         ));
-
         ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
             public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
                 if (string == null) return;

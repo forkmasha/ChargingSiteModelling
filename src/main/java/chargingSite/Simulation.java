@@ -2,6 +2,8 @@ package chargingSite;
 
 import distributions.DistributionType;
 import eventSimulation.*;
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -10,6 +12,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 import queueingSystem.Client;
 import queueingSystem.Queue.QueueingType;
 import queueingSystem.QueueingSystem;
@@ -18,6 +22,14 @@ import results.Times;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 import static org.jfree.chart.ChartFactory.createXYLineChart;
 
@@ -36,10 +48,11 @@ public class Simulation {
     private static final DistributionType SERVICE_TYPE = DistributionType.ERLANGD;   // ERLANGD is a good choice
     private static int confLevel = 98;*/
 
+    private JFreeChart MyChart;
     private double MIN_ARRIVAL_RATE;
     private double MAX_ARRIVAL_RATE;
     private double ARRIVAL_RATE_STEP;
-    private int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);;
+    private int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);
     private int NUMBER_OF_CLIENT_TYPES;
     private int MAX_EVENTS;
     private int NUMBER_OF_SERVERS;
@@ -88,12 +101,9 @@ public class Simulation {
     public void setNUMBER_OF_CLIENT_TYPES(int NUMBER_OF_CLIENT_TYPES) {
         this.NUMBER_OF_CLIENT_TYPES = NUMBER_OF_CLIENT_TYPES;
     }
-
-
     public void setMAX_EVENTS(int MAX_EVENTS) {
         this.MAX_EVENTS = MAX_EVENTS;
     }
-
 
     public void setNUMBER_OF_SERVERS(int NUMBER_OF_SERVERS) {
         this.NUMBER_OF_SERVERS = NUMBER_OF_SERVERS;
@@ -121,6 +131,23 @@ public class Simulation {
 
     public void setConfLevel(int confLevel) {
         this.confLevel = confLevel;
+    }
+
+    public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
+
+        DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+        Document document = domImpl.createDocument(null, "svg", null);
+
+
+        SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+
+
+        MyChart.draw(svgGenerator, new Rectangle2D.Double(0, 0, wi, hi));
+
+
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
+            svgGenerator.stream(writer, true);
+        }
     }
 
     public void runSimulation() {
@@ -214,8 +241,7 @@ public class Simulation {
     } */
     }
 
-    public void drawGraph() {                                  // Working version with confidence Interval
-        int i = 0;
+    public void drawGraph() {
         String title = "Simulation Results";
         XYSeriesCollection dataset = new XYSeriesCollection();
 
@@ -223,7 +249,7 @@ public class Simulation {
         meanServiceTimes.addGraphs(dataset);
         meanQueueingTimes.addGraphs(dataset);
 
-        JFreeChart chart = createXYLineChart(
+        MyChart = createXYLineChart(
                 title,
                 "Arrival Rate",
                 "Mean and Std",
@@ -233,13 +259,13 @@ public class Simulation {
                 true,
                 false
         );
-        XYPlot plot = chart.getXYPlot();
+        XYPlot plot = MyChart.getXYPlot();
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
-        // draw first time results (time in system)
-        i = 0;
-        while( i < SIM_STEPS +1) {
+
+        int i = 0;
+        while (i < SIM_STEPS + 1) {
             renderer.setSeriesPaint(i, Color.MAGENTA);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
@@ -249,19 +275,19 @@ public class Simulation {
         renderer.setSeriesPaint(i, Color.magenta);
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
-        // draw second time results (service times)
-        while (i < 2 * (SIM_STEPS + 2) ) {
+
+        while (i < 2 * (SIM_STEPS + 2)) {
             renderer.setSeriesPaint(i, Color.blue);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
         }
-        renderer.setSeriesPaint(i, Color.blue); // do wider line-width
+        renderer.setSeriesPaint(i, Color.blue);
         renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
         renderer.setSeriesPaint(i, Color.blue);
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
-        // draw third time results (queueing times)
-        while (i < 3 * (SIM_STEPS + 2) +1) {
+
+        while (i < 3 * (SIM_STEPS + 2) + 1) {
             renderer.setSeriesPaint(i, Color.red);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
@@ -269,21 +295,69 @@ public class Simulation {
         renderer.setSeriesPaint(i, Color.red);
         renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
         renderer.setSeriesPaint(i, Color.red);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
+        renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
         plot.setRenderer(renderer);
 
-        ChartPanel chartPanel = new ChartPanel(chart);
+        ChartPanel chartPanel = new ChartPanel(MyChart);
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
 
         JFrame frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save your work before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    saveSVGDialogue();
+                    frame.dispose();
+                } else if (result == JOptionPane.NO_OPTION) {
+                    frame.dispose();
+                }
+            }
+        });
+
         frame.setContentPane(chartPanel);
         frame.pack();
         frame.setVisible(true);
         chartPanel.repaint();
+    }
+
+    public void saveSVGDialogue() {
+        JFrame saveAsSVGFrame = new JFrame("Save as SVG");
+        saveAsSVGFrame.setPreferredSize(new Dimension(400, 150));
+
+        Panel saveAsSVGPanel = new Panel();
+        saveAsSVGPanel.setLayout(new GridLayout(3, 2));
+        saveAsSVGPanel.add(new JLabel("Hight: "));
+        JTextField height = new JTextField();
+        height.setText("800");
+        saveAsSVGPanel.add(height);
+        saveAsSVGPanel.add(new JLabel("Width: "));
+        JTextField width = new JTextField();
+        width.setText("600");
+        saveAsSVGPanel.add(width);
+        saveAsSVGPanel.add(new JLabel("File: "));
+        JTextField file = new JTextField();
+        file.setText("simulation.svg");
+        saveAsSVGPanel.add(file);
+
+        JButton save = new JButton("Save");
+        save.addActionListener(e1 -> {
+            try {
+                SaveAsSVG(Integer.parseInt(height.getText()), Integer.parseInt(width.getText()), new File(file.getText()));
+                saveAsSVGFrame.dispose();
+            } catch (IOException ex) {
+                System.out.println("Error: " + ex.getMessage());
+            }
+        });
+
+        saveAsSVGFrame.getContentPane().add(saveAsSVGPanel, BorderLayout.CENTER);
+        saveAsSVGFrame.getContentPane().add(save, BorderLayout.SOUTH);
+        saveAsSVGFrame.pack();
+        saveAsSVGFrame.setVisible(true);
     }
 }
 

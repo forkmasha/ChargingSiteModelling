@@ -97,7 +97,7 @@ public class SimulationGUI {
             simulation.setConfLevel(Integer.parseInt(confLevel.getValue().toString()));
             simulation.runSimulation();
 
-            frame.dispose();
+            frame.dispose(); //fix the bug=)
 
         });
 
@@ -164,7 +164,6 @@ public class SimulationGUI {
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
-
     }
 
     private static void setSpinnerModelDouble(JSpinner spinner) {

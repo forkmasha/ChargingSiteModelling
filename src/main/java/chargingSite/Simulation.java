@@ -301,9 +301,9 @@ public class Simulation {
 
         // ArrayList<String> legendLabels {"service time", "queueing time", "system time"};
         ArrayList<String> legendLabels = new ArrayList<String>();
-        legendLabels.add("service time");
-        legendLabels.add("queueing time");
-        legendLabels.add("system time");
+        legendLabels.add("System time");
+        legendLabels.add("Service time");
+        legendLabels.add("Queueing time");
 
         for(LegendItemSource lt : MyChart.getLegend().getSources())
         {
@@ -316,7 +316,6 @@ public class Simulation {
                     legendLabels.remove(0);
                 }
             }
-
         }
 
         LegendItemSource source = new LegendItemSource() {
@@ -389,7 +388,3 @@ public class Simulation {
         saveAsSVGFrame.setVisible(true);
     }
 }
-
-
-
-

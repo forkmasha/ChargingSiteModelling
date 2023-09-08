@@ -17,11 +17,11 @@ public class SimulationGUI {
         SpinnerModel minArrivalRateModel = new SpinnerNumberModel(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner minArrivalRate = new JSpinner(minArrivalRateModel);
 
-        SpinnerModel maxArrivalRateModel = new SpinnerNumberModel(25.0, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner maxArrivalRate = new JSpinner(maxArrivalRateModel);
-
         SpinnerModel arrivalRateStepModel = new SpinnerNumberModel(0.5, 0.1, Double.MAX_VALUE, 0.1);
         JSpinner arrivalRateStep = new JSpinner(arrivalRateStepModel);
+
+        SpinnerModel maxArrivalRateModel = new SpinnerNumberModel(25.0, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner maxArrivalRate = new JSpinner(maxArrivalRateModel);
 
         SpinnerModel numberOfClientTypesModel = new SpinnerNumberModel(1, 1, 2, 1);
         JSpinner numberOfClientTypes = new JSpinner(numberOfClientTypesModel);
@@ -32,16 +32,17 @@ public class SimulationGUI {
         SpinnerModel numberOfServersMod = new SpinnerNumberModel(5, 1, Integer.MAX_VALUE, 1);
         JSpinner numberOfServers = new JSpinner(numberOfServersMod);
 
-
         SpinnerModel queueSizeMod = new SpinnerNumberModel(10, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = new JSpinner(queueSizeMod);
 
         SpinnerModel meanServiceTimeModel = new SpinnerNumberModel(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner meanServiceTime = new JSpinner(meanServiceTimeModel);
 
+        /*SpinnerModel confLevelMod = new SpinnerListModel(new Integer[]{80, 90, 95, 98, 99});
+        JSpinner confLevel = new JSpinner(confLevelMod);*/
 
-        SpinnerModel confLevelMod = new SpinnerNumberModel(98, 95, 99, 1);
-        JSpinner confLevel = new JSpinner(confLevelMod);
+        String[] confidenceLevels = {"80", "90", "95", "98", "99"};
+        JComboBox<String> confLevel = new JComboBox<>(confidenceLevels);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox queueingType = new JComboBox(queueingTypes);
@@ -52,7 +53,6 @@ public class SimulationGUI {
         arrivalType.setSelectedItem("EXPONENTIAL");
         serviceType.setSelectedItem("ERLANGD");
 
-
         JButton runSimulation = new JButton("Run Simulation");
         runSimulation.setFont(new Font("Arial", Font.BOLD, 14));
         runSimulation.setForeground(Color.WHITE);
@@ -60,8 +60,8 @@ public class SimulationGUI {
         runSimulation.addActionListener(e -> {
             Simulation simulation = new Simulation();
             simulation.setMIN_ARRIVAL_RATE(Double.parseDouble(minArrivalRate.getValue().toString()));
-            simulation.setMAX_ARRIVAL_RATE(Double.parseDouble(maxArrivalRate.getValue().toString()));
             simulation.setARRIVAL_RATE_STEP(Double.parseDouble(arrivalRateStep.getValue().toString()));
+            simulation.setMAX_ARRIVAL_RATE(Double.parseDouble(maxArrivalRate.getValue().toString()));
             simulation.setSIM_STEPS((int) Math.ceil((simulation.getMAX_ARRIVAL_RATE() - simulation.getMIN_ARRIVAL_RATE()) / simulation.getARRIVAL_RATE_STEP()));
             simulation.setNUMBER_OF_CLIENT_TYPES(Integer.parseInt(numberOfClientTypes.getValue().toString()));
             simulation.setMAX_EVENTS((Integer) maxEvents.getValue());
@@ -94,25 +94,29 @@ public class SimulationGUI {
                 case "BETA" -> simulation.setSERVICE_TYPE(DistributionType.BETA);
                 case "DETERMINISTIC" -> simulation.setSERVICE_TYPE(DistributionType.DETERMINISTIC);
             }
-            simulation.setConfLevel(Integer.parseInt(confLevel.getValue().toString()));
+
+           /* String[] confidenceLevels = {"80", "90", "95", "98", "99"};
+            simulation.setConfLevel(Integer.parseInt(confLevel.getValue().toString()));*/
+
+            int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
+            simulation.setConfLevel(selectedConfidenceLevel);
             simulation.runSimulation();
 
-            frame.dispose(); //fix the bug=)
+            // frame.dispose(); //fix the bug=)
 
         });
-
 
         runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
         setSpinnerModelDouble(minArrivalRate);
-        setSpinnerModelDouble(maxArrivalRate);
         setSpinnerModelDouble(arrivalRateStep);
+        setSpinnerModelDouble(maxArrivalRate);
         setSpinnerModelInt(numberOfClientTypes);
         setSpinnerModelInt(maxEvents);
         setSpinnerModelInt(numberOfServers);
         setSpinnerModelInt(queueSize);
         setSpinnerModelDouble(meanServiceTime);
-        setSpinnerModelInt(confLevel);
+       // setSpinnerModelInt(confLevel);
 
         Box verticalBox = Box.createVerticalBox();
 
@@ -125,8 +129,8 @@ public class SimulationGUI {
         toppanel.add(new JLabel("Arrival Rate Step", SwingConstants.CENTER));
         toppanel.add(new JLabel("Max Arrival Rate", SwingConstants.CENTER));
         toppanel.add(minArrivalRate);
-        toppanel.add(maxArrivalRate);
         toppanel.add(arrivalRateStep);
+        toppanel.add(maxArrivalRate);
         toppanel.setBackground(new Color(200, 200, 240));
 
         verticalBox.add(toppanel);

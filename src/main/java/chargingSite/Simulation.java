@@ -63,9 +63,9 @@ public class Simulation {
     private DistributionType SERVICE_TYPE;
     private int confLevel;
 
-    private static Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
-    private static Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
-    private static Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
+    private  Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
+    private  Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
+    private  Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
 
 
     public double getMIN_ARRIVAL_RATE() {

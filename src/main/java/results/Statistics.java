@@ -2,6 +2,7 @@ package results;
 
 import org.jfree.data.xy.XYBarDataset;
 import org.jfree.data.xy.XYDataset;
+//import org.apache.commons.math3.distribution.TDistribution;
 
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class Statistics {
         if (values.size() < 2) {
             return Double.MAX_VALUE; // infinite
         }
-        String[] columnNames = {"Degrees of Freedom", "80%", "90%", "95%", "98%", "99%"};
+        // columnNames = {"Degrees of Freedom", "80%", "90%", "95%", "98%", "99%"};
         double[][] zScoreTable = {
                 {1, 3.078, 6.314, 12.706, 31.821, 63.65},
                 {2, 1.886, 2.920, 4.303, 6.965, 9.925},
@@ -161,7 +162,8 @@ public class Statistics {
                 {103, 1.290, 1.660, 1.983, 2.363, 2.624},
                 {104, 1.290, 1.660, 1.983, 2.363, 2.624},
                 {105, 1.290, 1.659, 1.983, 2.362, 2.623},
-                {999, 1.280, 1.645, 1.960, 2.330, 2.575},
+                {1000, 1.282, 1.646, 1.962, 2.334, 2.581}, // line for 106 to 1000
+                {1001, 1.282, 1.645, 1.960, 2.330, 2.576}, // line for 1000+
         };
         double mean = calculateMean(values);
         double stdDev = calculateStandardDeviation(values);
@@ -179,11 +181,19 @@ public class Statistics {
         }
 
         // Calculate the confidence interval
-        if (values.size() > 105) {
+        int degreeOfFreedom = values.size()-1;
+        if (degreeOfFreedom > 1000) {
+            zScore = zScoreTable[106][levelID]; // large enough sample size to work with default zScores
+        } else if (degreeOfFreedom > 105) {
             zScore = zScoreTable[105][levelID]; // large enough sample size to work with default zScores
         } else {
-            zScore = zScoreTable[values.size()][levelID]; // use the higher zScores from the table
+            zScore = zScoreTable[degreeOfFreedom-1][levelID]; // use the higher zScores from the table
         }
+        // other calculation of the zScore [https://stackoverflow.com/questions/21730285/calculating-t-inverse]
+        // needs: import org.apache.commons.math3.distribution.TDistribution; but apache.commons not accessible?
+        /*TDistribution t = new TDistribution(degreeOfFreedom);
+        double zScore = t.inverseCumulativeProbability(0.5+level/200); // (1-(1-level/100)/2)
+        */
         double marginOfError = (zScore * stdDev) / Math.sqrt(values.size());
         double lowerBound = mean - marginOfError;
         double upperBound = mean + marginOfError;

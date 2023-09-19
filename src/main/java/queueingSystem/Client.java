@@ -1,5 +1,6 @@
 package queueingSystem;
 
+import chargingSite.ElectricVehicle;
 import distributions.Distribution;
 import distributions.DistributionType;
 
@@ -15,6 +16,13 @@ public class Client {
     private double timeInQueue = 0.0;
     private QueueingSystem system;
     private Distribution serviceTimeDistribution;
+    private ElectricVehicle car;
+   public ElectricVehicle getCar() {
+        return car;
+    }
+   // public void setCar(ElectricVehicle car) {
+        //this.car = car;
+    //}
 
     public Client(double arrivalTime, double meanServiceTime, DistributionType serviceType, QueueingSystem system) {
         this.myIndex = clientCounter++;
@@ -22,6 +30,7 @@ public class Client {
         this.meanServiceTime = meanServiceTime;
         this.system = system;
         this.addServiceTimeDistribution(serviceType);
+        this.car=new ElectricVehicle("car",75,60);
     }
     public int getMyIndex() { return myIndex; }
     public QueueingSystem getSystem() {

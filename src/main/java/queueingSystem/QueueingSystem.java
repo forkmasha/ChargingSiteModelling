@@ -32,6 +32,7 @@ public class QueueingSystem {
     private final List<Double> timesInSystem = new ArrayList<>();
     private final List<Double> timesInService = new ArrayList<>();
     private Monitor blockingRates = new Monitor();
+    private final List<Double> energyCharged = new ArrayList<>();
 
     public List<Double> getTimesInQueue() {
         return timesInQueue;
@@ -45,6 +46,12 @@ public class QueueingSystem {
         return timesInService;
     }
 
+
+
+    private  List<Double>amountsCharged  = new ArrayList<>();
+    public List<Double> getAmountsCharged() {
+        return amountsCharged;
+    }
     public String getSystemName() {
         return systemName;
     }
@@ -55,6 +62,8 @@ public class QueueingSystem {
     public double getBlockingRate() {
         return blockingRate;
     }
+
+
 
     public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
         this.myQueue = new Queue(queueSize,queueingType);
@@ -159,6 +168,14 @@ public class QueueingSystem {
     public void processArrival(Event arrival) {
         currentTime = arrival.getExecTime();
         currentClient = arrival.getClient();
+
+
+   //    double currentChargingPower = currentClient.getCar().getChargingPower();
+      //  double updatedChargingPower = currentChargingPower * occupiedServers;
+      //  currentClient.getCar().setChargingPower(updatedChargingPower);
+      //  currentClient.getCar().getChargingPowerHistory().add(updatedChargingPower);
+
+
         if (EventSimulation.getNumberOfEvents() < EventSimulation.getMaxEvents()) {
             EventSimulation.incNumberOfEvents();
             nextEvent = new Event(currentTime +
@@ -199,8 +216,10 @@ public class QueueingSystem {
         this.removeServer(currentClient);
         this.timesInSystem.add(timeInSystem);
         if (timeInQueue > 0.0) {
-            this.timesInQueue.add(timeInQueue);
-            this.timesInService.add(timeInSystem - timeInQueue);
+            //this.timesInQueue.add(timeInQueue);
+           // this.timesInService.add(timeInSystem - timeInQueue);
+
+          // -----------this.powerCharged.add((timeInSystem - timeInQueue)*currentClient.getCar().getChargingPower());
             // use in case queueing time appears to be too big to get some info
             /*if (timeInQueue > 2 * myQueue.getSize()/(numberOfServers/currentClient.getMeanServiceTime())) {
                 System.out.println("Warning: Time in queue "+ timeInQueue +" is exceptionally long for "
@@ -208,9 +227,16 @@ public class QueueingSystem {
                         + numberOfServers/currentClient.getMeanServiceTime() +" clients per time unit!");
             }*/
         } else {
-            this.timesInQueue.add(0.0);  // use to include zero queueing times
-            this.timesInService.add(timeInSystem);
+          timeInQueue=0.0;//to consider 0 queueing time in statistics
+
+           // -----------this.powerCharged.add(timeInSystem *currentClient.getCar().getChargingPower());
         }
+        double timeInService = timeInSystem-timeInQueue;
+        this.timesInQueue.add(timeInQueue);
+        this.timesInService.add(timeInSystem-timeInQueue);
+
+        this.amountsCharged.add(timeInService * currentClient.getCar().getMaxPower());
+
         if (myQueue.getOccupation() > 0) {
             nextClient = myQueue.pullNextClientFromQueue(currentTime);
             if (nextClient.getTimeInQueue() <= 0.0) {
@@ -218,6 +244,7 @@ public class QueueingSystem {
             }
             scheduleNextDeparture(currentTime, nextClient);
         }
+
     }
 
     public void processQueueing(Event goInQueue) {
@@ -242,6 +269,12 @@ public class QueueingSystem {
             return;
         }
         nextServer.setClient(currentClient);
+
+        /*double currentChargingPower = currentClient.getCar().getChargingPower();
+        double updatedChargingPower = currentChargingPower * occupiedServers;
+        currentClient.getCar().setChargingPower(updatedChargingPower);
+        currentClient.getCar().getChargingPowerHistory().add(updatedChargingPower);*/
+
         nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
         //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
         nextEvent.setEventType(EventType.DEPARTURE);

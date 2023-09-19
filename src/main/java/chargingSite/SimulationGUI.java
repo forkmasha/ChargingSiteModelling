@@ -22,7 +22,7 @@ public class SimulationGUI {
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner chargingFactor = createSpinner(50, 0, Integer.MAX_VALUE, 1);
+        JSpinner maxPower = createSpinner(50, 0, Integer.MAX_VALUE, 1);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
@@ -127,8 +127,8 @@ public class SimulationGUI {
         ProcPanel.add(serviceType);
         ProcPanel.add(new JLabel("Confidence Level", SwingConstants.CENTER));
         ProcPanel.add(confLevel);
-        ProcPanel.add(new JLabel("Charge Factor", SwingConstants.CENTER));
-        ProcPanel.add(chargingFactor);
+        ProcPanel.add(new JLabel("Max Charging Power [kW]", SwingConstants.CENTER));
+        ProcPanel.add(maxPower);
 
         ProcPanel.setBackground(new Color(200, 200, 240));
         verticalBox.add(ProcPanel);

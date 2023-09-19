@@ -16,6 +16,7 @@ import org.w3c.dom.Document;
 import queueingSystem.Client;
 import queueingSystem.Queue.QueueingType;
 import queueingSystem.QueueingSystem;
+import results.Monitor;
 import results.Statistics;
 import results.Times;
 
@@ -62,11 +63,19 @@ public class Simulation {
     private DistributionType ARRIVAL_TYPE;
     private DistributionType SERVICE_TYPE;
     private int confLevel;
+    public Monitor chargingMonitor;
+
 
     private  Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private  Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
     private  Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
 
+    //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
+
+
+    public int getSIM_STEPS() {
+        return SIM_STEPS;
+    }
 
     public double getMIN_ARRIVAL_RATE() {
         return MIN_ARRIVAL_RATE;
@@ -131,6 +140,16 @@ public class Simulation {
 
     public void setConfLevel(int confLevel) {
         this.confLevel = confLevel;
+        this.chargingMonitor = new Monitor(confLevel);
+    }
+
+    public int getConfLevel() {
+        return confLevel;
+    }
+
+
+
+    public Simulation() {
     }
 
     public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
@@ -154,6 +173,7 @@ public class Simulation {
         EventSimulation.setMaxEvents(MAX_EVENTS);
         Client[] myFirstClients = new Client[NUMBER_OF_CLIENT_TYPES];
         QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS,QUEUE_SIZE,QUEUEING_TYPE);
+        chargingMonitor.setSource(mySystem);
         if (NUMBER_OF_CLIENT_TYPES > 1) {
             mySystem.setName(ARRIVAL_TYPE + "/MIXED/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS+QUEUE_SIZE));
         } else {
@@ -189,30 +209,37 @@ public class Simulation {
             meanSystemTimes.addStds(mySystem.getTimesInSystem());
             meanSystemTimes.addConfidence(mySystem.getTimesInSystem(), confLevel);
 
+            chargingMonitor.storeStep(arrivalRate);
+            chargingMonitor.storeMean();
+            chargingMonitor.storeStd();
+            chargingMonitor.storeConf();
 
-            Statistics calc = new Statistics();
+                Statistics calc = new Statistics();
             System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
             System.out.println("Service Time (" + mySystem.getTimesInService().size() + "): "
                     + calc.getMean(mySystem.getTimesInService()) + "/"
                     + calc.getStd(mySystem.getTimesInService()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInService(), 95));
+                    + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel));
             System.out.println("Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
                     + calc.getMean(mySystem.getTimesInQueue()) + "/"
                     + calc.getStd(mySystem.getTimesInQueue()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), 95));
+                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel));
             System.out.println("System Time (" + mySystem.getTimesInSystem().size() + "): "
                     + calc.getMean(mySystem.getTimesInSystem()) + "/"
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), 95));
+                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel));
 
             System.out.print("Queue state: " + mySystem.getMyQueue().getOccupation());
             System.out.print("\t Server state: " + mySystem.getNumberOfServersInUse());
             System.out.println("\t Clients done: " + Client.getClientCounter());
 
             System.out.println(">--------- "+mySystem.getSystemName()+" Simulation step# " + stepCounter + " done -----------<");
+
         }
 
         drawGraph();
+
+        chargingMonitor.drawGraph(this);
         
 
   /*      JFrame frame = new JFrame("Simulation Results");
@@ -250,8 +277,8 @@ public class Simulation {
 
         MyChart = createXYLineChart(
                 title,
-                "Arrival Rate",
-                "Mean and Std",
+                "Arrival Rate [1/h]",
+                "Mean and Std [h]",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true,

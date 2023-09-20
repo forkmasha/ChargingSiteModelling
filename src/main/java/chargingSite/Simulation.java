@@ -147,8 +147,6 @@ public class Simulation {
         return confLevel;
     }
 
-
-
     public Simulation() {
     }
 

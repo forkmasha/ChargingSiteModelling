@@ -48,7 +48,7 @@ public class QueueingSystem {
 
 
 
-    private  List<Double>amountsCharged  = new ArrayList<>();
+    private  List<Double> amountsCharged  = new ArrayList<>();
     public List<Double> getAmountsCharged() {
         return amountsCharged;
     }
@@ -121,6 +121,14 @@ public class QueueingSystem {
             return null;
         }
     }
+    public Server getServer(int index) {   // index works :)
+        int n = servers.size();
+        if (n > 0 && index < n) {
+            return servers.get(index);
+        } else {
+            return (null);
+        }
+    }
     public Server getServer(Client client) {
         //System.out.println("Error "+servers.size());
         if (!servers.isEmpty()) {
@@ -168,7 +176,7 @@ public class QueueingSystem {
     public void processArrival(Event arrival) {
         currentTime = arrival.getExecTime();
         currentClient = arrival.getClient();
-
+        currentClient.getCar().resetEnergyCharged();
 
    //    double currentChargingPower = currentClient.getCar().getChargingPower();
       //  double updatedChargingPower = currentChargingPower * occupiedServers;
@@ -235,7 +243,8 @@ public class QueueingSystem {
         this.timesInQueue.add(timeInQueue);
         this.timesInService.add(timeInSystem-timeInQueue);
 
-        this.amountsCharged.add(timeInService * currentClient.getCar().getMaxPower());
+        //this.amountsCharged.add(timeInService * currentClient.getCar().getMaxPower());
+        this.amountsCharged.add(currentClient.getCar().getEnergyCharged());
 
         if (myQueue.getOccupation() > 0) {
             nextClient = myQueue.pullNextClientFromQueue(currentTime);

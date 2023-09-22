@@ -1,12 +1,14 @@
 package eventSimulation;
 
+import chargingSite.ElectricVehicle;
 import queueingSystem.Server;
 
 public class EventProcessor {
     Event nextEvent;
     Server nextServer;
+    ElectricVehicle chargedVehicle;
     static double deltaTime = 0;
-    static int i, j, k, q = 0;
+    static int i, j, k, q, n = 0;
 
     public static void reset() {
         i = 0;
@@ -23,6 +25,13 @@ public class EventProcessor {
         }
 
         if (event.getClient() != null) {
+            n = 0;
+            nextServer = event.getClient().getSystem().getServer(n);
+            while (nextServer != null) {
+                nextServer.getClient().processClient(deltaTime);
+                nextServer = event.getClient().getSystem().getServer(++n);
+            }
+
             switch (event.getEventType()) {
                 case ARRIVAL:
                     i++;

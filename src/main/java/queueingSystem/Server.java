@@ -19,5 +19,7 @@ public class Server {
         this.chargingPoint.setChargedCar(client.getCar());
 
     }
-
+    public Client getClient() {
+       return this.servedClient;
+    }
 }

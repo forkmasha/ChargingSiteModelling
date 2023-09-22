@@ -64,4 +64,8 @@ public class Client {
         return arrivalTime;
     }
 
+    public void processClient(double deltaTime) {
+       this.car.addEnergyCharged(deltaTime);
+    }
+
 }

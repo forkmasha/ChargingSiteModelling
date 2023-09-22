@@ -62,6 +62,7 @@ public class Simulation {
     private double MEAN_SERVICE_TIME;
     private DistributionType ARRIVAL_TYPE;
     private DistributionType SERVICE_TYPE;
+    private DistributionType DEMAND_TYPE;
     private int confLevel;
     public Monitor chargingMonitor;
 
@@ -132,6 +133,12 @@ public class Simulation {
 
     public void setARRIVAL_TYPE(DistributionType ARRIVAL_TYPE) {
         this.ARRIVAL_TYPE = ARRIVAL_TYPE;
+    }
+    public void setDEMAND_TYPE(DistributionType DEMAND_TYPE) {
+        this.DEMAND_TYPE = DEMAND_TYPE;
+    }
+    public DistributionType getDEMAND_TYPE() {
+        return this.DEMAND_TYPE;
     }
 
     public void setSERVICE_TYPE(DistributionType SERVICE_TYPE) {
@@ -226,6 +233,10 @@ public class Simulation {
                     + calc.getMean(mySystem.getTimesInSystem()) + "/"
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel));
+            System.out.println("Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
+                    + calc.getMean(mySystem.getAmountsCharged()) + "/"
+                    + calc.getStd(mySystem.getAmountsCharged()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel));
 
             System.out.print("Queue state: " + mySystem.getMyQueue().getOccupation());
             System.out.print("\t Server state: " + mySystem.getNumberOfServersInUse());

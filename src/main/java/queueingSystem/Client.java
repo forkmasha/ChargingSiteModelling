@@ -30,7 +30,7 @@ public class Client {
         this.meanServiceTime = meanServiceTime;
         this.system = system;
         this.addServiceTimeDistribution(serviceType);
-        this.car=new ElectricVehicle("car",75,60);
+        this.car=new ElectricVehicle("car",75,60, DistributionType.BETA);
     }
     public int getMyIndex() { return myIndex; }
     public QueueingSystem getSystem() {

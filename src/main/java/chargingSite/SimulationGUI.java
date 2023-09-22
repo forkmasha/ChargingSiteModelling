@@ -30,11 +30,14 @@ public class SimulationGUI {
         String[] distributionTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC"};
         JComboBox<String> arrivalType = new JComboBox<>(distributionTypes);
         JComboBox<String> serviceType = new JComboBox<>(distributionTypes);
+        JComboBox<String> demandType = new JComboBox<>(distributionTypes);
         arrivalType.setSelectedItem("EXPONENTIAL");
         serviceType.setSelectedItem("ERLANGD");
+        demandType.setSelectedItem("BETA");
 
         String[] confidenceLevels = {"80", "90", "95", "98", "99"};
         JComboBox<String> confLevel = new JComboBox<>(confidenceLevels);
+        confLevel.setSelectedItem("95");
 
         JButton runSimulation = new JButton("Run Simulation");
         runSimulation.setFont(new Font("Arial", Font.BOLD, 14));
@@ -82,6 +85,17 @@ public class SimulationGUI {
                 case "DETERMINISTIC" -> simulation.setSERVICE_TYPE(DistributionType.DETERMINISTIC);
             }
 
+            String demandTypeString = (String) demandType.getSelectedItem();
+            switch (demandTypeString) {
+                case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
+                case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
+                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
+            }
+
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
             simulation.setConfLevel(selectedConfidenceLevel);
             simulation.runSimulation();
@@ -121,10 +135,12 @@ public class SimulationGUI {
         ProcPanel.add(queueingType);
         ProcPanel.add(new JLabel("Mean Service Time", SwingConstants.CENTER));
         ProcPanel.add(meanServiceTime);
-        ProcPanel.add(new JLabel("Arrival Type", SwingConstants.CENTER));
+        ProcPanel.add(new JLabel("Arrival Distribution Type", SwingConstants.CENTER));
         ProcPanel.add(arrivalType);
-        ProcPanel.add(new JLabel("Service Type", SwingConstants.CENTER));
+        ProcPanel.add(new JLabel("Service Distribution Type", SwingConstants.CENTER));
         ProcPanel.add(serviceType);
+        ProcPanel.add(new JLabel("Demand Distribution Type", SwingConstants.CENTER));
+        ProcPanel.add(demandType);
         ProcPanel.add(new JLabel("Confidence Level", SwingConstants.CENTER));
         ProcPanel.add(confLevel);
         ProcPanel.add(new JLabel("Max Charging Power [kW]", SwingConstants.CENTER));

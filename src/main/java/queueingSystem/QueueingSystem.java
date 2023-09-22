@@ -31,8 +31,8 @@ public class QueueingSystem {
     private final List<Double> timesInQueue = new ArrayList<>();
     private final List<Double> timesInSystem = new ArrayList<>();
     private final List<Double> timesInService = new ArrayList<>();
-    private Monitor blockingRates = new Monitor();
     private final List<Double> energyCharged = new ArrayList<>();
+    private final Monitor blockingRates = new Monitor();
 
     public List<Double> getTimesInQueue() {
         return timesInQueue;
@@ -78,6 +78,7 @@ public class QueueingSystem {
         timesInQueue.clear();
         timesInSystem.clear();
         timesInService.clear();
+        amountsCharged.clear();
         blockingRates.values.clear();
         Client.resetClientCounter();
     }

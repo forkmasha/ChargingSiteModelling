@@ -11,12 +11,16 @@ public class ChargingPoint {
     private double currentPower;
     private ElectricVehicle chargedCar;
 
+    public ChargingPoint(double maxPower) {
+        this.maxPower = maxPower;
+    }
 
     public void setChargedCar(ElectricVehicle chargedCar) {
         this.chargedCar = chargedCar;
     }
 
-    public ChargingPoint(double maxPower) {
-        this.maxPower = maxPower;
+    public double getMaxPower() {
+        return this.maxPower;
     }
+
 }

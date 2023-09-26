@@ -3,6 +3,7 @@ package chargingSite;
 import distributions.Distribution;
 import distributions.DistributionType;
 import distributions.UniformDistribution;
+import queueingSystem.QueueingSystem;
 import results.Statistics;
 
 import java.sql.SQLOutput;
@@ -22,8 +23,8 @@ public class ElectricVehicle {
     private  double batteryCapacity;//amount Of energy the battery can store kWh
     private double energyCharged; //amount of energy kWh charged since last charging started [kWh]
     private double chargingPower; //current Charging power (from charging point) kW
-
     private ChargingPoint chargingPoint;
+    private QueueingSystem siteModel;
 
     public ElectricVehicle(String model, double maxPower, double batteryCapacity, DistributionType demandDistributionType) {
         this.id = model + "_" + UniformDistribution.createSample(500) + "_" + System.currentTimeMillis();
@@ -37,6 +38,12 @@ public class ElectricVehicle {
         this.energyCharged = 0;
     }
 
+    public void setQueueingSystem(QueueingSystem siteModel) {
+        this.siteModel = siteModel;
+    }
+    public QueueingSystem getSiteModel() {
+        return this.siteModel;
+    }
     public void setReservationTime(double reservationTime) {
         this.reservationTime = reservationTime;
     }
@@ -47,10 +54,10 @@ public class ElectricVehicle {
         this.stateOfCharge = 1 - chargeDemand/batteryCapacity;
     }
 
-    public void addEnergyCharged(double duration) {
+    public void addEnergyCharged(double duration, double sitePower) {
         if (stateOfCharge>=1) { return; }
         double chargedEnergy = duration * chargingPower;
-        this.updateChargingPower();
+        this.updateChargingPower(sitePower);
         if (stateOfCharge + chargedEnergy/batteryCapacity > 1) {
             chargedEnergy = (1-stateOfCharge) * batteryCapacity;
         }
@@ -63,8 +70,10 @@ public class ElectricVehicle {
 
     public void resetEnergyCharged() {this.energyCharged = 0.0; }
     
-    public void updateChargingPower() {
+    public void updateChargingPower(double sitePower) {
         double newChargingPower = this.chargingPower;
+        double maxChargingPointPower = this.getChargingPoint().getMaxPower();
+        double maxChargingSitePower = this.getSiteModel().getChargingSite().getMaxSitePower();
         if (this.stateOfCharge>=1) {
             this.chargingPower = 0;
         } else if (this.stateOfCharge>0.8) {  // adjust charging power to current state of charge
@@ -74,13 +83,16 @@ public class ElectricVehicle {
         } else { // adjust charging power to current state of charge
             this.chargingPower = this.batteryCapacity + 2 * this.batteryCapacity * stateOfCharge / 0.2;
         }
-        if (this.chargingPower>this.maxPower) {  // limit charging power to max possible
-            this.chargingPower=this.maxPower;
+
+        if (this.chargingPower>maxChargingPointPower) {  // limit charging power to max possible
+            this.chargingPower = maxChargingPointPower;
         }
 
-        // TO BE DONE - limit also to max available for Charging Site
+        if (this.chargingPower>maxChargingSitePower) {  // limit charging power to max possible
+            this.chargingPower *= maxChargingSitePower/sitePower;
+        }
 
-        //System.out.println("chargingPower = " + this.chargingPower);
+        System.out.println("chargingPower = " + this.chargingPower);
     }
 
     public void setPlugType(String plugType) {
@@ -89,6 +101,10 @@ public class ElectricVehicle {
 
     public void setChargingPoint(ChargingPoint chargingPoint) {
         this.chargingPoint = chargingPoint;
+    }
+
+    public ChargingPoint getChargingPoint() {
+        return chargingPoint;
     }
 
     private ArrayList<Double> chargingPowerHistory = new ArrayList<>();

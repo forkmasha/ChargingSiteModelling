@@ -28,7 +28,7 @@ public class EventProcessor {
             n = 0;
             nextServer = event.getClient().getSystem().getServer(n);
             while (nextServer != null) {
-                nextServer.getClient().processClient(deltaTime);
+                nextServer.getClient().processClient(deltaTime,event.getClient().getSystem().getTotalPower());
                 nextServer = event.getClient().getSystem().getServer(++n);
             }
 

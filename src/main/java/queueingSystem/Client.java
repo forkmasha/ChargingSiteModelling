@@ -31,6 +31,7 @@ public class Client {
         this.system = system;
         this.addServiceTimeDistribution(serviceType);
         this.car=new ElectricVehicle("car",75,60, DistributionType.BETA);
+        this.car.setQueueingSystem(system);
     }
     public int getMyIndex() { return myIndex; }
     public QueueingSystem getSystem() {
@@ -64,8 +65,8 @@ public class Client {
         return arrivalTime;
     }
 
-    public void processClient(double deltaTime) {
-       this.car.addEnergyCharged(deltaTime);
+    public void processClient(double deltaTime, double sitePower) {
+       this.car.addEnergyCharged(deltaTime,sitePower);
     }
 
 }

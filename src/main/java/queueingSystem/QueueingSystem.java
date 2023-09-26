@@ -1,5 +1,6 @@
 package queueingSystem;
 
+import chargingSite.ChargingSite;
 import distributions.Distribution;
 import distributions.DistributionType;
 import eventSimulation.Event;
@@ -12,6 +13,8 @@ import java.util.List;
 
 public class QueueingSystem {
     private String systemName;
+
+    private ChargingSite site;
     private int numberOfServers;
     private int occupiedServers = 0;
     private int queueSize;
@@ -58,6 +61,9 @@ public class QueueingSystem {
     public Queue getMyQueue() {
         return myQueue;
     }
+    public ChargingSite getChargingSite() {
+        return this.site;
+    }
 
     public double getBlockingRate() {
         return blockingRate;
@@ -68,6 +74,7 @@ public class QueueingSystem {
     public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
         this.myQueue = new Queue(queueSize,queueingType);
         this.numberOfServers = numberOfServers;
+        this.site = new ChargingSite(numberOfServers,25); // TO BE SET via GUI
         this.resetQueueingSystem();
     }
     /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!
@@ -105,6 +112,17 @@ public class QueueingSystem {
     public void removeServer(Server idle) {
         servers.remove(idle);
         occupiedServers--;
+    }
+
+    public double getTotalPower() {
+        double totalPower = 0;
+        int n = 0;
+        Server nextServer = this.getServer(n);
+        while (nextServer != null) {
+            totalPower += nextServer.getClient().getCar().getChargingPower();
+            nextServer = this.getServer(++n);
+        }
+        return totalPower;
     }
 
     public int getNumberOfServersInUse() {
@@ -279,6 +297,7 @@ public class QueueingSystem {
             return;
         }
         nextServer.setClient(currentClient);
+        currentClient.getCar().setChargingPoint(this.getChargingSite().getChargingPoint(servers.indexOf(nextServer)));
 
         /*double currentChargingPower = currentClient.getCar().getChargingPower();
         double updatedChargingPower = currentChargingPower * occupiedServers;

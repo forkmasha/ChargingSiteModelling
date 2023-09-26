@@ -15,6 +15,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,7 +148,10 @@ public class Monitor {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                // Handle window closing here
+                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save the results before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    saveGraphAsImage(chartPanel);
+                }
                 frame.dispose();
             }
         });
@@ -155,5 +160,21 @@ public class Monitor {
         frame.pack();
         frame.setVisible(true);
         chartPanel.repaint();
+    }
+
+    private void saveGraphAsImage(ChartPanel chartPanel) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save as Image");
+        int userSelection = fileChooser.showSaveDialog(null);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            try {
+                ChartUtilities.saveChartAsPNG(fileToSave, chartPanel.getChart(), 800, 600);
+                JOptionPane.showMessageDialog(null, "Chart saved successfully.");
+            } catch (IOException ex) {
+                System.out.println("Error: " + ex.getMessage());
+            }
+        }
     }
 }

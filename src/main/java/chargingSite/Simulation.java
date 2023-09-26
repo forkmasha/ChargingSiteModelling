@@ -251,29 +251,6 @@ public class Simulation {
         chargingMonitor.drawGraph(this);
         
 
-  /*      JFrame frame = new JFrame("Simulation Results");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(1, 3)); // Arrange charts in a 1x3 grid
-
-        ChartPanel meanServicePanel = meanServiceTimes.drawGraph("Mean Service Time", "Mean Service Time", "Arrival Rate");
-        ChartPanel meanQueueingPanel = meanQueueingTimes.drawGraph("Mean Queueing Time", "Mean Queueing Time", "Arrival Rate");
-        ChartPanel meanSystemPanel = meanSystemTimes.drawGraph("Mean System Time", "Mean System Time", "Arrival Rate");
-
-       // ChartPanel ResultsPanel = meanServiceTimes.drawGraph("Mean Service Time", "Mean Service Time", "Arrival Rate");
-        //ResultsPanel. // set it to actually add more graphs and not replace the existing...
-       // ResultsPanel.add(meanQueueingTimes.drawGraph("Mean Queueing Time", "Mean Queueing Time", "Arrival Rate"));
-       // ResultsPanel.add(meanSystemTimes.drawGraph("Mean Queueing Time", "Mean Queueing Time", "Arrival Rate"));
-
-       // frame.add(ResultsPanel);
-
-
-        frame.add(meanServicePanel);
-        frame.add(meanQueueingPanel);
-        frame.add(meanSystemPanel);
-
-        frame.pack();
-        frame.setVisible(true);
-    } */
     }
 
     public void drawGraph() {

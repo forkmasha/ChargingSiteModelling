@@ -4,6 +4,8 @@ import distributions.DistributionType;
 import queueingSystem.Queue;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class SimulationGUI {
     public static void runSimulationGUI() {
@@ -11,8 +13,8 @@ public class SimulationGUI {
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(new Color(200, 200, 240));
-        frame.setPreferredSize(new Dimension(450, 650));
-        frame.setMinimumSize(new Dimension(450, 630));
+        frame.setPreferredSize(new Dimension(450, 700));
+        frame.setMinimumSize(new Dimension(450, 700));
 
         JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner arrivalRateStep = createSpinner(0.5, 0.1, Double.MAX_VALUE, 0.1);
@@ -122,7 +124,7 @@ public class SimulationGUI {
         verticalBox.add(toppanel);
 
         JPanel ProcPanel = new JPanel();
-        ProcPanel.setLayout(new GridLayout(20, 1));
+        ProcPanel.setLayout(new GridLayout(22, 1));
         ProcPanel.add(new JLabel("Number of Client Types", SwingConstants.CENTER));
         ProcPanel.add(numberOfClientTypes);
         ProcPanel.add(new JLabel("Max Events", SwingConstants.CENTER));
@@ -159,6 +161,18 @@ public class SimulationGUI {
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int result = JOptionPane.showConfirmDialog(frame, "Are you sure you want to close the simulation results?", "Exit confirmation", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                } else {
+                    frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                }
+            }
+        });
     }
 
     private static JSpinner createSpinner(double value, double min, double max, double step) {

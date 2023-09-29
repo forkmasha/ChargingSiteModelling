@@ -217,6 +217,8 @@ public class Simulation {
             chargingMonitor.storeStep(arrivalRate);
             chargingMonitor.storeMean();
             chargingMonitor.storeStd();
+            chargingMonitor.storeMax();
+            chargingMonitor.storeMin();
             chargingMonitor.storeConf();
 
                 Statistics calc = new Statistics();

@@ -105,6 +105,7 @@ public class QueueingSystem {
         servers.remove(0); //removes the first (longest occupied) server
         occupiedServers--;
     }
+
     public void removeServer(Client client) {
         servers.remove(getServer(client));
         occupiedServers--;

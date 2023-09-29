@@ -1,6 +1,8 @@
 package results;
 
 import chargingSite.Simulation;
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -9,14 +11,18 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import queueingSystem.QueueingSystem;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
+import java.awt.geom.Rectangle2D;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +40,9 @@ public class Monitor {
     public List<Double> means = new ArrayList<>();
     public List<Double> stds = new ArrayList<>();
     public List<Double> confidences = new ArrayList<>();
+
+    public List<Double> maxs = new ArrayList<>();
+    public List<Double> mins = new ArrayList<>();
 
 
     public void setSource(QueueingSystem source) {
@@ -64,6 +73,14 @@ public class Monitor {
         confidences.add(calc.getConfidenceInterval(source.getAmountsCharged(), confLevel));
     }
 
+    public void storeMax() {
+        maxs.add(calc.getMax(source.getAmountsCharged()));
+    }
+
+    public void storeMin() {
+        mins.add(calc.getMin(source.getAmountsCharged()));
+    }
+
     public void storeStep(double step) {
         steps.add(step);
     }
@@ -71,17 +88,23 @@ public class Monitor {
     public void addGraphs(XYSeriesCollection dataset) {
         XYSeries meanSeries = new XYSeries("Mean");
         XYSeries stdSeries = new XYSeries("Std");
+        XYSeries maxSeries = new XYSeries("Max");
+        XYSeries minSeries = new XYSeries("Min");
         XYSeries[] confBars = new XYSeries[steps.size()];
 
         for (int i = 0; i < steps.size(); i++) {
             double step = steps.get(i);
             double mean = means.get(i);
             double std = stds.get(i);
+            double max = maxs.get(i);
+            double min = mins.get(i);
             double conf = confidences.get(i);
             confBars[i] = new XYSeries("confBar" + i);
 
             meanSeries.add(step, mean);
             stdSeries.add(step, std);
+            maxSeries.add(step, max);
+            minSeries.add(step, min);
             confBars[i].add(step, mean - conf);
             confBars[i].add(step, mean + conf);
             dataset.addSeries(confBars[i]);
@@ -89,6 +112,8 @@ public class Monitor {
 
         dataset.addSeries(meanSeries);
         dataset.addSeries(stdSeries);
+        dataset.addSeries(maxSeries);
+        dataset.addSeries(minSeries);
     }
 
     public void drawGraph(Simulation mySim) {
@@ -124,6 +149,16 @@ public class Monitor {
         plot.setRenderer(renderer);
 
 
+        while (i < 2 * (mySim.getSIM_STEPS() + 2)) {
+            renderer.setSeriesPaint(i, Color.red);
+            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
+            i++;
+        }
+        renderer.setSeriesPaint(i, Color.red);
+        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+        renderer.setSeriesPaint(i, Color.red);
+        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
+
         LegendItemCollection legendItems = new LegendItemCollection();
         legendItems.add(new LegendItem("Charged energy", Color.BLUE));
 
@@ -150,7 +185,7 @@ public class Monitor {
             public void windowClosing(WindowEvent e) {
                 int result = JOptionPane.showConfirmDialog(frame, "Do you want to save the results before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
-                    saveGraphAsImage(chartPanel);
+                    // saveSVGDialogue();
                 }
                 frame.dispose();
             }
@@ -160,21 +195,5 @@ public class Monitor {
         frame.pack();
         frame.setVisible(true);
         chartPanel.repaint();
-    }
-
-    private void saveGraphAsImage(ChartPanel chartPanel) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save as Image");
-        int userSelection = fileChooser.showSaveDialog(null);
-
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
-            try {
-                ChartUtilities.saveChartAsPNG(fileToSave, chartPanel.getChart(), 800, 600);
-                JOptionPane.showMessageDialog(null, "Chart saved successfully.");
-            } catch (IOException ex) {
-                System.out.println("Error: " + ex.getMessage());
-            }
-        }
     }
 }

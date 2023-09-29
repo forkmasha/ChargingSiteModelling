@@ -19,9 +19,18 @@ public class Statistics {
     public double getStd(List<Double> values) {
         return this.calculateStandardDeviation(values);
     }
+    public double getMax(List<Double> values) {
+        return this.calculateMax(values);
+    }
+
+    public double getMin(List<Double> values) {
+        return this.calculateMin(values);
+    }
+
     public double getConfidenceInterval(List<Double> values, int level) {
         return this.calculateConfidenceInterval(values, level);
     }
+
 
     private double calculateMean(List<Double> values) {
         double sum = 0.0;
@@ -51,10 +60,33 @@ public class Statistics {
         return Math.sqrt(calculateVariance(values));
     }
 
+    private double calculateMax(List<Double> values) {
+
+        double max = values.get(0);
+        for (Double value : values) {
+            if (value > max) {
+                max = value;
+            }
+        }
+        return max;
+    }
+
+    private double calculateMin(List<Double> values) {
+        double min = values.get(0);
+        for (Double value : values) {
+            if (value < min) {
+                min = value;
+            }
+        }
+        return min;
+    }
+
     private double calculateConfidenceInterval(List<Double> values, int level) {
         if (values.size() < 2) {
             return Double.MAX_VALUE; // infinite
         }
+
+
         // columnNames = {"Degrees of Freedom", "80%", "90%", "95%", "98%", "99%"};
         double[][] zScoreTable = {
                 {1, 3.078, 6.314, 12.706, 31.821, 63.65},

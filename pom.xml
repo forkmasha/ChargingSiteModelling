@@ -34,6 +34,22 @@
       <artifactId>batik-dom</artifactId>
       <version>1.6-1</version>
     </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-svggen</artifactId>
+      <version>1.14</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-all -->
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-all</artifactId>
+      <version>1.17</version>
+      <type>pom</type>
+    </dependency>
+
     <dependency>
       <groupId>batik</groupId>
       <artifactId>batik-svggen</artifactId>

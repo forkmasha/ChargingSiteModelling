@@ -1,6 +1,7 @@
 package queueingSystem;
 
 import chargingSite.ChargingPoint;
+import chargingSite.Simulation;
 
 import java.util.List;
 
@@ -11,8 +12,8 @@ public class Server {
     Client servedClient;
 
     public Server() {
-        chargingPoint= new ChargingPoint(50);
-    }
+        chargingPoint= new ChargingPoint(Simulation.MAX_POINT_POWER);
+    }   // TO BE SHIFTED TO ChargingPoint and set via GUI
 
     public void setClient(Client client) {
         this.servedClient = client;

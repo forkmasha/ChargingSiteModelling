@@ -24,7 +24,7 @@ public class SimulationGUI {
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner maxPower = createSpinner(50, 0, Integer.MAX_VALUE, 1);
+        JSpinner maxPower = createSpinner(150, 0, Integer.MAX_VALUE, 1);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);

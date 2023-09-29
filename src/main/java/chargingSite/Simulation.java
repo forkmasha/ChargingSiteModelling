@@ -57,6 +57,11 @@ public class Simulation {
     private int NUMBER_OF_CLIENT_TYPES;
     private int MAX_EVENTS;
     private int NUMBER_OF_SERVERS;
+
+    public static int MAX_SITE_POWER = 750;  // Maximum Charging Site Power (50.000)
+    public static int MAX_POINT_POWER = 150; // Maximum Charging Point Power (750)
+    public static int MAX_EV_POWER = 150; // Maximum EV Charging Power (750)
+
     private int QUEUE_SIZE;
     private QueueingType QUEUEING_TYPE;
     private double MEAN_SERVICE_TIME;

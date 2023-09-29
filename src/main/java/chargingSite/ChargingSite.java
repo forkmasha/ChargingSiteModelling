@@ -14,7 +14,7 @@ public class ChargingSite {
     public ChargingSite(int numberOfChargingPoints, double maxSitePower) {
         this.numberOfChargingPoints = numberOfChargingPoints;
         for ( int i=0; i<numberOfChargingPoints; i++ )  {
-            charginPowers.add(i,50.0);
+            charginPowers.add(i,(double) Simulation.MAX_SITE_POWER);
             chargingPoints.add(i, new ChargingPoint(charginPowers.get(i)));
         }
         this.maxSitePower = maxSitePower;

@@ -27,13 +27,13 @@ public class ElectricVehicle {
     private QueueingSystem siteModel;
 
     public ElectricVehicle(String model, double maxPower, double batteryCapacity, DistributionType demandDistributionType) {
-        this.id = model + "_" + UniformDistribution.createSample(500) + "_" + System.currentTimeMillis();
+        this.id = model + "_" + (int) UniformDistribution.createSample(500); // + "_" + System.currentTimeMillis();
         this.model = model;
         this.maxPower = maxPower;
         this.chargingPower = maxPower;
         this.batteryCapacity = batteryCapacity;
         this.demandDistribution = Distribution.create(demandDistributionType);
-        this.chargeDemand = batteryCapacity * demandDistribution.getSample(0.2);
+        this.chargeDemand = batteryCapacity * demandDistribution.getSample(0.8);  // TO BO DONE ???  via GUI (0.1, 0.2, ... 0.9)
         this.stateOfCharge = 1 - chargeDemand/batteryCapacity;
         this.energyCharged = 0;
     }
@@ -79,7 +79,7 @@ public class ElectricVehicle {
         } else if (this.stateOfCharge>0.8) {  // adjust charging power to current state of charge
             this.chargingPower = this.batteryCapacity * (1 - stateOfCharge ) / 0.2 ;
         } else if (this.stateOfCharge>0.2) {  // adjust charging power to current state of charge
-            this.chargingPower = this.batteryCapacity * 3.3 * (1.1 - stateOfCharge);
+            this.chargingPower = this.batteryCapacity * 10 * (1.1 - stateOfCharge);
         } else { // adjust charging power to current state of charge
             this.chargingPower = this.batteryCapacity + 2 * this.batteryCapacity * stateOfCharge / 0.2;
         }
@@ -92,7 +92,7 @@ public class ElectricVehicle {
             this.chargingPower *= maxChargingSitePower/sitePower;
         }
 
-        System.out.println("chargingPower = " + this.chargingPower);
+        System.out.println(this.id + ": SoC = " + this.stateOfCharge + " chargingPower = " + this.chargingPower);
     }
 
     public void setPlugType(String plugType) {

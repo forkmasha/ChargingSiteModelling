@@ -1,6 +1,7 @@
 package queueingSystem;
 
 import chargingSite.ChargingSite;
+import chargingSite.Simulation;
 import distributions.Distribution;
 import distributions.DistributionType;
 import eventSimulation.Event;
@@ -74,7 +75,7 @@ public class QueueingSystem {
     public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
         this.myQueue = new Queue(queueSize,queueingType);
         this.numberOfServers = numberOfServers;
-        this.site = new ChargingSite(numberOfServers,25); // TO BE SET via GUI
+        this.site = new ChargingSite(numberOfServers, Simulation.MAX_SITE_POWER); // TO BE SET via GUI
         this.resetQueueingSystem();
     }
     /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!

@@ -1,6 +1,7 @@
 package queueingSystem;
 
 import chargingSite.ElectricVehicle;
+import chargingSite.Simulation;
 import distributions.Distribution;
 import distributions.DistributionType;
 
@@ -30,7 +31,7 @@ public class Client {
         this.meanServiceTime = meanServiceTime;
         this.system = system;
         this.addServiceTimeDistribution(serviceType);
-        this.car=new ElectricVehicle("car",75,60, DistributionType.BETA);
+        this.car=new ElectricVehicle("car", Simulation.MAX_EV_POWER,60, DistributionType.BETA);  // batteryCapacity may also be set in GUI some time...
         this.car.setQueueingSystem(system);
     }
     public int getMyIndex() { return myIndex; }

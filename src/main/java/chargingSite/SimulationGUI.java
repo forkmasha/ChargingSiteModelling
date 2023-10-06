@@ -3,6 +3,7 @@ package chargingSite;
 import distributions.DistributionType;
 import queueingSystem.Queue;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -13,8 +14,8 @@ public class SimulationGUI {
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(new Color(200, 200, 240));
-        frame.setPreferredSize(new Dimension(450, 700));
-        frame.setMinimumSize(new Dimension(450, 700));
+        frame.setPreferredSize(new Dimension(450, 780));
+        frame.setMinimumSize(new Dimension(450, 780));
 
         JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner arrivalRateStep = createSpinner(0.5, 0.1, Double.MAX_VALUE, 0.1);
@@ -25,6 +26,10 @@ public class SimulationGUI {
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner maxPower = createSpinner(150, 0, Integer.MAX_VALUE, 1);
+
+        JSpinner maxSitePower = createSpinner(750, 0.1, Double.MAX_VALUE, 1);
+        JSpinner maxPointPower = createSpinner(150, 0.1, Double.MAX_VALUE,1);
+        JSpinner maxEVPower = createSpinner(150, 0.1, Double.MAX_VALUE, 1);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
@@ -45,7 +50,13 @@ public class SimulationGUI {
         runSimulation.setFont(new Font("Arial", Font.BOLD, 14));
         runSimulation.setForeground(Color.WHITE);
 
+
         runSimulation.addActionListener(e -> {
+
+            double maxSitePowerValue = getSpinnerValueAsDouble(maxSitePower);
+            double maxPointPowerValue = getSpinnerValueAsDouble(maxPointPower);
+            double maxEVPowerValue = getSpinnerValueAsDouble(maxEVPower);
+
             Simulation simulation = new Simulation();
             simulation.setMIN_ARRIVAL_RATE(getSpinnerValueAsDouble(minArrivalRate));
             simulation.setARRIVAL_RATE_STEP(getSpinnerValueAsDouble(arrivalRateStep));
@@ -55,6 +66,12 @@ public class SimulationGUI {
             simulation.setMAX_EVENTS(getSpinnerValueAsInt(maxEvents));
             simulation.setNUMBER_OF_SERVERS(getSpinnerValueAsInt(numberOfServers));
             simulation.setQUEUE_SIZE(getSpinnerValueAsInt(queueSize));
+
+            simulation.setMaxSitePower((int) maxSitePowerValue);     //REDO
+            simulation.setMaxPointPower((int) maxPointPowerValue);
+            simulation.setMaxEvPower((int) maxEVPowerValue);
+
+
 
             String queueingTypeString = (String) queueingType.getSelectedItem();
             switch (queueingTypeString) {
@@ -100,6 +117,8 @@ public class SimulationGUI {
 
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
             simulation.setConfLevel(selectedConfidenceLevel);
+
+
             simulation.runSimulation();
 
             // frame.dispose(); //fix the bug=)
@@ -117,11 +136,16 @@ public class SimulationGUI {
         setSpinnerModel(queueSize);
         setSpinnerModel(meanServiceTime);
 
+        setSpinnerModel(maxSitePower);
+        setSpinnerModel(maxPointPower);
+        setSpinnerModel(maxEVPower);
+
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel toppanel = createSpinnerPanel("Min Arrival Rate", "Arrival Rate Step", "Max Arrival Rate", minArrivalRate, arrivalRateStep, maxArrivalRate);
         verticalBox.add(toppanel);
+
 
         JPanel ProcPanel = new JPanel();
         ProcPanel.setLayout(new GridLayout(22, 1));
@@ -148,12 +172,31 @@ public class SimulationGUI {
         ProcPanel.add(new JLabel("Max Charging Power [kW]", SwingConstants.CENTER));
         ProcPanel.add(maxPower);
 
+
+        JPanel powerSettingsPanel = new JPanel();
+        powerSettingsPanel.setLayout(new GridLayout(1, 3));
+        powerSettingsPanel.add(createSpinnerPanel("MaxSitePower", maxSitePower));
+        powerSettingsPanel.add(createSpinnerPanel("MaxPointPower", maxPointPower));
+        powerSettingsPanel.add(createSpinnerPanel("Max EV Power", maxEVPower));
+
+        EmptyBorder customEmptyBorder = new EmptyBorder(10, 10, 10, 10) {
+            @Override
+            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+                g.setColor(new Color(200, 200, 240));
+                g.fillRect(x, y, width, height);
+            }
+        };
+
+        powerSettingsPanel.setBorder(customEmptyBorder);
+
         ProcPanel.setBackground(new Color(200, 200, 240));
         verticalBox.add(ProcPanel);
 
+
         JPanel bottomPanel = new JPanel();
         runSimulation.setForeground(Color.BLACK);
-        bottomPanel.setLayout(new GridLayout(1, 1));
+        bottomPanel.setLayout(new GridLayout(2, 1));
+        bottomPanel.add(powerSettingsPanel);
         bottomPanel.add(runSimulation);
         bottomPanel.setBackground(new Color(136, 186, 242));
 
@@ -161,6 +204,7 @@ public class SimulationGUI {
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
+        frame.setResizable(false);
 
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -218,6 +262,15 @@ public class SimulationGUI {
         panel.add(spinner1);
         panel.add(spinner2);
         panel.add(spinner3);
+        panel.setBackground(new Color(200, 200, 240));
+        return panel;
+    }
+
+    private static JPanel createSpinnerPanel(String label, JSpinner spinner) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(2, 1));
+        panel.add(new JLabel(label, SwingConstants.CENTER));
+        panel.add(spinner);
         panel.setBackground(new Color(200, 200, 240));
         return panel;
     }

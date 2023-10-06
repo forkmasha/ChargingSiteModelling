@@ -27,9 +27,9 @@ public class SimulationGUI {
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner maxPower = createSpinner(150, 0, Integer.MAX_VALUE, 1);
 
-        JSpinner maxSitePower = createSpinner(750, 0.1, Double.MAX_VALUE, 1);
-        JSpinner maxPointPower = createSpinner(150, 0.1, Double.MAX_VALUE,1);
-        JSpinner maxEVPower = createSpinner(150, 0.1, Double.MAX_VALUE, 1);
+        JSpinner maxSitePower = createSpinner(200, 0.1, Double.MAX_VALUE, 1);
+        JSpinner maxPointPower = createSpinner(100, 0.1, Double.MAX_VALUE,1);
+        JSpinner maxEVPower = createSpinner(120, 0.1, Double.MAX_VALUE, 1);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);

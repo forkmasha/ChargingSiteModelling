@@ -33,7 +33,7 @@ public class ElectricVehicle {
         this.chargingPower = maxPower;
         this.batteryCapacity = batteryCapacity;
         this.demandDistribution = Distribution.create(demandDistributionType);
-        double demand = demandDistribution.getSample(0.70);  // TO BO DONE ???  via GUI (0.1, 0.2, ... 0.9)
+        double demand = demandDistribution.getSample(0.80);  // TO BO DONE ???  via GUI (0.1, 0.2, ... 0.9)
         //bad patch !!! TO BE DONE better, i.e., BETA distribution sometimes returns values slightly above 1 for mean > 0.7 ...
         if(demand < 0) {System.out.println("Warning: negative demand  " + demand + " was converted to positive."); demand *= -1; }
         if(demand > 1) {System.out.println("Warning: demand " + demand + " > 1 was converted to 1/demand."); demand = 1/demand; }

@@ -15,17 +15,22 @@ public class BetaDistribution extends Distribution {
     }
 
     public double getSample(double mean) {
-
+        if(mean<0) {mean *= -1;}
+        if(mean>1) {mean = 1/mean;}
         double factor = mean * (alpha + beta) / alpha;
         double sample = factor * betaDistribution(alpha, beta);
+        while (sample < 0 || sample > 1) {sample = factor * betaDistribution(alpha, beta);}
         return sample;
     }
 
     public static double createSample(double mean) {
+        if(mean<0) {mean *= -1;}
+        if(mean>1) {mean = 1/mean;}
         double alpha = 5;
         double beta = 2;
         double factor = mean * (alpha + beta) / alpha;
         double sample = factor * betaDistribution(alpha, beta);
+        while (sample < 0 || sample > 1) {sample = factor * betaDistribution(alpha, beta);}
         return sample;
     }
 

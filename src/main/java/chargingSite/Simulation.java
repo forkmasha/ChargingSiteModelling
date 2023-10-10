@@ -62,6 +62,8 @@ public class Simulation {
     public static int MAX_POINT_POWER; // Maximum Charging Point Power (750)
     public static int MAX_EV_POWER; // Maximum EV Charging Power (750)
 
+    public static double MEAN_CHARGING_DEMAND;
+
     private int QUEUE_SIZE;
     private QueueingType QUEUEING_TYPE;
     private double MEAN_SERVICE_TIME;
@@ -161,6 +163,10 @@ public class Simulation {
 
     public static void setMaxSitePower(int maxSitePower) {
         MAX_SITE_POWER = maxSitePower;
+    }
+
+    public static void setMeanChargingDemand(double meanChargingDemand) {
+        MEAN_CHARGING_DEMAND = meanChargingDemand;
     }
 
     public static void setMaxPointPower(int maxPointPower) {
@@ -381,6 +387,11 @@ public class Simulation {
 
         frame.setContentPane(chartPanel);
         frame.pack();
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int screenWidth = (int) screenSize.getWidth();
+        frame.setLocation(screenWidth - frame.getWidth(), 0);
+
         frame.setVisible(true);
         chartPanel.repaint();
     }

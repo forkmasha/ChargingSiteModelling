@@ -39,17 +39,18 @@ class ErlangDistribution extends Distribution {
     }
 
     @Override
-    public double[] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
         int k = 2; // Set the shape parameter (number of events), you can adjust this as needed
         double rateParameter = 1.0 / mean; // Calculate the rate parameter (mean time between events)
 
-        double[] pdf = new double[numBins];
+        double[][] pdf = new double[2][numBins];
         double binWidth = xMax / numBins;
 
         for (int i = 0; i < numBins; i++) {
             double x = i * binWidth;
-            pdf[i] = (Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1) * binWidth;
+            pdf[0][i]=x;
+            pdf[1][i] = (Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1) * binWidth;
         }
 
         return pdf;

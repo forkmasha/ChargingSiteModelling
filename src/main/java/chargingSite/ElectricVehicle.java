@@ -26,6 +26,8 @@ public class ElectricVehicle {
     private ChargingPoint chargingPoint;
     private QueueingSystem siteModel;
 
+    private double meanChargingDemand;
+
     public ElectricVehicle(String model, double maxPower, double batteryCapacity, DistributionType demandDistributionType) {
         this.id = model + "_" + (int) UniformDistribution.createSample(500); // + "_" + System.currentTimeMillis();
         this.model = model;
@@ -33,7 +35,7 @@ public class ElectricVehicle {
         this.chargingPower = maxPower;
         this.batteryCapacity = batteryCapacity;
         this.demandDistribution = Distribution.create(demandDistributionType);
-        double demand = demandDistribution.getSample(0.80);  // TO BO DONE ???  via GUI (0.1, 0.2, ... 0.9)
+        double demand = demandDistribution.getSample(Simulation.MEAN_CHARGING_DEMAND);  // TO BO DONE ???  via GUI (0.1, 0.2, ... 0.9) meanChargingDemand
         //bad patch !!! TO BE DONE better, i.e., BETA distribution sometimes returns values slightly above 1 for mean > 0.7 ...
         if(demand < 0) {System.out.println("Warning: negative demand  " + demand + " was converted to positive."); demand *= -1; }
         if(demand > 1) {System.out.println("Warning: demand " + demand + " > 1 was converted to 1/demand."); demand = 1/demand; }
@@ -50,6 +52,10 @@ public class ElectricVehicle {
     }
     public void setReservationTime(double reservationTime) {
         this.reservationTime = reservationTime;
+    }
+
+    public void setMeanChargingDemand(double meanChargingDemand) {
+        this.meanChargingDemand = meanChargingDemand;
     }
 
     public void setChargeDemand(double chargeDemand) {
@@ -128,6 +134,7 @@ public class ElectricVehicle {
             System.exit(1);
         }
     }
+
 
     public void setPlugType(String plugType) {
         this.plugType = plugType;

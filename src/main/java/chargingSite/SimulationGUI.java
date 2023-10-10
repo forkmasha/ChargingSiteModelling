@@ -14,8 +14,8 @@ public class SimulationGUI {
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(new Color(200, 200, 240));
-        frame.setPreferredSize(new Dimension(450, 780));
-        frame.setMinimumSize(new Dimension(450, 780));
+        frame.setPreferredSize(new Dimension(450, 800));
+        frame.setMinimumSize(new Dimension(450, 800));
 
         JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner arrivalRateStep = createSpinner(0.5, 0.1, Double.MAX_VALUE, 0.1);
@@ -25,7 +25,8 @@ public class SimulationGUI {
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner maxPower = createSpinner(150, 0, Integer.MAX_VALUE, 1);
+        JSpinner meanChargingDemand = createSpinner(0.8, 0.0,0.9, 0.1);
+       // JSpinner maxPower = createSpinner(150, 0, Integer.MAX_VALUE, 1);
 
         JSpinner maxSitePower = createSpinner(200, 0.1, Double.MAX_VALUE, 1);
         JSpinner maxPointPower = createSpinner(100, 0.1, Double.MAX_VALUE,1);
@@ -56,6 +57,7 @@ public class SimulationGUI {
             double maxSitePowerValue = getSpinnerValueAsDouble(maxSitePower);
             double maxPointPowerValue = getSpinnerValueAsDouble(maxPointPower);
             double maxEVPowerValue = getSpinnerValueAsDouble(maxEVPower);
+            double meanChargingDemandValue = getSpinnerValueAsDouble(meanChargingDemand);
 
             Simulation simulation = new Simulation();
             simulation.setMIN_ARRIVAL_RATE(getSpinnerValueAsDouble(minArrivalRate));
@@ -70,7 +72,7 @@ public class SimulationGUI {
             simulation.setMaxSitePower((int) maxSitePowerValue);     //REDO
             simulation.setMaxPointPower((int) maxPointPowerValue);
             simulation.setMaxEvPower((int) maxEVPowerValue);
-
+            simulation.setMeanChargingDemand(meanChargingDemandValue);
 
 
             String queueingTypeString = (String) queueingType.getSelectedItem();
@@ -139,6 +141,7 @@ public class SimulationGUI {
         setSpinnerModel(maxSitePower);
         setSpinnerModel(maxPointPower);
         setSpinnerModel(maxEVPower);
+        setSpinnerModel(meanChargingDemand);
 
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -169,8 +172,8 @@ public class SimulationGUI {
         ProcPanel.add(demandType);
         ProcPanel.add(new JLabel("Confidence Level", SwingConstants.CENTER));
         ProcPanel.add(confLevel);
-        ProcPanel.add(new JLabel("Max Charging Power [kW]", SwingConstants.CENTER));
-        ProcPanel.add(maxPower);
+        ProcPanel.add(new JLabel("Mean Charging Demand", SwingConstants.CENTER));
+       ProcPanel.add(meanChargingDemand);
 
 
         JPanel powerSettingsPanel = new JPanel();
@@ -178,8 +181,10 @@ public class SimulationGUI {
         powerSettingsPanel.add(createSpinnerPanel("MaxSitePower", maxSitePower));
         powerSettingsPanel.add(createSpinnerPanel("MaxPointPower", maxPointPower));
         powerSettingsPanel.add(createSpinnerPanel("Max EV Power", maxEVPower));
+        powerSettingsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Встановлює відступ вниз на 10 пікселів
 
-        EmptyBorder customEmptyBorder = new EmptyBorder(10, 10, 10, 10) {
+
+        EmptyBorder customEmptyBorder = new EmptyBorder(0, 10, 20, 10) {
             @Override
             public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
                 g.setColor(new Color(200, 200, 240));
@@ -195,6 +200,9 @@ public class SimulationGUI {
 
         JPanel bottomPanel = new JPanel();
         runSimulation.setForeground(Color.BLACK);
+
+        bottomPanel.setBackground(new Color(136, 186, 242));
+
         bottomPanel.setLayout(new GridLayout(2, 1));
         bottomPanel.add(powerSettingsPanel);
         bottomPanel.add(runSimulation);
@@ -204,7 +212,7 @@ public class SimulationGUI {
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
-        frame.setResizable(false);
+        //  frame.setResizable(false);
 
         frame.addWindowListener(new WindowAdapter() {
             @Override

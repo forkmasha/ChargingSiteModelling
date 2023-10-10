@@ -26,15 +26,16 @@ public class UniformDistribution extends Distribution {
         return samples;
     }
     @Override
-    public double[] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
         double binWidth = xMax / numBins;
         double constantPDF = 1.0 / xMax; // Calculate the constant PDF value
 
-        double[] pdf = new double[numBins];
+        double[][] pdf = new double[2][numBins];
 
         for (int i = 0; i < numBins; i++) {
-            pdf[i] = constantPDF;
+            pdf[0][i]=i/numBins;
+            pdf[1][i] = constantPDF;
         }
 
         return pdf;

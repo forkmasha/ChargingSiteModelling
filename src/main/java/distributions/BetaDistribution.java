@@ -64,16 +64,17 @@ public class BetaDistribution extends Distribution {
     }
 
     @Override
-    public double[] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         int numPoints = 1000;
-        double[] pdfValues = new double[numPoints];
+        double[][] pdfValues = new double[2][numPoints];
         double stepSize = xMax / (numPoints - 1);
 
         for (int i = 0; i < numPoints; i++) {
             double x = i * stepSize;
             double alpha = 5;
             double beta = 2;
-            pdfValues[i] = betaDistributionPDF(alpha, beta, x);
+            pdfValues[0][i] = x;
+            pdfValues[1][i] = betaDistributionPDF(alpha, beta, x);
         }
         return pdfValues;
     }

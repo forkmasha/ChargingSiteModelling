@@ -28,9 +28,9 @@ class GeometricDistribution extends Distribution {
     }
 
     @Override
-    public double[] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
-        double[] pdf = new double[numBins];
+        double[][] pdf = new double[2][numBins];
         double p = 1.0 / mean; // Calculate the probability of success (p)
 
         // Calculate the bin width to cover the range (1, xMax) with numBins
@@ -38,7 +38,8 @@ class GeometricDistribution extends Distribution {
 
         for (int i = 0; i < numBins; i++) {
             double x = 1 + i * binWidth; // Calculate the x value for the bin
-            pdf[i] = Math.pow(1 - p, x - 1) * p * binWidth;
+            pdf[0][i]=x;
+            pdf[1][i] = Math.pow(1 - p, x - 1) * p * binWidth;
         }
 
         return pdf;

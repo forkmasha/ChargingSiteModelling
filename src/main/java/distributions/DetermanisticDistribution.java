@@ -21,7 +21,7 @@ public class DetermanisticDistribution extends Distribution{
     }
 
     @Override
-    public double[] getPDF(double mean, double xMax) {
-        return new double[0];
+    public double[][] getPDF(double mean, double xMax) {
+        return new double[0][0];
     }
 }

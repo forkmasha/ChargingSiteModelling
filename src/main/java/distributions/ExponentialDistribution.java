@@ -31,16 +31,17 @@ public class ExponentialDistribution extends Distribution {
     }
 
     @Override
-    public double[] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         // Implement PDF calculation for Exponential distribution
         double lambda = 1.0 / mean;
         int numBins = 100; // Adjust the number of bins as needed
-        double[] pdf = new double[numBins];
+        double[][] pdf = new double[2][numBins];
         double binWidth = xMax / numBins;
 
         for (int i = 0; i < numBins; i++) {
             double x = i * binWidth;
-            pdf[i] = lambda * Math.exp(-lambda * x) * binWidth;
+            pdf[0][i]=x;
+            pdf[1][i] = lambda * Math.exp(-lambda * x) * binWidth;
         }
         return pdf;
     }

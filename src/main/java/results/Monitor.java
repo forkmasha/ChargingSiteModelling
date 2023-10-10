@@ -116,7 +116,28 @@ public class Monitor {
         dataset.addSeries(minSeries);
     }
 
-    public void drawGraph(Simulation mySim) {
+    public void saveSVGChart(String filePath) {
+
+        DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+        Document document = domImpl.createDocument(null, "svg", null);
+        SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+
+        MyChart.draw(svgGenerator, new Rectangle2D.Double(0, 0, 800, 600), null);
+
+        try {
+            OutputStream outputStream = new FileOutputStream(filePath);
+
+            Writer out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+            svgGenerator.stream(out, true /* use CSS */, false /* no doctype */);
+
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void drawGraph(Simulation mySim ) {
         String title = "Simulation Results";
         XYSeriesCollection dataset = new XYSeriesCollection();
 
@@ -185,7 +206,7 @@ public class Monitor {
             public void windowClosing(WindowEvent e) {
                 int result = JOptionPane.showConfirmDialog(frame, "Do you want to save the results before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
-                    // saveSVGDialogue();
+                 //   saveSVGChart(svgFilePath);
                 }
                 frame.dispose();
             }
@@ -193,6 +214,11 @@ public class Monitor {
 
         frame.setContentPane(chartPanel);
         frame.pack();
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int screenWidth = (int) screenSize.getWidth();
+        frame.setLocation(screenWidth - frame.getWidth(), 0);
+
         frame.setVisible(true);
         chartPanel.repaint();
     }

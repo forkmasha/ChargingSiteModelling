@@ -11,13 +11,17 @@ import org.jfree.data.statistics.HistogramType;
 import javax.swing.*;
 
 public class Histogram {
-    public static void generateHistogram(int bins, double samples[],double pdf[]){
+    public static void generateHistogram(int bins, double samples[],double pdf[][]){
         HistogramDataset dataset = new HistogramDataset();
-        dataset.setType(HistogramType.FREQUENCY);
+        dataset.setType(HistogramType.RELATIVE_FREQUENCY);
         // Add the generated data to the dataset
         dataset.addSeries("Histogram", samples, bins);
         // Create the histogram chart
-        JFreeChart chart = ChartFactory.createHistogram("Distribution", "Values", "Frequency", dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createHistogram("Distribution", "Values", "Probability", dataset, PlotOrientation.VERTICAL, true, true, false);
+
+       /* for(int i=0;i<samples.length;i++){
+            samples[i]/=numSamples;
+       }*/
 
         // Set colors and transparency for each series
         chart.getPlot().setForegroundAlpha(0.6f); // Adjust transparency (0.0f - fully transparent, 1.0f - fully opaque)

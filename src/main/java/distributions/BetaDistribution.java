@@ -15,29 +15,33 @@ public class BetaDistribution extends Distribution {
     }
 
     public double getSample(double mean) {
-        if(mean<0) {mean *= -1;}
-        if(mean>1) {mean = 1/mean;}
-        double factor = mean * (alpha + beta) / alpha;
-        double sample = factor * betaDistribution(alpha, beta);
-        while (sample < 0 || sample > 1) {sample = factor * betaDistribution(alpha, beta);}
+        double[] ab = getShapeParameters(mean);
+        double sample = betaDistribution(ab);
+        while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
     }
 
     public static double createSample(double mean) {
-        if(mean<0) {mean *= -1;}
-        if(mean>1) {mean = 1/mean;}
-        double alpha = 5;
-        double beta = 2;
-        double factor = mean * (alpha + beta) / alpha;
-        double sample = factor * betaDistribution(alpha, beta);
-        while (sample < 0 || sample > 1) {sample = factor * betaDistribution(alpha, beta);}
+        double[] ab = getShapeParameters(mean);
+        double sample = betaDistribution(ab);
+        while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
     }
 
-    private static double betaDistribution(double alpha, double beta) {
-        double gamma1 = gammaDistribution(alpha, 1.0);
-        double gamma2 = gammaDistribution(beta, 1.0);
-        return gamma1 / (gamma1 + gamma2);
+    private static double[] getShapeParameters(double mean) {
+        double[] ab = {1,1};
+        if(mean<0) {mean *= -1;}
+        if(mean>1) {mean = 1/mean;}
+        double omega = 0.8;
+        double c = 5;
+        ab[0] = 1 + c * omega; // alpha
+        ab[1] = 1 + c * (1-omega);  // beta
+        return ab;
+    }
+    private static double betaDistribution(double[] ab) {
+        double gamma1 = gammaDistribution(ab[0], 1.0);
+        double gamma2 = gammaDistribution(ab[1], 1.0);
+        return gamma1*gamma2 / (gamma1 + gamma2);
     }
 
     public static double gammaDistribution(double shape, double scale) {

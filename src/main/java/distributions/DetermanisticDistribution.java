@@ -14,8 +14,11 @@ public class DetermanisticDistribution extends Distribution{
     @Override
     public double[] getSamples(double mean, int count) {
         double[] samples = new double[count];
-        for (double sample : samples) {
+        /*for (double sample : samples) {
             sample = mean;
+        }*/
+        for (int i = 0; i < count; i++) {
+            samples[i] = mean;
         }
         return samples;
     }

@@ -4,8 +4,8 @@ import results.Histogram;
 
 public class ErlangTest {
     public static void main(String[] args) {
-        int numSamples = 2500;
-        int numBins = 10;
+        int numSamples = 25000;
+        int numBins = 100;
         double mean=0.5;
 
         ErlangDistribution erlangDistribution = new ErlangDistribution(DistributionType.ERLANG);

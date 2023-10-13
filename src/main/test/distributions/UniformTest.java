@@ -4,8 +4,8 @@ import results.Histogram;
 
 public class UniformTest {
     public static void main(String[] args) {
-        int numSamples = 2500;
-        int numBins = 10;
+        int numSamples = 2500000;
+        int numBins = 100;
         double mean=0.5;
 
         UniformDistribution uniformDistribution = new UniformDistribution(DistributionType.UNIFORM);

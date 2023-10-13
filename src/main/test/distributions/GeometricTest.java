@@ -4,9 +4,9 @@ import results.Histogram;
 
 public class GeometricTest {
     public static void main(String[] args) {
-        int numSamples = 2500;
-        int numBins = 10;
-        double mean=0.5;
+        int numSamples = 25000;
+        int numBins = 100;
+        double mean=50;
 
        GeometricDistribution geometricDistribution = new GeometricDistribution(DistributionType.GEOMETRIC);
         double[] samples = geometricDistribution.getSamples(mean, numSamples);

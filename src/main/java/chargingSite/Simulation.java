@@ -22,6 +22,7 @@ import results.Times;
 
 import javax.swing.*;
 import java.awt.*;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
@@ -397,37 +398,34 @@ public class Simulation {
     }
 
     public void saveSVGDialogue() {
-        JFrame saveAsSVGFrame = new JFrame("Save as SVG");
-        saveAsSVGFrame.setPreferredSize(new Dimension(400, 150));
+        JPanel panel = new JPanel(new GridLayout(3, 2));
+        JLabel heightLabel = new JLabel("Height:");
+        JTextField heightField = new JTextField("800");
+        JLabel widthLabel = new JLabel("Width:");
+        JTextField widthField = new JTextField("600");
+        JLabel fileLabel = new JLabel("File:");
+        JTextField fileField = new JTextField("simulation.svg");
 
-        Panel saveAsSVGPanel = new Panel();
-        saveAsSVGPanel.setLayout(new GridLayout(3, 2));
-        saveAsSVGPanel.add(new JLabel("Hight: "));
-        JTextField height = new JTextField();
-        height.setText("800");
-        saveAsSVGPanel.add(height);
-        saveAsSVGPanel.add(new JLabel("Width: "));
-        JTextField width = new JTextField();
-        width.setText("600");
-        saveAsSVGPanel.add(width);
-        saveAsSVGPanel.add(new JLabel("File: "));
-        JTextField file = new JTextField();
-        file.setText("simulation.svg");
-        saveAsSVGPanel.add(file);
+        panel.add(heightLabel);
+        panel.add(heightField);
+        panel.add(widthLabel);
+        panel.add(widthField);
+        panel.add(fileLabel);
+        panel.add(fileField);
 
-        JButton save = new JButton("Save");
-        save.addActionListener(e1 -> {
+        int result = JOptionPane.showConfirmDialog(null, panel, "Save as SVG",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            File selectedFile = new File(fileField.getText());
+            int imageWidth = Integer.parseInt(widthField.getText());
+            int imageHeight = Integer.parseInt(heightField.getText());
+
             try {
-                SaveAsSVG(Integer.parseInt(height.getText()), Integer.parseInt(width.getText()), new File(file.getText()));
-                saveAsSVGFrame.dispose();
+                SaveAsSVG(imageWidth, imageHeight, selectedFile);
             } catch (IOException ex) {
                 System.out.println("Error: " + ex.getMessage());
             }
-        });
-
-        saveAsSVGFrame.getContentPane().add(saveAsSVGPanel, BorderLayout.CENTER);
-        saveAsSVGFrame.getContentPane().add(save, BorderLayout.SOUTH);
-        saveAsSVGFrame.pack();
-        saveAsSVGFrame.setVisible(true);
+        }
     }
 }

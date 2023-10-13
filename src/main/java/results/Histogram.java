@@ -13,7 +13,7 @@ import javax.swing.*;
 public class Histogram {
     public static void generateHistogram(int bins, double samples[],double pdf[][]){
         HistogramDataset dataset = new HistogramDataset();
-        dataset.setType(HistogramType.RELATIVE_FREQUENCY);
+        dataset.setType(HistogramType.SCALE_AREA_TO_1);
         // Add the generated data to the dataset
         dataset.addSeries("Histogram", samples, bins);
         // Create the histogram chart

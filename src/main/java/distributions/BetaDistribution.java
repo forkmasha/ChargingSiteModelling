@@ -1,30 +1,35 @@
 package distributions;
 
+import java.util.Arrays;
 import java.util.Random;
+//import org.apache.commons.math3.distribution.BetaDistribution;
+//import smile.stat.distribution.AbstractDistribution;
+//import smile.stat.distribution.BetaDistribution;
+
 
 public class BetaDistribution extends Distribution {
     private Random random;
-    private double alpha = 5;
-    private double beta = 2;
+    //private double alpha = 5;
+    //private double beta = 2;
 
     public BetaDistribution(DistributionType type) {
         super(type);
         random = new Random();
-        this.alpha = 5;
-        this.beta = 2;
+        //this.alpha = 5;
+        //this.beta = 2;
     }
 
     public double getSample(double mean) {
         double[] ab = getShapeParameters(mean);
         double sample = betaDistribution(ab);
-        while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
+        //while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
     }
 
     public static double createSample(double mean) {
         double[] ab = getShapeParameters(mean);
         double sample = betaDistribution(ab);
-        while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
+        //while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
     }
 
@@ -32,16 +37,18 @@ public class BetaDistribution extends Distribution {
         double[] ab = {1,1};
         if(mean<0) {mean *= -1;}
         if(mean>1) {mean = 1/mean;}
-        double omega = 0.8;
-        double c = 5;
-        ab[0] = 1 + c * omega; // alpha
-        ab[1] = 1 + c * (1-omega);  // beta
+        double var = 7.5; // variance needs to be big enough to yield the expected shape...
+        ab[0] = var * mean; // alpha
+        ab[1] = var * (1-mean);  // beta
+        //ab[0] = 0.1; ab[1] = 0.1; // use this line to test different shapes (independent of mean)
         return ab;
     }
     private static double betaDistribution(double[] ab) {
         double gamma1 = gammaDistribution(ab[0], 1.0);
         double gamma2 = gammaDistribution(ab[1], 1.0);
-        return gamma1*gamma2 / (gamma1 + gamma2);
+        return gamma1 / (gamma1 + gamma2);  // @Masha: this is ok! :-)
+        // return (gamma1 * gamma2) / (gamma1 + gamma2); // that's for the Beta-Function NOT the Beta Distribution
+        // return gammaDistribution(ab[0] + ab[1], 1.0) / (gamma1 + gamma2); // a variant I found that not works
     }
 
     public static double gammaDistribution(double shape, double scale) {

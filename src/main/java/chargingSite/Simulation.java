@@ -75,9 +75,9 @@ public class Simulation {
     public Monitor chargingMonitor;
 
 
-    private  Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
-    private  Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
-    private  Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
+    private Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
+    private Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
+    private Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
 
     //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
 
@@ -119,6 +119,7 @@ public class Simulation {
     public void setNUMBER_OF_CLIENT_TYPES(int NUMBER_OF_CLIENT_TYPES) {
         this.NUMBER_OF_CLIENT_TYPES = NUMBER_OF_CLIENT_TYPES;
     }
+
     public void setMAX_EVENTS(int MAX_EVENTS) {
         this.MAX_EVENTS = MAX_EVENTS;
     }
@@ -142,9 +143,11 @@ public class Simulation {
     public void setARRIVAL_TYPE(DistributionType ARRIVAL_TYPE) {
         this.ARRIVAL_TYPE = ARRIVAL_TYPE;
     }
+
     public void setDEMAND_TYPE(DistributionType DEMAND_TYPE) {
         this.DEMAND_TYPE = DEMAND_TYPE;
     }
+
     public DistributionType getDEMAND_TYPE() {
         return this.DEMAND_TYPE;
     }
@@ -201,12 +204,12 @@ public class Simulation {
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);
         Client[] myFirstClients = new Client[NUMBER_OF_CLIENT_TYPES];
-        QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS,QUEUE_SIZE,QUEUEING_TYPE);
+        QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS, QUEUE_SIZE, QUEUEING_TYPE);
         chargingMonitor.setSource(mySystem);
         if (NUMBER_OF_CLIENT_TYPES > 1) {
-            mySystem.setName(ARRIVAL_TYPE + "/MIXED/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS+QUEUE_SIZE));
+            mySystem.setName(ARRIVAL_TYPE + "/MIXED/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
         } else {
-            mySystem.setName(ARRIVAL_TYPE + "/" + SERVICE_TYPE + "/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS+QUEUE_SIZE));
+            mySystem.setName(ARRIVAL_TYPE + "/" + SERVICE_TYPE + "/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
         }
         mySystem.setDistributionType(ARRIVAL_TYPE);
         int stepCounter = 0;
@@ -245,7 +248,7 @@ public class Simulation {
             chargingMonitor.storeMin();
             chargingMonitor.storeConf();
 
-                Statistics calc = new Statistics();
+            Statistics calc = new Statistics();
             System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
             System.out.println("Service Time (" + mySystem.getTimesInService().size() + "): "
                     + calc.getMean(mySystem.getTimesInService()) + "/"
@@ -268,15 +271,13 @@ public class Simulation {
             System.out.print("\t Server state: " + mySystem.getNumberOfServersInUse());
             System.out.println("\t Clients done: " + Client.getClientCounter());
 
-            System.out.println(">--------- "+mySystem.getSystemName()+" Simulation step# " + stepCounter + " done -----------<");
+            System.out.println(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<");
 
         }
 
         drawGraph();
 
         chargingMonitor.drawGraph(this);
-        
-
     }
 
     public void drawGraph() {
@@ -344,13 +345,11 @@ public class Simulation {
         legendLabels.add("Service time");
         legendLabels.add("Queueing time");
 
-        for(LegendItemSource lt : MyChart.getLegend().getSources())
-        {
+        for (LegendItemSource lt : MyChart.getLegend().getSources()) {
 
-            int len =  lt.getLegendItems().getItemCount();
-            for(int j = 0; j < len; j++)
-            {
-                if(!lt.getLegendItems().get(j).getSeriesKey().toString().contains("confBar") && !lt.getLegendItems().get(j).getSeriesKey().toString().contains("Std")){
+            int len = lt.getLegendItems().getItemCount();
+            for (int j = 0; j < len; j++) {
+                if (!lt.getLegendItems().get(j).getSeriesKey().toString().contains("confBar") && !lt.getLegendItems().get(j).getSeriesKey().toString().contains("Std")) {
                     legendItems.add(new LegendItem(legendLabels.get(0), lt.getLegendItems().get(j).getFillPaint()));
                     legendLabels.remove(0);
                 }
@@ -361,7 +360,8 @@ public class Simulation {
             @Override
             public LegendItemCollection getLegendItems() {
                 return legendItems;
-            } };
+            }
+        };
         MyChart.getLegend().setSources(new LegendItemSource[]{source});
 
 
@@ -400,9 +400,9 @@ public class Simulation {
     public void saveSVGDialogue() {
         JPanel panel = new JPanel(new GridLayout(3, 2));
         JLabel heightLabel = new JLabel("Height:");
-        JTextField heightField = new JTextField("800");
+        JTextField heightField = new JTextField("730");
         JLabel widthLabel = new JLabel("Width:");
-        JTextField widthField = new JTextField("600");
+        JTextField widthField = new JTextField("1200");
         JLabel fileLabel = new JLabel("File:");
         JTextField fileField = new JTextField("simulation.svg");
 
@@ -421,10 +421,19 @@ public class Simulation {
             int imageWidth = Integer.parseInt(widthField.getText());
             int imageHeight = Integer.parseInt(heightField.getText());
 
-            try {
-                SaveAsSVG(imageWidth, imageHeight, selectedFile);
-            } catch (IOException ex) {
-                System.out.println("Error: " + ex.getMessage());
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setSelectedFile(new File(fileField.getText()));
+
+            int fileChooserResult = fileChooser.showSaveDialog(null);
+
+            if (fileChooserResult == JFileChooser.APPROVE_OPTION) {
+                File chosenFile = fileChooser.getSelectedFile();
+
+                try {
+                    SaveAsSVG(imageWidth, imageHeight, chosenFile);
+                } catch (IOException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
             }
         }
     }

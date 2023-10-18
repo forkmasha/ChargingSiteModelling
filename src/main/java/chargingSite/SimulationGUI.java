@@ -2,38 +2,55 @@ package chargingSite;
 
 import distributions.DistributionType;
 import queueingSystem.Queue;
+
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.awt.geom.GeneralPath;
 
 public class SimulationGUI {
+
+    private static final Color BLUE = new Color(173, 216, 230);
+    private static final Color LIGHT_BLUE = new Color(200, 200, 240);
+    private static final Color DARK_BLUE = new Color(136, 186, 242);
+    private static final Color ORANGE = new Color(255, 175, 128);
+
     public static void runSimulationGUI() {
+        JFrame frame = createSimulationFrame();
+        addWindowCloseListener(frame);
+        frame.setVisible(true);
+    }
+
+    private static JFrame createSimulationFrame() {
 
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setBackground(new Color(200, 200, 240));
-        frame.setPreferredSize(new Dimension(450, 800));
-        frame.setMinimumSize(new Dimension(450, 800));
+        frame.getContentPane().setBackground(LIGHT_BLUE);
+        frame.setPreferredSize(new Dimension(450, 775));
+        frame.setMinimumSize(new Dimension(450, 775));
 
         JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner arrivalRateStep = createSpinner(0.5, 0.1, Double.MAX_VALUE, 0.1);
         JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 0.1);
+
         JSpinner numberOfClientTypes = createSpinner(1, 1, 2, 1);
         JSpinner maxEvents = createSpinner(2500, 1, Integer.MAX_VALUE, 1);
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner meanChargingDemand = createSpinner(0.8, 0.0,0.9, 0.1);
-       // JSpinner maxPower = createSpinner(150, 0, Integer.MAX_VALUE, 1);
+        JSpinner meanChargingDemand = createSpinner(0.8, 0.0, 0.9, 0.1);
 
         JSpinner maxSitePower = createSpinner(200, 0.1, Double.MAX_VALUE, 1);
-        JSpinner maxPointPower = createSpinner(100, 0.1, Double.MAX_VALUE,1);
+        JSpinner maxPointPower = createSpinner(100, 0.1, Double.MAX_VALUE, 1);
         JSpinner maxEVPower = createSpinner(120, 0.1, Double.MAX_VALUE, 1);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
+
 
         String[] distributionTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC"};
         JComboBox<String> arrivalType = new JComboBox<>(distributionTypes);
@@ -47,9 +64,20 @@ public class SimulationGUI {
         JComboBox<String> confLevel = new JComboBox<>(confidenceLevels);
         confLevel.setSelectedItem("95");
 
+        queueingType.setUI(new CustomComboBoxUI());
+        arrivalType.setUI(new CustomComboBoxUI());
+        serviceType.setUI(new CustomComboBoxUI());
+        demandType.setUI(new CustomComboBoxUI());
+        // confLevel.setUI(new CustomComboBoxUI());
+
+        arrivalType.setBackground(Color.WHITE);
+        serviceType.setBackground(Color.white);
+        queueingType.setBackground(Color.white);
+        demandType.setBackground(Color.white);
+
+
         JButton runSimulation = new JButton("Run Simulation");
-        runSimulation.setFont(new Font("Arial", Font.BOLD, 14));
-        runSimulation.setForeground(Color.WHITE);
+        configureButton(runSimulation);
 
 
         runSimulation.addActionListener(e -> {
@@ -85,6 +113,7 @@ public class SimulationGUI {
             simulation.setMEAN_SERVICE_TIME(getSpinnerValueAsDouble(meanServiceTime));
 
             String arrivalTypeString = (String) arrivalType.getSelectedItem();
+
             switch (arrivalTypeString) {
                 case "GEOMETRIC" -> simulation.setARRIVAL_TYPE(DistributionType.GEOMETRIC);
                 case "EXPONENTIAL" -> simulation.setARRIVAL_TYPE(DistributionType.EXPONENTIAL);
@@ -120,12 +149,12 @@ public class SimulationGUI {
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
             simulation.setConfLevel(selectedConfidenceLevel);
 
-
             simulation.runSimulation();
 
             // frame.dispose(); //fix the bug=)
 
         });
+
 
         runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
@@ -143,15 +172,16 @@ public class SimulationGUI {
         setSpinnerModel(maxEVPower);
         setSpinnerModel(meanChargingDemand);
 
+
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel toppanel = createSpinnerPanel("Min Arrival Rate", "Arrival Rate Step", "Max Arrival Rate", minArrivalRate, arrivalRateStep, maxArrivalRate);
-        verticalBox.add(toppanel);
-
+        JPanel toPanel = createSpinnerPanel("Min Arrival Rate", "Arrival Rate Step", "Max Arrival Rate", minArrivalRate, arrivalRateStep, maxArrivalRate);
+        verticalBox.add(toPanel);
 
         JPanel ProcPanel = new JPanel();
         ProcPanel.setLayout(new GridLayout(22, 1));
+
         ProcPanel.add(new JLabel("Number of Client Types", SwingConstants.CENTER));
         ProcPanel.add(numberOfClientTypes);
         ProcPanel.add(new JLabel("Max Events", SwingConstants.CENTER));
@@ -173,47 +203,29 @@ public class SimulationGUI {
         ProcPanel.add(new JLabel("Confidence Level", SwingConstants.CENTER));
         ProcPanel.add(confLevel);
         ProcPanel.add(new JLabel("Mean Charging Demand", SwingConstants.CENTER));
-       ProcPanel.add(meanChargingDemand);
+        ProcPanel.add(meanChargingDemand);
 
-
-        JPanel powerSettingsPanel = new JPanel();
-        powerSettingsPanel.setLayout(new GridLayout(1, 3));
-        powerSettingsPanel.add(createSpinnerPanel("MaxSitePower", maxSitePower));
-        powerSettingsPanel.add(createSpinnerPanel("MaxPointPower", maxPointPower));
-        powerSettingsPanel.add(createSpinnerPanel("Max EV Power", maxEVPower));
-        powerSettingsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Встановлює відступ вниз на 10 пікселів
-
-
-        EmptyBorder customEmptyBorder = new EmptyBorder(0, 10, 20, 10) {
-            @Override
-            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-                g.setColor(new Color(200, 200, 240));
-                g.fillRect(x, y, width, height);
-            }
-        };
-
-        powerSettingsPanel.setBorder(customEmptyBorder);
-
-        ProcPanel.setBackground(new Color(200, 200, 240));
+        ProcPanel.setBackground(LIGHT_BLUE);
         verticalBox.add(ProcPanel);
 
+        JPanel toPanel2 = createSpinnerPanel("Max Site Power", "Max Point Power", "Max EV Power", maxSitePower, maxPointPower, maxEVPower);
+        verticalBox.add(toPanel2);
 
         JPanel bottomPanel = new JPanel();
         runSimulation.setForeground(Color.BLACK);
-
-        bottomPanel.setBackground(new Color(136, 186, 242));
-
-        bottomPanel.setLayout(new GridLayout(2, 1));
-        bottomPanel.add(powerSettingsPanel);
+        bottomPanel.setBackground(DARK_BLUE);
+        bottomPanel.setLayout(new GridLayout(1, 1));
         bottomPanel.add(runSimulation);
-        bottomPanel.setBackground(new Color(136, 186, 242));
 
         frame.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
-        //  frame.setResizable(false);
+        frame.setResizable(false);
+        return frame;
+    }
 
+    private static void addWindowCloseListener(JFrame frame) {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -270,16 +282,47 @@ public class SimulationGUI {
         panel.add(spinner1);
         panel.add(spinner2);
         panel.add(spinner3);
-        panel.setBackground(new Color(200, 200, 240));
+        panel.setBackground(LIGHT_BLUE);
         return panel;
     }
 
-    private static JPanel createSpinnerPanel(String label, JSpinner spinner) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 1));
-        panel.add(new JLabel(label, SwingConstants.CENTER));
-        panel.add(spinner);
-        panel.setBackground(new Color(200, 200, 240));
-        return panel;
+    private static void configureButton(JButton button) {
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+    }
+
+
+    static class CustomComboBoxUI extends BasicComboBoxUI {
+
+        @Override
+        protected ComboPopup createPopup() {
+            BasicComboPopup popup = (BasicComboPopup) super.createPopup();
+            popup.setBorder(BorderFactory.createEmptyBorder(2, 5, 0, 25));
+            return popup;
+        }
+
+        @Override
+        public ListCellRenderer<Object> createRenderer() {
+            return new BasicComboBoxRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                    Component comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+                    if (isSelected) {
+                        comp.setBackground(BLUE);
+                    } else {
+                        comp.setBackground(Color.WHITE);
+                    }
+
+
+
+                    JLabel label = (JLabel) comp;
+                    label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+
+                    return comp;
+                }
+            };
+        }
     }
 }

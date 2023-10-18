@@ -139,6 +139,9 @@ public class Simulation {
     public void setMEAN_SERVICE_TIME(double MEAN_SERVICE_TIME) {
         this.MEAN_SERVICE_TIME = MEAN_SERVICE_TIME;
     }
+    public double getMEAN_SERVICE_TIME() {
+        return MEAN_SERVICE_TIME;
+    }
 
     public void setARRIVAL_TYPE(DistributionType ARRIVAL_TYPE) {
         this.ARRIVAL_TYPE = ARRIVAL_TYPE;
@@ -302,6 +305,15 @@ public class Simulation {
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
+        //NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+        //xAxis.setRange(0.0, 1.1);
+
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        if (MEAN_SERVICE_TIME>0) {
+            yAxis.setRange(0, Math.ceil(1.1 * MEAN_SERVICE_TIME * ( 1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
+        } else {
+            yAxis.setRange(0, 3);
+        }
 
         int i = 0;
         while (i < SIM_STEPS + 1) {

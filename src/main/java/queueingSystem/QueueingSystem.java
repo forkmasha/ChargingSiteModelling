@@ -291,8 +291,15 @@ public class QueueingSystem {
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
+        public void instantDeparture(double currentTime, Client currentClient) {
+            nextEvent = new Event(currentTime);
+            //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
+            nextEvent.setEventType(EventType.DEPARTURE);
+            currentClient.setTimeInService(currentTime - (currentClient.getArrivalTime() + currentClient.getTimeInQueue()));
+            nextEvent.setClient(currentClient);
+        }
 
-    public void scheduleNextDeparture(double currentTime, Client currentClient) {
+        public void scheduleNextDeparture(double currentTime, Client currentClient) {
         nextServer = getIdleServer();
         if (nextServer == null) {
             System.out.println("Error: Cannot schedule next Departure - NO Server available: " + servers.size());
@@ -300,17 +307,20 @@ public class QueueingSystem {
         }
         nextServer.setClient(currentClient);
         currentClient.getCar().setChargingPoint(this.getChargingSite().getChargingPoint(servers.indexOf(nextServer)));
+        currentClient.getCar().setMyServer(nextServer);
 
         /*double currentChargingPower = currentClient.getCar().getChargingPower();
         double updatedChargingPower = currentChargingPower * occupiedServers;
         currentClient.getCar().setChargingPower(updatedChargingPower);
         currentClient.getCar().getChargingPowerHistory().add(updatedChargingPower);*/
 
-        nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
-        //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
-        nextEvent.setEventType(EventType.DEPARTURE);
-        currentClient.setTimeInService(nextEvent.getExecTime() - currentTime);
-        nextEvent.setClient(currentClient);
+        if (currentClient.getMeanServiceTime()>0) {
+            nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
+            //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
+            nextEvent.setEventType(EventType.DEPARTURE);
+            currentClient.setTimeInService(nextEvent.getExecTime() - currentTime);
+            nextEvent.setClient(currentClient);
+        }
     }
 
 

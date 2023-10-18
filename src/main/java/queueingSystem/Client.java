@@ -33,6 +33,7 @@ public class Client {
         this.addServiceTimeDistribution(serviceType);
         this.car=new ElectricVehicle("car", Simulation.MAX_EV_POWER,60, DistributionType.BETA);  // batteryCapacity may also be set in GUI some time...
         this.car.setQueueingSystem(system);
+        this.car.setMeanServiceTime(meanServiceTime);
     }
     public int getMyIndex() { return myIndex; }
     public QueueingSystem getSystem() {

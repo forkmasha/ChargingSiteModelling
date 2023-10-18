@@ -3,7 +3,9 @@ package chargingSite;
 import distributions.Distribution;
 import distributions.DistributionType;
 import distributions.UniformDistribution;
+import eventSimulation.EventSimulation;
 import queueingSystem.QueueingSystem;
+import queueingSystem.Server;
 import results.Statistics;
 
 import java.sql.SQLOutput;
@@ -15,6 +17,7 @@ public class ElectricVehicle {
     private  String model;
     private double reservationTime; // How long it occupies the ChargingPoint (reservation based) h
     private double chargeDemand; // How much energy it wishes to charge (time is determined by charge demand) kWh
+    private double meanServiceTime;
     private final Distribution demandDistribution; // How is the ChargingDemand distributed
     private double maxPower; // Power at which it can be charged (declines with increasing SoC) kW
     private String plugType; // Plug type required to connect to a ChargingPoint
@@ -25,6 +28,7 @@ public class ElectricVehicle {
     private double chargingPower; //current Charging power (from charging point) kW
     private ChargingPoint chargingPoint;
     private QueueingSystem siteModel;
+    private Server myServer;
 
     private double meanChargingDemand;
 
@@ -53,6 +57,9 @@ public class ElectricVehicle {
     public void setReservationTime(double reservationTime) {
         this.reservationTime = reservationTime;
     }
+    public void setMeanServiceTime(double meanServiceTime) {
+        this.meanServiceTime = meanServiceTime;
+    }
 
     public void setMeanChargingDemand(double meanChargingDemand) {
         this.meanChargingDemand = meanChargingDemand;
@@ -75,6 +82,11 @@ public class ElectricVehicle {
         }
         this.stateOfCharge += chargedEnergy/this.batteryCapacity;
         this.energyCharged += chargedEnergy;
+
+        if(this.meanServiceTime <= 0 && this.stateOfCharge>=1) {
+            this.siteModel.instantDeparture(EventSimulation.getCurrentTime(), this.getMyServer().getClient());
+            System.out.println("Car finished service (charging) because the battery is full.");
+        }
 
         // tracking down negative SoC...
         if(this.stateOfCharge<0) {
@@ -178,5 +190,13 @@ public class ElectricVehicle {
 
     public double getBatteryCapacity() {
         return batteryCapacity;
+    }
+
+    public Server getMyServer() {
+        return myServer;
+    }
+
+    public void setMyServer(Server myServer) {
+        this.myServer = myServer;
     }
 }

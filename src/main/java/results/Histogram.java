@@ -22,16 +22,17 @@ public class Histogram {
         // Add the generated data to the dataset
         dataset.addSeries("Histogram", samples, bins);
         // Create the histogram chart
-        JFreeChart chart = ChartFactory.createHistogram("Distribution", "Values", "Probability", dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createHistogram("Histogram", "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = (XYPlot) chart.getPlot();
 
+        /*
         NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
         xAxis.setRange(0.0, 1.1);
 
         NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
         yAxis.setRange(0, 5.0);
-
+        */
 
         // Set colors and transparency for each series
         chart.getPlot().setForegroundAlpha(0.6f); // Adjust transparency (0.0f - fully transparent, 1.0f - fully opaque)

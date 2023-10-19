@@ -6,9 +6,11 @@ import java.util.Random;
 //import smile.stat.distribution.AbstractDistribution;
 //import smile.stat.distribution.BetaDistribution;
 
+//private static double defaultVar=0.75;
 
 public class BetaDistribution extends Distribution {
     private Random random;
+    private static double defaultVar = 7.5;
     //private double alpha = 5;
     //private double beta = 2;
 
@@ -20,29 +22,38 @@ public class BetaDistribution extends Distribution {
     }
 
     public double getSample(double mean) {
-        double[] ab = getShapeParameters(mean);
+        return getSample(mean, defaultVar);
+    }
+    public double getSample(double mean, double var) {
+        double[] ab = getShapeParameters(mean,var);
         double sample = betaDistribution(ab);
         //while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
     }
 
     public static double createSample(double mean) {
-        double[] ab = getShapeParameters(mean);
+        return createSample(mean, defaultVar);
+    }
+    public static double createSample(double mean, double var) {
+        double[] ab = getShapeParameters(mean,var);
         double sample = betaDistribution(ab);
         //while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
     }
 
     private static double[] getShapeParameters(double mean) {
+        return getShapeParameters(mean, defaultVar);
+    }
+    private static double[] getShapeParameters(double mean, double var) {
         double[] ab = {1,1};
         if(mean<0) {mean *= -1;}
         if(mean>1) {mean = 1/mean;}
-        double var = 7.5; // variance needs to be big enough to yield the expected shape...
         ab[0] = var * mean; // alpha
         ab[1] = var * (1-mean);  // beta
         //ab[0] = 0.1; ab[1] = 0.1; // use this line to test different shapes (independent of mean)
         return ab;
     }
+
     private static double betaDistribution(double[] ab) {
         double gamma1 = gammaDistribution(ab[0], 1.0);
         double gamma2 = gammaDistribution(ab[1], 1.0);
@@ -67,9 +78,17 @@ public class BetaDistribution extends Distribution {
 
     @Override
     public double[] getSamples(double mean, int count) {
+        //double[] samples = new double[count];
+        //for (int i = 0; i < count; i++) {
+        //    samples[i] = createSample(mean,defaultVar);
+        //}
+        //return samples;
+        return getSamples(mean, defaultVar, count);
+    }
+    public double[] getSamples(double mean, double var, int count) {
         double[] samples = new double[count];
         for (int i = 0; i < count; i++) {
-            samples[i] = createSample(mean);
+            samples[i] = createSample(mean,var);
         }
         return samples;
     }

@@ -16,6 +16,7 @@ import org.w3c.dom.Document;
 import queueingSystem.Client;
 import queueingSystem.Queue.QueueingType;
 import queueingSystem.QueueingSystem;
+import results.Graph;
 import results.Monitor;
 import results.Statistics;
 import results.Times;
@@ -35,7 +36,7 @@ import java.util.ArrayList;
 
 import static org.jfree.chart.ChartFactory.createXYLineChart;
 
-public class Simulation {
+public class Simulation extends Graph {
     /*   private static final double MIN_ARRIVAL_RATE = 0.5;
     private static final double MAX_ARRIVAL_RATE = 25.0;
     private static final double ARRIVAL_RATE_STEP = 0.5;
@@ -187,7 +188,7 @@ public class Simulation {
     public Simulation() {
     }
 
-    public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
+   public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -282,6 +283,7 @@ public class Simulation {
 
         chargingMonitor.drawGraph(this);
     }
+
 
     public void drawGraph() {
         String title = "Simulation Results";
@@ -409,7 +411,8 @@ public class Simulation {
         chartPanel.repaint();
     }
 
-    public void saveSVGDialogue() {
+
+   /*public void saveSVGDialogue() {
         JPanel panel = new JPanel(new GridLayout(3, 2));
         JLabel heightLabel = new JLabel("Height:");
         JTextField heightField = new JTextField("730");
@@ -429,7 +432,6 @@ public class Simulation {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
-            File selectedFile = new File(fileField.getText());
             int imageWidth = Integer.parseInt(widthField.getText());
             int imageHeight = Integer.parseInt(heightField.getText());
 
@@ -443,6 +445,24 @@ public class Simulation {
 
                 try {
                     SaveAsSVG(imageWidth, imageHeight, chosenFile);
+                } catch (IOException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+            }
+        }
+    }*/
+
+    public void saveSVGDialogue() {
+        boolean inputValid = false;
+
+        while (!inputValid) {
+            inputValid = getUserInput() && chooseFile();
+
+            if (inputValid) {
+                try {
+                    int imageWidth = Integer.parseInt(getWidthField().getText());
+                    int imageHeight = Integer.parseInt(getHeightField().getText());
+                    SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
                 } catch (IOException ex) {
                     System.out.println("Error: " + ex.getMessage());
                 }

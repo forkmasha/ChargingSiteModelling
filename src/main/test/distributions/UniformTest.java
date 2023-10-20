@@ -12,6 +12,6 @@ public class UniformTest {
         double[] samples = uniformDistribution.getSamples(mean, numSamples);
         double[][] pdf = uniformDistribution.getPDF(mean, 1);
 
-        Histogram.generateHistogram(numBins, samples, pdf);
+        Histogram.generateHistogram(numBins, samples, pdf,DistributionType.UNIFORM.name());
     }
 }

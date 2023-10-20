@@ -16,15 +16,15 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Histogram {
-    public static void generateHistogram(int bins, double samples[], double pdf[][]) {
+    public static void generateHistogram(int bins, double samples[], double pdf[][], String distributionName) {
         HistogramDataset dataset = new HistogramDataset();
         dataset.setType(HistogramType.SCALE_AREA_TO_1);
-        // Add the generated data to the dataset
-        dataset.addSeries("Histogram", samples, bins);
-        // Create the histogram chart
-        JFreeChart chart = ChartFactory.createHistogram("Histogram", "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
-
+        // Добавьте сгенерированные данные в набор данных
+        dataset.addSeries(distributionName+"  Distribution", samples, bins);
+        // Создайте гистограмму
+        JFreeChart chart = ChartFactory.createHistogram(distributionName, "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
         XYPlot plot = (XYPlot) chart.getPlot();
+
 
         /*
         NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();

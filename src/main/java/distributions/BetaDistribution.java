@@ -74,8 +74,8 @@ public class BetaDistribution extends Distribution {
         return samples;
     }
 
-    @Override
-    public double[][] getPDF(double mean, double xMax) {
+
+    public static double[][] getPDF(double mean, double xMax) {
         int numPoints = 1000;
         double[][] pdfValues = new double[2][numPoints];
         double stepSize = xMax / (numPoints - 1);
@@ -90,17 +90,17 @@ public class BetaDistribution extends Distribution {
         return pdfValues;
     }
 
-    private double betaDistributionPDF(double alpha, double beta, double x) {
+    private static double betaDistributionPDF(double alpha, double beta, double x) {
         double num = Math.pow(x, alpha - 1) * Math.pow(1 - x, beta - 1);
         double den = betaFunction(alpha, beta);
         return num / den;
     }
 
-    private double betaFunction(double alpha, double beta) {
+    private static double betaFunction(double alpha, double beta) {
         return gamaFunction(alpha) * gamaFunction(beta) / gamaFunction(alpha + beta);
     }
 
-    private double gamaFunction(double x) {
+    private static double gamaFunction(double x) {
         if (x == 1.0) {
             return 1.0;
         } else if (x < 1.0) {

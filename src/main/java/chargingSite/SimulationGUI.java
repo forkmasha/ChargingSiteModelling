@@ -315,8 +315,6 @@ public class SimulationGUI {
                         comp.setBackground(Color.WHITE);
                     }
 
-
-
                     JLabel label = (JLabel) comp;
                     label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
 

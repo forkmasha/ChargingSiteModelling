@@ -12,7 +12,7 @@ public class ErlangTest {
         double[] samples = erlangDistribution.getSamples(mean, numSamples);
         double[][] pdf = erlangDistribution.getPDF(mean, 1);
 
-        Histogram.generateHistogram(numBins, samples, pdf);
+        Histogram.generateHistogram(numBins, samples, pdf,DistributionType.ERLANG.name());
     }
 }
 

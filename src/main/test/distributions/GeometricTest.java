@@ -12,7 +12,7 @@ public class GeometricTest {
         double[] samples = geometricDistribution.getSamples(mean, numSamples);
         double[][] pdf = geometricDistribution.getPDF(mean, 1);
 
-        Histogram.generateHistogram(numBins, samples, pdf);
+        Histogram.generateHistogram(numBins, samples, pdf,DistributionType.EXPONENTIAL.name());
     }
 }
 

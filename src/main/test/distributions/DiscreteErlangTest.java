@@ -12,6 +12,6 @@ public class DiscreteErlangTest {
         double[] samples = discreteErlangDistribution.getSamples(mean, numSamples);
         double[][] pdf = discreteErlangDistribution.getPDF(mean, 1);
 
-        Histogram.generateHistogram(numBins, samples, pdf);
+        Histogram.generateHistogram(numBins, samples, pdf,DistributionType.ERLANGD.name());
     }
 }

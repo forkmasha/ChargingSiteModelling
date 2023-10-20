@@ -2,7 +2,7 @@ package distributions;
 
 import java.util.Random;
 
-class GeometricDistribution extends Distribution {
+public class GeometricDistribution extends Distribution {
 
     public GeometricDistribution(DistributionType type) {
         super(type);
@@ -27,8 +27,8 @@ class GeometricDistribution extends Distribution {
         return samples;
     }
 
-    @Override
-    public double[][] getPDF(double mean, double xMax) {
+
+    public static double[][] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
         double[][] pdf = new double[2][numBins];
         double p = 1.0 / mean; // Calculate the probability of success (p)

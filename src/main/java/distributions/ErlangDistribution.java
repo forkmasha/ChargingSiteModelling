@@ -2,7 +2,7 @@ package distributions;
 
 import java.util.Random;
 
-class ErlangDistribution extends Distribution {
+public class ErlangDistribution extends Distribution {
 
     private int level;
     public ErlangDistribution(DistributionType type) {
@@ -38,8 +38,8 @@ class ErlangDistribution extends Distribution {
         return samples;
     }
 
-    @Override
-    public double[][] getPDF(double mean, double xMax) {
+
+    public static double[][] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
         int k = 2; // Set the shape parameter (number of events), you can adjust this as needed
         double rateParameter = 1.0 / mean; // Calculate the rate parameter (mean time between events)
@@ -57,7 +57,7 @@ class ErlangDistribution extends Distribution {
     }
 
     // Helper method to calculate the factorial of a number
-    private double factorial(int n) {
+    private static double factorial(int n) {
         double result = 1.0;
         for (int i = 2; i <= n; i++) {
             result *= i;

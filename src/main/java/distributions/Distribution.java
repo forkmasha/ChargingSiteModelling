@@ -12,7 +12,9 @@ public abstract class Distribution {
 
     public abstract double[] getSamples(double mean, int count);
 
-    public abstract double[][] getPDF(double mean, double xMax);
+    public static double[][] getPDF(double mean, double xMax) {
+        return new double[0][];
+    }
 
     public DistributionType getType() {
         return type;

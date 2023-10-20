@@ -37,7 +37,6 @@ public class QueueingSystem {
     private final List<Double> timesInService = new ArrayList<>();
     private final List<Double> energyCharged = new ArrayList<>();
     private final Monitor blockingRates = new Monitor();
-
     public List<Double> getTimesInQueue() {
         return timesInQueue;
     }

@@ -30,8 +30,8 @@ public class ExponentialDistribution extends Distribution {
         return samples;
     }
 
-    @Override
-    public double[][] getPDF(double mean, double xMax) {
+
+    public static double[][] getPDF(double mean, double xMax) {
         // Implement PDF calculation for Exponential distribution
         double lambda = 1.0 / mean;
         int numBins = 100; // Adjust the number of bins as needed
@@ -46,8 +46,11 @@ public class ExponentialDistribution extends Distribution {
         return pdf;
     }
 
+
     private double exponentialDistribution(double mean) {
         Random random = new Random();
         return mean * (-Math.log(1 - random.nextDouble()));
     }
+
+
 }

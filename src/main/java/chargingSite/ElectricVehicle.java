@@ -6,11 +6,8 @@ import distributions.UniformDistribution;
 import eventSimulation.EventSimulation;
 import queueingSystem.QueueingSystem;
 import queueingSystem.Server;
-import results.Statistics;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ElectricVehicle {
     private String id; // Unique identifier for the EV

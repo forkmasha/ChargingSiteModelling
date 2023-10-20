@@ -12,6 +12,6 @@ public class ExponentialTest {
         double[] samples = exponentialDistribution.getSamples(mean, numSamples);
         double[][] pdf = exponentialDistribution.getPDF(mean, 1);
 
-        Histogram.generateHistogram(numBins, samples, pdf);
+        Histogram.generateHistogram(numBins, samples, pdf,DistributionType.EXPONENTIAL.name());
     }
 }

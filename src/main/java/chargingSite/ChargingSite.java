@@ -1,8 +1,5 @@
 package chargingSite;
 
-import queueingSystem.Server;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ChargingSite {

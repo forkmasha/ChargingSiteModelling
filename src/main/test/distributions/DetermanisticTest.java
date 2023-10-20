@@ -13,7 +13,7 @@ public class DetermanisticTest {
             samples[numSamples-1]=1;
             double[][] pdf = determanisticDistribution.getPDF(mean, 1);
 
-            Histogram.generateHistogram(numBins, samples, pdf);
+            Histogram.generateHistogram(numBins, samples, pdf,DistributionType.DETERMINISTIC.name());
         }
     }
 

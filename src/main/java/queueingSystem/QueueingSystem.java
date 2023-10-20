@@ -290,12 +290,20 @@ public class QueueingSystem {
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
-        public void instantDeparture(double currentTime, Client currentClient) {
-            nextEvent = new Event(currentTime);
-            //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
+        public void instantDeparture(Client currentClient) {
+            nextEvent = new Event(EventSimulation.getCurrentTime());
             nextEvent.setEventType(EventType.DEPARTURE);
+
+            // used to track down the negative time in system issue
+            if(currentTime<=currentClient.getArrivalTime()) {
+                System.out.println("current Time: " + currentTime
+                        + " >? arrival Time: " + currentClient.getArrivalTime());
+                // this.removeServer(currentClient);
+            }
+
             currentClient.setTimeInService(currentTime - (currentClient.getArrivalTime() + currentClient.getTimeInQueue()));
             nextEvent.setClient(currentClient);
+            EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
 
         public void scheduleNextDeparture(double currentTime, Client currentClient) {

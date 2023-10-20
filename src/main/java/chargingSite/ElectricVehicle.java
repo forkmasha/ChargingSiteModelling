@@ -81,8 +81,8 @@ public class ElectricVehicle {
         this.energyCharged += chargedEnergy;
 
         if(this.meanServiceTime <= 0 && this.stateOfCharge>=1) {
-            this.siteModel.instantDeparture(EventSimulation.getCurrentTime(), this.getMyServer().getClient());
-            System.out.println("Car finished service (charging) because the battery is full.");
+            this.siteModel.instantDeparture(this.getMyServer().getClient());
+            // System.out.println("Car finished service (charging) because the battery is full.");
         }
 
         // tracking down negative SoC...

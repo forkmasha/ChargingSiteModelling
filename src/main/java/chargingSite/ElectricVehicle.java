@@ -103,7 +103,7 @@ public class ElectricVehicle {
     }
 
     public void resetEnergyCharged() {this.energyCharged = 0.0; }
-    
+
     public void updateChargingPower(double sitePower) {
         // double newChargingPower = this.chargingPower;
         if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power prior update!");}

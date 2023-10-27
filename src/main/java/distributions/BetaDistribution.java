@@ -1,12 +1,7 @@
 package distributions;
 
-import java.util.Arrays;
 import java.util.Random;
-//import org.apache.commons.math3.distribution.BetaDistribution;
-//import smile.stat.distribution.AbstractDistribution;
-//import smile.stat.distribution.BetaDistribution;
 
-//private static double defaultVar=0.75;
 
 public class BetaDistribution extends Distribution {
     private Random random;
@@ -24,8 +19,9 @@ public class BetaDistribution extends Distribution {
     public double getSample(double mean) {
         return getSample(mean, defaultVar);
     }
+
     public double getSample(double mean, double var) {
-        double[] ab = getShapeParameters(mean,var);
+        double[] ab = getShapeParameters(mean, var);
         double sample = betaDistribution(ab);
         //while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
@@ -34,8 +30,9 @@ public class BetaDistribution extends Distribution {
     public static double createSample(double mean) {
         return createSample(mean, defaultVar);
     }
+
     public static double createSample(double mean, double var) {
-        double[] ab = getShapeParameters(mean,var);
+        double[] ab = getShapeParameters(mean, var);
         double sample = betaDistribution(ab);
         //while (sample < 0 || sample > 1) {sample = betaDistribution(ab);}
         return sample;
@@ -44,12 +41,17 @@ public class BetaDistribution extends Distribution {
     private static double[] getShapeParameters(double mean) {
         return getShapeParameters(mean, defaultVar);
     }
+
     private static double[] getShapeParameters(double mean, double var) {
-        double[] ab = {1,1};
-        if(mean<0) {mean *= -1;}
-        if(mean>1) {mean = 1/mean;}
+        double[] ab = {1, 1};
+        if (mean < 0) {
+            mean *= -1;
+        }
+        if (mean > 1) {
+            mean = 1 / mean;
+        }
         ab[0] = var * mean; // alpha
-        ab[1] = var * (1-mean);  // beta
+        ab[1] = var * (1 - mean);  // beta
         //ab[0] = 0.1; ab[1] = 0.1; // use this line to test different shapes (independent of mean)
         return ab;
     }
@@ -85,10 +87,11 @@ public class BetaDistribution extends Distribution {
         //return samples;
         return getSamples(mean, defaultVar, count);
     }
+
     public double[] getSamples(double mean, double var, int count) {
         double[] samples = new double[count];
         for (int i = 0; i < count; i++) {
-            samples[i] = createSample(mean,var);
+            samples[i] = createSample(mean, var);
         }
         return samples;
     }
@@ -98,11 +101,11 @@ public class BetaDistribution extends Distribution {
         int numPoints = 1000;
         double[][] pdfValues = new double[2][numPoints];
         double stepSize = xMax / (numPoints - 1);
-
+        double[] ab = getShapeParameters(mean, defaultVar);
+        double alpha = ab[0];
+        double beta = ab[1];
         for (int i = 0; i < numPoints; i++) {
             double x = i * stepSize;
-            double alpha = 5;
-            double beta = 2;
             pdfValues[0][i] = x;
             pdfValues[1][i] = betaDistributionPDF(alpha, beta, x);
         }
@@ -112,14 +115,15 @@ public class BetaDistribution extends Distribution {
     private static double betaDistributionPDF(double alpha, double beta, double x) {
         double num = Math.pow(x, alpha - 1) * Math.pow(1 - x, beta - 1);
         double den = betaFunction(alpha, beta);
+        System.out.println(" " + num + " " + den);
         return num / den;
     }
 
     private static double betaFunction(double alpha, double beta) {
-        return gamaFunction(alpha) * gamaFunction(beta) / gamaFunction(alpha + beta);
+        return gamaFunction((int) alpha) * gamaFunction((int) (beta)) / gamaFunction((int)(alpha + beta));
     }
 
-    private static double gamaFunction(double x) {
+    private static double gamaFunction(int x) {
         if (x == 1.0) {
             return 1.0;
         } else if (x < 1.0) {

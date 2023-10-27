@@ -39,7 +39,7 @@ public class GeometricDistribution extends Distribution {
         for (int i = 0; i < numBins; i++) {
             double x = 1 + i * binWidth; // Calculate the x value for the bin
             pdf[0][i]=x;
-            pdf[1][i] = Math.pow(1 - p, x - 1) * p * binWidth;
+            pdf[1][i] = Math.pow(1 - p, x - 1) * p; //* binWidth;
         }
 
         return pdf;

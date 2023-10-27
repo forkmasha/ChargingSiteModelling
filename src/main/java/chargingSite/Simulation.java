@@ -188,7 +188,7 @@ public class Simulation extends Graph {
     public Simulation() {
     }
 
-   public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
+    public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -462,11 +462,18 @@ public class Simulation extends Graph {
                 try {
                     int imageWidth = Integer.parseInt(getWidthField().getText());
                     int imageHeight = Integer.parseInt(getHeightField().getText());
-                    SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
+                    int result = JOptionPane.showConfirmDialog(null, "Do you want to save the SVG file?", "Save SVG", JOptionPane.YES_NO_CANCEL_OPTION);
+                    if (result == JOptionPane.YES_OPTION) {
+                        SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
+                    }
                 } catch (IOException ex) {
                     System.out.println("Error: " + ex.getMessage());
                 }
+            } else {
+                // System.exit(0);
+                inputValid=true;
             }
+
         }
     }
 }

@@ -18,11 +18,11 @@ public class Client {
     private QueueingSystem system;
     private Distribution serviceTimeDistribution;
     private ElectricVehicle car;
-   public ElectricVehicle getCar() {
+    public ElectricVehicle getCar() {
         return car;
     }
-   // public void setCar(ElectricVehicle car) {
-        //this.car = car;
+    // public void setCar(ElectricVehicle car) {
+    //this.car = car;
     //}
 
     public Client(double arrivalTime, double meanServiceTime, DistributionType serviceType, QueueingSystem system) {
@@ -68,7 +68,7 @@ public class Client {
     }
 
     public void processClient(double deltaTime, double sitePower) {
-       this.car.addEnergyCharged(deltaTime,sitePower);
+        this.car.addEnergyCharged(deltaTime,sitePower);
     }
 
 }

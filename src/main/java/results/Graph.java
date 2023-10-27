@@ -8,7 +8,7 @@ import java.io.File;
 
 public class Graph {
     private String chosenFile;
-   private final JTextField widthField;
+    private final JTextField widthField;
     private final JTextField heightField;
 
     public Graph() {

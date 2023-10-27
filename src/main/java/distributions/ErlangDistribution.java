@@ -4,23 +4,19 @@ import java.util.Random;
 
 public class ErlangDistribution extends Distribution {
 
-    private int level;
+    private static final int level = 2;
+
     public ErlangDistribution(DistributionType type) {
         super(type);
-        this.level=2; // k=2 is used by default
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
     }
 
     public double getSample(double mean) {
         Random random = new Random();
         double sample = 0;
-        for(int i=0; i<level; i++){
+        for (int i = 0; i < level; i++) {
             sample += exponentialDistribution(mean);
         }
-        return sample/level;
+        return sample / level;
     }
 
     public static double createSample(double mean) {
@@ -40,19 +36,18 @@ public class ErlangDistribution extends Distribution {
 
 
     public static double[][] getPDF(double mean, double xMax) {
-        int numBins = 100; // Adjust the number of bins as needed
-        int k = 2; // Set the shape parameter (number of events), you can adjust this as needed
+        int numPoints = 1000; // Adjust the number of bins as needed
+        int k = level; // Set the shape parameter (number of events), you can adjust this as needed
         double rateParameter = 1.0 / mean; // Calculate the rate parameter (mean time between events)
 
-        double[][] pdf = new double[2][numBins];
-        double binWidth = xMax / numBins;
+        double[][] pdf = new double[2][numPoints];
+        double stepWidth = xMax / numPoints;
 
-        for (int i = 0; i < numBins; i++) {
-            double x = i * binWidth;
-            pdf[0][i]=x;
-            pdf[1][i] = (Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1) * binWidth;
+        for (int i = 0; i < numPoints; i++) {
+            double x = i * stepWidth;
+            pdf[0][i] = x;
+            pdf[1][i] = (Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1); //* stepWidth;
         }
-
         return pdf;
     }
 

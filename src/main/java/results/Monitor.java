@@ -122,7 +122,7 @@ public class Monitor extends Graph {
 
     }
 
-    public void addPDFData(XYSeriesCollection dataset, double mean) {
+    /*public void addPDFData(XYSeriesCollection dataset, double mean) {
         for (DistributionType distributionType : DistributionType.values()) {
             double[][] pdfData = getPDFDataForDistribution(distributionType, mean);
             XYSeries pdfSeries = createXYSeriesForPDF(distributionType, pdfData);
@@ -143,9 +143,9 @@ public class Monitor extends Graph {
             case ERLANGD:
                 return DiscreteErlangDistribution.getPDF(mean, 100.0);
             case UNIFORM:
-                return UniformDistribution.getPDF(mean,2*mean);
+                return UniformDistribution.getPDF(mean, 2 * mean);
             case DETERMINISTIC:
-                return DetermanisticDistribution.getPDF(mean,2*mean);
+                return DetermanisticDistribution.getPDF(mean, 2 * mean);
             default:
                 System.out.println("Distribution type is not defined!");
         }
@@ -160,13 +160,13 @@ public class Monitor extends Graph {
         return pdfSeries;
     }
 
-
+*/
     public void drawGraph(Simulation mySim) {
 
         String title = "Simulation Results";
         XYSeriesCollection dataset = new XYSeriesCollection();
         mySim.chargingMonitor.addGraphs(dataset);
-        mySim.chargingMonitor.addPDFData(dataset, mySim.getMEAN_SERVICE_TIME());
+      //  mySim.chargingMonitor.addPDFData(dataset, mySim.getMEAN_SERVICE_TIME());
 
         MyChart = createXYLineChart(
                 title,
@@ -326,12 +326,18 @@ public class Monitor extends Graph {
                 try {
                     int imageWidth = Integer.parseInt(getWidthField().getText());
                     int imageHeight = Integer.parseInt(getHeightField().getText());
-                    saveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
+                    int result = JOptionPane.showConfirmDialog(null, "Do you want to save the SVG file?", "Save SVG", JOptionPane.YES_NO_CANCEL_OPTION);
+                    if (result == JOptionPane.YES_OPTION) {
+                        saveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
+                    }
                 } catch (IOException ex) {
                     System.out.println("Error: " + ex.getMessage());
                 }
+            } else {
+               // System.exit(0);
+                inputValid=true;
             }
+
         }
     }
 }
-

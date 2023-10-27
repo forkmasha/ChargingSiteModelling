@@ -41,7 +41,7 @@ public class ExponentialDistribution extends Distribution {
         for (int i = 0; i < numBins; i++) {
             double x = i * binWidth;
             pdf[0][i]=x;
-            pdf[1][i] = lambda * Math.exp(-lambda * x) * binWidth;
+            pdf[1][i] = lambda * Math.exp(-lambda * x) ;//* binWidth;
         }
         return pdf;
     }
@@ -51,6 +51,4 @@ public class ExponentialDistribution extends Distribution {
         Random random = new Random();
         return mean * (-Math.log(1 - random.nextDouble()));
     }
-
-
 }

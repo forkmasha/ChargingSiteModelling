@@ -19,7 +19,7 @@ public class BetaTest {
         samples = betaDistribution.getSamples(1 - mean, numSamples);
         samples[0] = 0.00001;
         samples[numSamples - 1] = 0.99999;
-        double[][] pdf2 = betaDistribution.getPDF(mean, 1);
+        double[][] pdf2 = betaDistribution.getPDF(1-mean, 1);
 
         Histogram.generateHistogram(numBins, samples, pdf2,DistributionType.BETA.name());
 

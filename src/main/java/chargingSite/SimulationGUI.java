@@ -10,10 +10,8 @@ import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.GeneralPath;
 
 public class SimulationGUI {
-
     private static final Color BLUE = new Color(173, 216, 230);
     private static final Color LIGHT_BLUE = new Color(200, 200, 240);
     private static final Color DARK_BLUE = new Color(136, 186, 242);
@@ -212,6 +210,7 @@ public class SimulationGUI {
         verticalBox.add(toPanel2);
 
         JPanel bottomPanel = new JPanel();
+
         runSimulation.setForeground(Color.BLACK);
         bottomPanel.setBackground(DARK_BLUE);
         bottomPanel.setLayout(new GridLayout(1, 1));
@@ -323,4 +322,6 @@ public class SimulationGUI {
             };
         }
     }
+
+
 }

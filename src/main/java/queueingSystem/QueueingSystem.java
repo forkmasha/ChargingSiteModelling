@@ -198,10 +198,10 @@ public class QueueingSystem {
         currentClient = arrival.getClient();
         currentClient.getCar().resetEnergyCharged();
 
-   //    double currentChargingPower = currentClient.getCar().getChargingPower();
-      //  double updatedChargingPower = currentChargingPower * occupiedServers;
-      //  currentClient.getCar().setChargingPower(updatedChargingPower);
-      //  currentClient.getCar().getChargingPowerHistory().add(updatedChargingPower);
+        //    double currentChargingPower = currentClient.getCar().getChargingPower();
+        //  double updatedChargingPower = currentChargingPower * occupiedServers;
+        //  currentClient.getCar().setChargingPower(updatedChargingPower);
+        //  currentClient.getCar().getChargingPowerHistory().add(updatedChargingPower);
 
 
         if (EventSimulation.getNumberOfEvents() < EventSimulation.getMaxEvents()) {
@@ -245,9 +245,9 @@ public class QueueingSystem {
         this.timesInSystem.add(timeInSystem);
         if (timeInQueue > 0.0) {
             //this.timesInQueue.add(timeInQueue);
-           // this.timesInService.add(timeInSystem - timeInQueue);
+            // this.timesInService.add(timeInSystem - timeInQueue);
 
-          // -----------this.powerCharged.add((timeInSystem - timeInQueue)*currentClient.getCar().getChargingPower());
+            // -----------this.powerCharged.add((timeInSystem - timeInQueue)*currentClient.getCar().getChargingPower());
             // use in case queueing time appears to be too big to get some info
             /*if (timeInQueue > 2 * myQueue.getSize()/(numberOfServers/currentClient.getMeanServiceTime())) {
                 System.out.println("Warning: Time in queue "+ timeInQueue +" is exceptionally long for "
@@ -255,9 +255,9 @@ public class QueueingSystem {
                         + numberOfServers/currentClient.getMeanServiceTime() +" clients per time unit!");
             }*/
         } else {
-          timeInQueue=0.0;//to consider 0 queueing time in statistics
+            timeInQueue=0.0;//to consider 0 queueing time in statistics
 
-           // -----------this.powerCharged.add(timeInSystem *currentClient.getCar().getChargingPower());
+            // -----------this.powerCharged.add(timeInSystem *currentClient.getCar().getChargingPower());
         }
         double timeInService = timeInSystem-timeInQueue;
         this.timesInQueue.add(timeInQueue);
@@ -290,23 +290,23 @@ public class QueueingSystem {
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
-        public void instantDeparture(Client currentClient) {
-            nextEvent = new Event(EventSimulation.getCurrentTime());
-            nextEvent.setEventType(EventType.DEPARTURE);
+    public void instantDeparture(Client currentClient) {
+        nextEvent = new Event(EventSimulation.getCurrentTime());
+        nextEvent.setEventType(EventType.DEPARTURE);
 
-            // used to track down the negative time in system issue
-            if(currentTime<=currentClient.getArrivalTime()) {
-                System.out.println("current Time: " + currentTime
-                        + " >? arrival Time: " + currentClient.getArrivalTime());
-                // this.removeServer(currentClient);
-            }
-
-            currentClient.setTimeInService(currentTime - (currentClient.getArrivalTime() + currentClient.getTimeInQueue()));
-            nextEvent.setClient(currentClient);
-            EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
+        // used to track down the negative time in system issue
+        if(currentTime<=currentClient.getArrivalTime()) {
+            System.out.println("current Time: " + currentTime
+                    + " >? arrival Time: " + currentClient.getArrivalTime());
+            // this.removeServer(currentClient);
         }
 
-        public void scheduleNextDeparture(double currentTime, Client currentClient) {
+        currentClient.setTimeInService(currentTime - (currentClient.getArrivalTime() + currentClient.getTimeInQueue()));
+        nextEvent.setClient(currentClient);
+        EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
+    }
+
+    public void scheduleNextDeparture(double currentTime, Client currentClient) {
         nextServer = getIdleServer();
         if (nextServer == null) {
             System.out.println("Error: Cannot schedule next Departure - NO Server available: " + servers.size());

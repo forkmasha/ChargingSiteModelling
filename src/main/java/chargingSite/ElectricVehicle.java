@@ -81,6 +81,7 @@ public class ElectricVehicle {
         this.energyCharged += chargedEnergy;
 
         if(this.meanServiceTime <= 0 && this.stateOfCharge>=1) {
+            // calculate charging performance (this.chargeDemand * this.batteryCapacity - this.chargedEnergy) and store it for statistical evaluation
             this.siteModel.instantDeparture(this.getMyServer().getClient());
             // System.out.println("Car finished service (charging) because the battery is full.");
         }

@@ -49,9 +49,9 @@ public class QueueingSystem {
         return timesInService;
     }
 
-
-
-    private  List<Double> amountsCharged  = new ArrayList<>();
+    private  List<Double> amountsCharged  = new ArrayList<>(); // (mean + conf., std, 10% and 90% quantiles )
+    private  List<Double> sitePowers  = new ArrayList<>(); // power demand of entire charging site (mean + conf., std, max )
+    private  List<Double> chargingDeviations  = new ArrayList<>(); // difference between demanded and actually charged energy (mean + conf., std)
     public List<Double> getAmountsCharged() {
         return amountsCharged;
     }
@@ -86,6 +86,8 @@ public class QueueingSystem {
         timesInSystem.clear();
         timesInService.clear();
         amountsCharged.clear();
+        sitePowers.clear();
+        chargingDeviations.clear();
         blockingRates.values.clear();
         Client.resetClientCounter();
     }
@@ -123,6 +125,7 @@ public class QueueingSystem {
             totalPower += nextServer.getClient().getCar().getChargingPower();
             nextServer = this.getServer(++n);
         }
+        sitePowers.add(totalPower);
         return totalPower;
     }
 

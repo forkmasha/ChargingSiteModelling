@@ -81,6 +81,9 @@ public class Statistics {
         return min;
     }
 
+    // private double calculate10percentile(List<Double> values)
+    // private double calculate90percentile(List<Double> values)
+
     private double calculateConfidenceInterval(List<Double> values, int level) {
         if (values.size() < 2) {
             return Double.MAX_VALUE; // infinite

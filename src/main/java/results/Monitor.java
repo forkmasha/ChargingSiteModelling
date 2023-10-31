@@ -163,7 +163,7 @@ public class Monitor extends Graph {
 */
     public void drawGraph(Simulation mySim) {
 
-        String title = "Simulation Results";
+        String title = "Charging Site Energy Characteristics";
         XYSeriesCollection dataset = new XYSeriesCollection();
         mySim.chargingMonitor.addGraphs(dataset);
       //  mySim.chargingMonitor.addPDFData(dataset, mySim.getMEAN_SERVICE_TIME());
@@ -171,7 +171,7 @@ public class Monitor extends Graph {
         MyChart = createXYLineChart(
                 title,
                 "Arrival Rate [1/h]",
-                "Mean and Std [kWh]",
+                "Mean and Std [kW/server, kWh/car]",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true,
@@ -206,7 +206,7 @@ public class Monitor extends Graph {
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
         LegendItemCollection legendItems = new LegendItemCollection();
-        legendItems.add(new LegendItem("Charged energy", Color.BLUE));
+        legendItems.add(new LegendItem("Energy per charged EV", Color.BLUE));
 
         LegendItemSource source = () -> legendItems;
         MyChart.getLegend().setSources(new LegendItemSource[]{source});

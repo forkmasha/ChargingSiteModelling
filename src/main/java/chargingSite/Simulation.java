@@ -285,8 +285,8 @@ public class Simulation extends Graph {
     }
 
 
-    public void drawGraph() {
-        String title = "Simulation Results";
+    public void drawGraph() {   // D/D/5/10 Queueing System
+        String title = "Charging Site Queueing Characteristics \n (" + this.MAX_EVENTS + " samples per evaluation point)";
         XYSeriesCollection dataset = new XYSeriesCollection();
 
         meanSystemTimes.addGraphs(dataset);

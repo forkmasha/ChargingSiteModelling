@@ -60,7 +60,6 @@ public class Times {
         confidences.add(functions.getConfidenceInterval(values, level));
     }
 
-
     public void addGraphs(XYSeriesCollection dataset){
         XYSeries meanSeries = new XYSeries("Mean");
         XYSeries stdSeries = new XYSeries("Std");

@@ -1,9 +1,8 @@
 package results;
 
-import org.jfree.data.xy.XYBarDataset;
 import org.jfree.data.xy.XYDataset;
-//import org.apache.commons.math3.distribution.TDistribution;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Statistics {
@@ -22,9 +21,16 @@ public class Statistics {
     public double getMax(List<Double> values) {
         return this.calculateMax(values);
     }
+    public double get90thQuantile (List<Double> values){
+        return this.calculate90thQuantile(values);
+    }
 
     public double getMin(List<Double> values) {
         return this.calculateMin(values);
+    }
+
+    public double get10thQuantile(List<Double> values) {
+        return this.calculate10thQuantile(values);
     }
 
     public double getConfidenceInterval(List<Double> values, int level) {
@@ -71,6 +77,23 @@ public class Statistics {
         return max;
     }
 
+    private double calculate90thQuantile(List<Double> values) {
+        // First, sort the list of values in ascending order
+        Collections.sort(values);
+
+        // Calculate the index corresponding to the 90th percentile
+        int index = (int) (0.9 * (values.size() - 1));
+
+        // If the index is not an integer, you can interpolate between the two nearest values
+        double lowerValue = values.get(index);
+        double upperValue = values.get(index + 1);
+
+        // Calculate the interpolated quantile value
+        double percentile = lowerValue + (0.9 * (values.size() - 1) - index) * (upperValue - lowerValue);
+
+        return percentile;
+    }
+
     private double calculateMin(List<Double> values) {
         double min = values.get(0);
         for (Double value : values) {
@@ -79,6 +102,22 @@ public class Statistics {
             }
         }
         return min;
+    }
+    private double calculate10thQuantile(List<Double> values) {
+        // First, sort the list of values in ascending order
+        Collections.sort(values);
+
+        // Calculate the index corresponding to the 10th percentile
+        int index = (int) (0.1 * (values.size() - 1));
+
+        // If the index is not an integer, you can interpolate between the two nearest values
+        double lowerValue = values.get(index);
+        double upperValue = values.get(index + 1);
+
+        // Calculate the interpolated quantile value
+        double percentile = lowerValue + (0.1 * (values.size() - 1) - index) * (upperValue - lowerValue);
+
+        return percentile;
     }
 
     // private double calculate10percentile(List<Double> values)

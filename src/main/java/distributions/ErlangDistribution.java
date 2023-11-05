@@ -4,7 +4,8 @@ import java.util.Random;
 
 public class ErlangDistribution extends Distribution {
 
-    private static final int level = 2;
+    public static final int level = 2;
+
 
     public ErlangDistribution(DistributionType type) {
         super(type);

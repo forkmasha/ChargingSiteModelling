@@ -1,6 +1,7 @@
 package chargingSite;
 
 import distributions.DistributionType;
+import distributions.ErlangDistribution;
 import eventSimulation.*;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -9,6 +10,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import org.w3c.dom.DOMImplementation;
@@ -140,6 +142,7 @@ public class Simulation extends Graph {
     public void setMEAN_SERVICE_TIME(double MEAN_SERVICE_TIME) {
         this.MEAN_SERVICE_TIME = MEAN_SERVICE_TIME;
     }
+
     public double getMEAN_SERVICE_TIME() {
         return MEAN_SERVICE_TIME;
     }
@@ -251,6 +254,16 @@ public class Simulation extends Graph {
             chargingMonitor.storeMax();
             chargingMonitor.storeMin();
             chargingMonitor.storeConf();
+            chargingMonitor.store90thQuantile();
+            chargingMonitor.store10thQuantile();
+
+            chargingMonitor.storeMeanSitePower();
+            chargingMonitor.storeStdSitePower();
+            chargingMonitor.storeConfSitePower();
+
+            chargingMonitor.storeMeanCD();
+            chargingMonitor.storeStdCD();
+            chargingMonitor.storeConfCD();
 
             Statistics calc = new Statistics();
             System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
@@ -286,7 +299,28 @@ public class Simulation extends Graph {
 
 
     public void drawGraph() {   // D/D/5/10 Queueing System
-        String title = "Charging Site Queueing Characteristics \n (" + this.MAX_EVENTS + " samples per evaluation point)";
+        // String title = "Charging Site Queueing Characteristics \n (" + this.MAX_EVENTS + " samples per evaluation point)";
+
+        String title1 = getTitleAbbreviation(String.valueOf(ARRIVAL_TYPE));
+        String title2 = getTitleAbbreviation(String.valueOf(SERVICE_TYPE));
+
+        String title = "Charging Site Queueing Characteristics \n" + title1 + "/" + title2 + "/" + NUMBER_OF_SERVERS + "/" + (QUEUE_SIZE + NUMBER_OF_SERVERS) + " Queueing System" +
+                " (" + this.MAX_EVENTS + " samples per evaluation point)";
+
+        String[] titleParts = title.split("\n");
+
+        TextTitle textTitle = new TextTitle(titleParts[0]);
+        textTitle.setFont(new Font("Arial", Font.BOLD, 24));
+
+        Font font = new Font("Arial", Font.PLAIN, 18);
+
+        TextTitle textSubtitle = new TextTitle(titleParts[1]);
+        textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
+
+      //  TextTitle textSubtitle2 = new TextTitle(titleParts[2]);
+       // textSubtitle2.setFont(font);
+
+
         XYSeriesCollection dataset = new XYSeriesCollection();
 
         meanSystemTimes.addGraphs(dataset);
@@ -294,7 +328,8 @@ public class Simulation extends Graph {
         meanQueueingTimes.addGraphs(dataset);
 
         MyChart = createXYLineChart(
-                title,
+                // title,
+                "",
                 "Arrival Rate [1/h]",
                 "Mean and Std [h]",
                 dataset,
@@ -303,16 +338,18 @@ public class Simulation extends Graph {
                 true,
                 false
         );
+
+        MyChart.addSubtitle(textTitle);
+        MyChart.addSubtitle(textSubtitle);
+      //  MyChart.addSubtitle(textSubtitle2);
+
         XYPlot plot = MyChart.getXYPlot();
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
-        //NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
-        //xAxis.setRange(0.0, 1.1);
-
         NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-        if (MEAN_SERVICE_TIME>0) {
-            yAxis.setRange(0, Math.ceil(1.1 * MEAN_SERVICE_TIME * ( 1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
+        if (MEAN_SERVICE_TIME > 0) {
+            yAxis.setRange(0, Math.ceil(1.1 * MEAN_SERVICE_TIME * (1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
         } else {
             yAxis.setRange(0, 3);
         }
@@ -353,7 +390,6 @@ public class Simulation extends Graph {
 
         LegendItemCollection legendItems = new LegendItemCollection();
 
-        // ArrayList<String> legendLabels {"service time", "queueing time", "system time"};
         ArrayList<String> legendLabels = new ArrayList<String>();
         legendLabels.add("System time");
         legendLabels.add("Service time");
@@ -369,7 +405,6 @@ public class Simulation extends Graph {
                 }
             }
         }
-
         LegendItemSource source = new LegendItemSource() {
             @Override
             public LegendItemCollection getLegendItems() {
@@ -380,7 +415,7 @@ public class Simulation extends Graph {
 
 
         ChartPanel chartPanel = new ChartPanel(MyChart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+        chartPanel.setPreferredSize(new java.awt.Dimension(800, 630));
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
@@ -411,8 +446,45 @@ public class Simulation extends Graph {
         chartPanel.repaint();
     }
 
+    private String getTitleAbbreviation(String type) {
+        if (type.equals("EXPONENTIAL")) {
+            return "M";
+        } else if (type.equals("ERLANG")) {
+            String type1 = "E"+ ErlangDistribution.level;
+            return type1;
+        } else if (type.equals("DETERMINISTIC")) {
+            return "D";
+        } else {
+            return "G";
+        }
+    }
 
-   /*public void saveSVGDialogue() {
+    public void saveSVGDialogue() {
+        boolean inputValid = false;
+
+        while (!inputValid) {
+            inputValid = getUserInput() && chooseFile();
+
+            if (inputValid) {
+                try {
+                    int imageWidth = Integer.parseInt(getWidthField().getText());
+                    int imageHeight = Integer.parseInt(getHeightField().getText());
+                    int result = JOptionPane.showConfirmDialog(null, "Do you want to save the SVG file?", "Save SVG", JOptionPane.YES_NO_CANCEL_OPTION);
+                    if (result == JOptionPane.YES_OPTION) {
+                        SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
+                    }
+                } catch (IOException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+            } else {
+                // System.exit(0);
+                inputValid = true;
+            }
+        }
+    }
+}
+
+/*public void saveSVGDialogue() {
         JPanel panel = new JPanel(new GridLayout(3, 2));
         JLabel heightLabel = new JLabel("Height:");
         JTextField heightField = new JTextField("730");
@@ -451,29 +523,3 @@ public class Simulation extends Graph {
             }
         }
     }*/
-
-    public void saveSVGDialogue() {
-        boolean inputValid = false;
-
-        while (!inputValid) {
-            inputValid = getUserInput() && chooseFile();
-
-            if (inputValid) {
-                try {
-                    int imageWidth = Integer.parseInt(getWidthField().getText());
-                    int imageHeight = Integer.parseInt(getHeightField().getText());
-                    int result = JOptionPane.showConfirmDialog(null, "Do you want to save the SVG file?", "Save SVG", JOptionPane.YES_NO_CANCEL_OPTION);
-                    if (result == JOptionPane.YES_OPTION) {
-                        SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
-                    }
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                }
-            } else {
-                // System.exit(0);
-                inputValid=true;
-            }
-
-        }
-    }
-}

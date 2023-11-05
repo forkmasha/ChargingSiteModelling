@@ -51,7 +51,12 @@ public class QueueingSystem {
 
     private  List<Double> amountsCharged  = new ArrayList<>(); // (mean + conf., std, 10% and 90% quantiles )
     private  List<Double> sitePowers  = new ArrayList<>(); // power demand of entire charging site (mean + conf., std, max )
+
     private  List<Double> chargingDeviations  = new ArrayList<>(); // difference between demanded and actually charged energy (mean + conf., std)
+
+    public List<Double> getSitePowers() {
+        return sitePowers;
+    }
     public List<Double> getAmountsCharged() {
         return amountsCharged;
     }
@@ -69,7 +74,9 @@ public class QueueingSystem {
         return blockingRate;
     }
 
-
+    public List<Double> getChargingDeviations() {
+        return chargingDeviations;
+    }
 
     public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
         this.myQueue = new Queue(queueSize,queueingType);
@@ -77,10 +84,15 @@ public class QueueingSystem {
         this.site = new ChargingSite(numberOfServers, Simulation.MAX_SITE_POWER); // TO BE SET via GUI
         this.resetQueueingSystem();
     }
+
+    public int getNumberOfServers() {
+        return numberOfServers;
+    }
+
     /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!
-    public QueueingSystem(String name) {
-        this.systemName = name;
-    }*/
+        public QueueingSystem(String name) {
+            this.systemName = name;
+        }*/
     public void resetQueueingSystem() {
         timesInQueue.clear();
         timesInSystem.clear();
@@ -268,6 +280,7 @@ public class QueueingSystem {
 
         //this.amountsCharged.add(timeInService * currentClient.getCar().getMaxPower());
         this.amountsCharged.add(currentClient.getCar().getEnergyCharged());
+        this.chargingDeviations.add(currentClient.getCar().getChargeDemand()-currentClient.getCar().getEnergyCharged());
 
         if (myQueue.getOccupation() > 0) {
             nextClient = myQueue.pullNextClientFromQueue(currentTime);

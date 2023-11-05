@@ -51,6 +51,11 @@ public class ElectricVehicle {
     public QueueingSystem getSiteModel() {
         return this.siteModel;
     }
+
+    public double getChargeDemand() {
+        return chargeDemand;
+    }
+
     public void setReservationTime(double reservationTime) {
         this.reservationTime = reservationTime;
     }

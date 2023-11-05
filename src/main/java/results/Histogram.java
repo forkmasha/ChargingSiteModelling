@@ -1,14 +1,11 @@
 package results;
 
-import distributions.*;
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
@@ -76,9 +73,7 @@ public class Histogram {
     public static void generateHistogram(int bins, double samples[], double pdf[][], String distributionName) {
         HistogramDataset dataset = new HistogramDataset();
         dataset.setType(HistogramType.SCALE_AREA_TO_1);
-        // Добавьте сгенерированные данные в набор данных
         dataset.addSeries(distributionName + "  Distribution", samples, bins);
-        // Создайте гистограмму
         JFreeChart chart = ChartFactory.createHistogram(distributionName, "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
         XYPlot plot = (XYPlot) chart.getPlot();
         addPDFToHistogram(chart, pdf);

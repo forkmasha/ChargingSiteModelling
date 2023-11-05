@@ -10,6 +10,11 @@ import queueingSystem.Server;
 import java.util.ArrayList;
 
 public class ElectricVehicle {
+    static private double MAX_BATTERY_CAPACITY = 0;
+
+    static public double getMAX_BATTERY_CAPACITY() {
+        return MAX_BATTERY_CAPACITY;
+    }
     private String id; // Unique identifier for the EV
     private  String model;
     private double reservationTime; // How long it occupies the ChargingPoint (reservation based) h
@@ -35,6 +40,7 @@ public class ElectricVehicle {
         this.maxPower = maxPower;
         this.chargingPower = maxPower;
         this.batteryCapacity = batteryCapacity;
+        if (batteryCapacity > ElectricVehicle.MAX_BATTERY_CAPACITY) ElectricVehicle.MAX_BATTERY_CAPACITY = batteryCapacity;
         this.demandDistribution = Distribution.create(demandDistributionType);
         double demand = demandDistribution.getSample(Simulation.MEAN_CHARGING_DEMAND);  // TO BO DONE ???  via GUI (0.1, 0.2, ... 0.9) meanChargingDemand
         //bad patch !!! TO BE DONE better, i.e., BETA distribution sometimes returns values slightly above 1 for mean > 0.7 ...

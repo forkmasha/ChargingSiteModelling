@@ -2,11 +2,11 @@ package distributions;
 
 public enum DistributionType {
 
-    GEOMETRIC,
+    DETERMINISTIC,
     EXPONENTIAL,
     ERLANG,
     ERLANGD,
-    UNIFORM,
     BETA,
-    DETERMINISTIC
+    UNIFORM,
+    GEOMETRIC
 }

@@ -55,4 +55,17 @@ public abstract class Distribution {
 
         }
     }
+    public static String getTitleAbbreviation(String type) {
+        if (type.equals("EXPONENTIAL")) {
+            return "M";
+        } else if (type.equals("ERLANG")) {
+            String type1 = "E"+ ErlangDistribution.level;
+            return type1;
+        } else if (type.equals("DETERMINISTIC")) {
+            return "D";
+        } else {
+            return "G";
+        }
+    }
+
 }

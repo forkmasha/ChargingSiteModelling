@@ -1,5 +1,6 @@
 package chargingSite;
 
+import distributions.Distribution;
 import distributions.DistributionType;
 import distributions.ErlangDistribution;
 import eventSimulation.*;
@@ -84,6 +85,22 @@ public class Simulation extends Graph {
 
     //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
 
+
+    public int getMAX_EVENTS() {
+        return MAX_EVENTS;
+    }
+    public int getNUMBER_OF_SERVERS() {
+        return NUMBER_OF_SERVERS;
+    }
+    public int getQUEUE_SIZE() {
+        return QUEUE_SIZE;
+    }
+    public DistributionType getARRIVAL_TYPE() {
+        return ARRIVAL_TYPE;
+    }
+    public DistributionType getSERVICE_TYPE() {
+        return SERVICE_TYPE;
+    }
 
     public int getSIM_STEPS() {
         return SIM_STEPS;
@@ -175,6 +192,9 @@ public class Simulation extends Graph {
     public static void setMaxSitePower(int maxSitePower) {
         MAX_SITE_POWER = maxSitePower;
     }
+    public double getMAX_SITE_POWER() {
+        return MAX_SITE_POWER;
+    }
 
     public static void setMeanChargingDemand(double meanChargingDemand) {
         MEAN_CHARGING_DEMAND = meanChargingDemand;
@@ -206,6 +226,11 @@ public class Simulation extends Graph {
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
             svgGenerator.stream(writer, true);
         }
+    }
+    public String getKendallName() {
+        return Distribution.getTitleAbbreviation(String.valueOf(ARRIVAL_TYPE)) + "/"
+                + Distribution.getTitleAbbreviation(String.valueOf(SERVICE_TYPE)) + "/"
+                + NUMBER_OF_SERVERS +"/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
     }
 
     public void runSimulation() {
@@ -301,11 +326,9 @@ public class Simulation extends Graph {
     public void drawGraph() {   // D/D/5/10 Queueing System
         // String title = "Charging Site Queueing Characteristics \n (" + this.MAX_EVENTS + " samples per evaluation point)";
 
-        String title1 = getTitleAbbreviation(String.valueOf(ARRIVAL_TYPE));
-        String title2 = getTitleAbbreviation(String.valueOf(SERVICE_TYPE));
-
-        String title = "Charging Site Queueing Characteristics \n" + title1 + "/" + title2 + "/" + NUMBER_OF_SERVERS + "/" + (QUEUE_SIZE + NUMBER_OF_SERVERS) + " Queueing System" +
-                " (" + this.MAX_EVENTS + " samples per evaluation point)";
+        String title = "Charging Site Queueing Characteristics \n"
+                + this.getKendallName() + " Queueing System"
+                + " (" + this.MAX_EVENTS + " samples per evaluation point)";
 
         String[] titleParts = title.split("\n");
 
@@ -425,7 +448,7 @@ public class Simulation extends Graph {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save your work before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
+                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save the figure?", "Save figure before closing", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
                     saveSVGDialogue();
                     frame.dispose();
@@ -446,18 +469,6 @@ public class Simulation extends Graph {
         chartPanel.repaint();
     }
 
-    private String getTitleAbbreviation(String type) {
-        if (type.equals("EXPONENTIAL")) {
-            return "M";
-        } else if (type.equals("ERLANG")) {
-            String type1 = "E"+ ErlangDistribution.level;
-            return type1;
-        } else if (type.equals("DETERMINISTIC")) {
-            return "D";
-        } else {
-            return "G";
-        }
-    }
 
     public void saveSVGDialogue() {
         boolean inputValid = false;

@@ -85,6 +85,11 @@ public class QueueingSystem {
         this.resetQueueingSystem();
     }
 
+    public String getKendallName(Simulation mySim) {
+        return Distribution.getTitleAbbreviation(String.valueOf(this.arrivalTimeDistribution.getType())) + "/"
+                + Distribution.getTitleAbbreviation(String.valueOf(mySim.getSERVICE_TYPE())) + "/"
+                + numberOfServers +"/" + numberOfServers + queueSize;
+    }
     public int getNumberOfServers() {
         return numberOfServers;
     }

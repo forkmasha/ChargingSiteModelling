@@ -136,13 +136,21 @@ public class QueueingSystem {
 
     public double getTotalPower() {
         double totalPower = 0;
-        int n = 0;
-        Server nextServer = this.getServer(n);
-        while (nextServer != null) {
+        for (Server nextServer : servers) {
             totalPower += nextServer.getClient().getCar().getChargingPower();
-            nextServer = this.getServer(++n);
         }
-        sitePowers.add(totalPower);
+        if(totalPower > site.getMaxSitePower()) {
+            for (Server nextServer : servers) {
+                nextServer.getClient().getCar().updateChargingPower(totalPower);
+            }
+            totalPower = 0;
+            for (Server nextServer : servers) {
+                totalPower += nextServer.getClient().getCar().getChargingPower();
+            }
+            if (totalPower>site.getMaxSitePower()) {
+                System.out.println("ERROR in getTotalPower: Site power " + totalPower + "is bigger than maximum possible " + site.getMaxSitePower() + " !");
+            }
+        }
         return totalPower;
     }
 

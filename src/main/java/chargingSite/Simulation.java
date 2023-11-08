@@ -308,6 +308,11 @@ public class Simulation extends Graph {
                     + calc.getMean(mySystem.getAmountsCharged()) + "/"
                     + calc.getStd(mySystem.getAmountsCharged()) + "/"
                     + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel));
+            System.out.println("Site Power Demand (" + mySystem.getSitePowers().size() + "): "
+                    + calc.getMean(mySystem.getSitePowers()) + "/"
+                    + calc.getStd(mySystem.getSitePowers()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel));
+
 
             System.out.print("Queue state: " + mySystem.getMyQueue().getOccupation());
             System.out.print("\t Server state: " + mySystem.getNumberOfServersInUse());

@@ -178,10 +178,10 @@ public class Monitor extends Graph {
             confBars[i].add(step, mean + conf);
             dataset.addSeries(confBars[i]);
 
-            meanSitePowersSeries.add(step, 0.5 * meanSP / source.getNumberOfServers()); //WHY 0.5*?
-            stdSitePowersSeries.add(step, 0.5 * stdSP / source.getNumberOfServers());
-            confBarsSitePowerSeries[i].add(step, 0.5 * (meanSP - confSP) / source.getNumberOfServers());
-            confBarsSitePowerSeries[i].add(step, 0.5 * (meanSP + confSP) / source.getNumberOfServers());
+            meanSitePowersSeries.add(step, meanSP / source.getNumberOfServers());
+            stdSitePowersSeries.add(step, stdSP / source.getNumberOfServers());
+            confBarsSitePowerSeries[i].add(step,  (meanSP - confSP) / source.getNumberOfServers());
+            confBarsSitePowerSeries[i].add(step, (meanSP + confSP) / source.getNumberOfServers());
             dataset.addSeries(confBarsSitePowerSeries[i]);
 
             meanChargingDeviationSeries.add(step, meanCD ); //WHY 0.5*?

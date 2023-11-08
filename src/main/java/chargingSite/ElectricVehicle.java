@@ -81,7 +81,7 @@ public class ElectricVehicle {
 
     public void addEnergyCharged(double duration, double sitePower) {
         if (this.stateOfCharge>=1) { return; }
-        this.updateChargingPower(sitePower);
+        //this.updateChargingPower(sitePower);
         double chargedEnergy = duration * this.chargingPower;
         if(chargedEnergy<0) {System.out.println("ERROR: Charged Energy is negative!"); System.exit(1);}
         //if(chargingPower<0) {System.out.println("ERROR: Negative charging power!"); System.exit(1);}
@@ -125,13 +125,13 @@ public class ElectricVehicle {
         if (this.stateOfCharge>=1) {
             this.chargingPower = 0;
         } else if (this.stateOfCharge>0.8) {  // adjust charging power to current state of charge
-            this.chargingPower = this.batteryCapacity * (1 - stateOfCharge ) / 0.2 ;
+            this.chargingPower = this.batteryCapacity * (1 - stateOfCharge) / 0.2 ;
             if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power for SoC >0.8!");}
         } else if (this.stateOfCharge>0.2) {  // adjust charging power to current state of charge
-            this.chargingPower = this.batteryCapacity * 10 * (1.1 - stateOfCharge);
+            this.chargingPower = this.batteryCapacity * (1 + (0.8 - stateOfCharge) / 0.3);
             if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power for SoC in 0.2 .. 0.8!");}
         } else { // adjust charging power to current state of charge
-            this.chargingPower = this.batteryCapacity + 2 * this.batteryCapacity * this.stateOfCharge / 0.2;
+            this.chargingPower = this.batteryCapacity * (0.5 + 2.5 * stateOfCharge / 0.2);
             if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power for SoC <0.2!");}
         }
 
@@ -144,7 +144,7 @@ public class ElectricVehicle {
             if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after PointLimiting!");}
         }
 
-        if (sitePower>maxChargingSitePower) {  // limit charging power to max possible
+        if (sitePower>maxChargingSitePower) {  // limit charging power to max possible for charging site
             this.chargingPower *= maxChargingSitePower/sitePower;
             if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after SiteLimiting!");}
         }
@@ -154,6 +154,8 @@ public class ElectricVehicle {
             System.out.println("Battery Capacity: " + this.batteryCapacity + " Energy charged:" + this.getEnergyCharged());
             System.exit(1);
         }
+        //if(this.chargingPower>maxChargingSitePower/getSiteModel().getNumberOfServers()) {
+        //    System.out.println("ERROR1: Charging power " + this.chargingPower + "is bigger than maximum currently available " + sitePower + " !");}
     }
 
 

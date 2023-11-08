@@ -69,6 +69,7 @@ public class Client {
 
     public void processClient(double deltaTime, double sitePower) {
         this.car.addEnergyCharged(deltaTime,sitePower);
+        this.getSystem().getSitePowers().add(sitePower);
     }
 
 }

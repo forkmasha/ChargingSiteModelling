@@ -239,9 +239,13 @@ public class Simulation extends Graph {
         QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS, QUEUE_SIZE, QUEUEING_TYPE);
         chargingMonitor.setSource(mySystem);
         if (NUMBER_OF_CLIENT_TYPES > 1) {
-            mySystem.setName(ARRIVAL_TYPE + "/MIXED/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
+            mySystem.setName(Distribution.getTitleAbbreviation(ARRIVAL_TYPE.toString())
+                    + "/MIXED/"
+                    + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
         } else {
-            mySystem.setName(ARRIVAL_TYPE + "/" + SERVICE_TYPE + "/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
+            mySystem.setName(Distribution.getTitleAbbreviation(ARRIVAL_TYPE.toString())
+                    + "/" + Distribution.getTitleAbbreviation(SERVICE_TYPE.toString())
+                    + "/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
         }
         mySystem.setDistributionType(ARRIVAL_TYPE);
         int stepCounter = 0;
@@ -283,6 +287,7 @@ public class Simulation extends Graph {
             chargingMonitor.store10thQuantile();
 
             chargingMonitor.storeMeanSitePower();
+            chargingMonitor.storeMaxSitePower();
             chargingMonitor.storeStdSitePower();
             chargingMonitor.storeConfSitePower();
 

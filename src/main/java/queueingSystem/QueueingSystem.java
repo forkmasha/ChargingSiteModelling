@@ -88,16 +88,20 @@ public class QueueingSystem {
     public String getKendallName(Simulation mySim) {
         return Distribution.getTitleAbbreviation(String.valueOf(this.arrivalTimeDistribution.getType())) + "/"
                 + Distribution.getTitleAbbreviation(String.valueOf(mySim.getSERVICE_TYPE())) + "/"
-                + numberOfServers +"/" + numberOfServers + queueSize;
+                + numberOfServers + "/" + numberOfServers + queueSize;
     }
     public int getNumberOfServers() {
         return numberOfServers;
     }
 
+    public ArrayList<Server> getServers() {
+        return servers;
+    }
+
     /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!
-        public QueueingSystem(String name) {
-            this.systemName = name;
-        }*/
+            public QueueingSystem(String name) {
+                this.systemName = name;
+            }*/
     public void resetQueueingSystem() {
         timesInQueue.clear();
         timesInSystem.clear();
@@ -126,16 +130,19 @@ public class QueueingSystem {
     }
 
     public void removeServer(Client client) {
-        servers.remove(getServer(client));
+        Server server = getServer(client);
+        server.chargingPoint.unplugCar();
+        //client.getCar().unplugCar();
+        servers.remove(server);
         occupiedServers--;
     }
-    public void removeServer(Server idle) {
-        servers.remove(idle);
-        occupiedServers--;
-    }
+    //public void removeServer(Server idle) {
+    //    servers.remove(idle);
+    //    occupiedServers--;
+    //}
 
     public double getTotalPower() {
-        double totalPower = 0;
+    /*    double totalPower = 0;
         for (Server nextServer : servers) {
             totalPower += nextServer.getClient().getCar().getChargingPower();
         }
@@ -152,16 +159,18 @@ public class QueueingSystem {
             }
         }
         return totalPower;
+        */
+        return site.getSitePower();
     }
 
     public int getNumberOfServersInUse() {
         return this.servers.size();
     }
 
-    public Server getIdleServer() {
+    public Server getIdleServer(QueueingSystem mySystem, Client myClient) {
         Server newServer;
         if (occupiedServers < numberOfServers) {
-            newServer = new Server();
+            newServer = new Server(mySystem,myClient);
             servers.add(newServer);
             occupiedServers++;
             return newServer;
@@ -336,12 +345,12 @@ public class QueueingSystem {
     }
 
     public void scheduleNextDeparture(double currentTime, Client currentClient) {
-        nextServer = getIdleServer();
+        nextServer = getIdleServer(this, currentClient);
         if (nextServer == null) {
             System.out.println("Error: Cannot schedule next Departure - NO Server available: " + servers.size());
             return;
         }
-        nextServer.setClient(currentClient);
+        //nextServer.setClient(currentClient);
         currentClient.getCar().setChargingPoint(this.getChargingSite().getChargingPoint(servers.indexOf(nextServer)));
         currentClient.getCar().setMyServer(nextServer);
 

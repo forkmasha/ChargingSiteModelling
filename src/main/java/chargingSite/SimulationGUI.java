@@ -36,15 +36,15 @@ public class SimulationGUI {
         JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 0.1);
 
         JSpinner numberOfClientTypes = createSpinner(1, 1, 2, 1);
-        JSpinner maxEvents = createSpinner(2500, 1, Integer.MAX_VALUE, 1);
+        JSpinner maxEvents = createSpinner(25000, 1, Integer.MAX_VALUE, 1);
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner meanChargingDemand = createSpinner(0.8, 0.0, 0.9, 0.1);
 
-        JSpinner maxSitePower = createSpinner(200, 0.1, Double.MAX_VALUE, 1);
-        JSpinner maxPointPower = createSpinner(100, 0.1, Double.MAX_VALUE, 1);
-        JSpinner maxEVPower = createSpinner(120, 0.1, Double.MAX_VALUE, 1);
+        JSpinner maxSitePower = createSpinner(300, 1.0, Double.MAX_VALUE, 1);
+        JSpinner maxPointPower = createSpinner(100, 1.0, Double.MAX_VALUE, 1);
+        JSpinner maxEVPower = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);

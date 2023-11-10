@@ -25,12 +25,18 @@ public class EventProcessor {
         }
 
         if (event.getClient() != null) {
+            double sitePower = event.getClient().getSystem().getChargingSite().getSitePower();
+            for (Server next : event.getClient().getSystem().getServers()) {
+                next.getClient().processClient(deltaTime,sitePower);
+            }
+            /*
             n = 0;
             nextServer = event.getClient().getSystem().getServer(n);
             while (nextServer != null) {
                 nextServer.getClient().processClient(deltaTime,event.getClient().getSystem().getTotalPower());
                 nextServer = event.getClient().getSystem().getServer(++n);
             }
+            */
 
             switch (event.getEventType()) {
                 case ARRIVAL:

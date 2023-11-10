@@ -43,20 +43,21 @@ public class Monitor extends Graph {
     public List<Double> values = new ArrayList<>();
 
     public List<Double> means = new ArrayList<>();
-    public List<Double> stds = new ArrayList<>();
     public List<Double> confidences = new ArrayList<>();
-
-    public List<Double> meansSitePower = new ArrayList<>();
-    public List<Double> stdsSitePower = new ArrayList<>();
-    public List<Double> confidencesSitePower = new ArrayList<>();
-
-    public List<Double> meansChargingDeviation = new ArrayList<>();
-    public List<Double> stdsChargingDeviation = new ArrayList<>();
-    public List<Double> confidencesChargingDeviation = new ArrayList<>();
+    public List<Double> stds = new ArrayList<>();
     public List<Double> maxs = new ArrayList<>();
     public List<Double> maxs90 = new ArrayList<>();
     public List<Double> mins = new ArrayList<>();
     public List<Double> mins10 = new ArrayList<>();
+
+    public List<Double> meansSitePower = new ArrayList<>();
+    public List<Double> confidencesSitePower = new ArrayList<>();
+    public List<Double> stdsSitePower = new ArrayList<>();
+    public List<Double> maxSitePower = new ArrayList<>();
+
+    public List<Double> meansChargingDeviation = new ArrayList<>();
+    public List<Double> confidencesChargingDeviation = new ArrayList<>();
+    public List<Double> stdsChargingDeviation = new ArrayList<>();
 
     public void setSource(QueueingSystem source) {
         this.source = source;
@@ -113,6 +114,9 @@ public class Monitor extends Graph {
     public void storeStdSitePower() {
         stdsSitePower.add(calc.getStd(source.getSitePowers()));
     }
+    public void storeMaxSitePower() {
+        maxSitePower.add(calc.getMax(source.getSitePowers()));
+    }
 
     public void storeConfSitePower() {
         confidencesSitePower.add(calc.getConfidenceInterval(source.getSitePowers(), confLevel));
@@ -140,6 +144,7 @@ public class Monitor extends Graph {
 
         XYSeries meanSitePowersSeries = new XYSeries("Mean Site Power");
         XYSeries stdSitePowersSeries = new XYSeries("Std Site Power");
+        XYSeries maxSitePowersSeries = new XYSeries("Maximum Site Power");
 
         XYSeries meanChargingDeviationSeries = new XYSeries("Mean Charging Deviation");
         XYSeries stdChargingDeviationSeries = new XYSeries("Std Charging Deviation");
@@ -160,6 +165,7 @@ public class Monitor extends Graph {
 
             double meanSP = meansSitePower.get(i);
             double stdSP = stdsSitePower.get(i);
+            double maxSP = maxSitePower.get(i);
             double confSP = confidencesSitePower.get(i);
 
             double meanCD = meansChargingDeviation.get(i);
@@ -180,6 +186,7 @@ public class Monitor extends Graph {
 
             meanSitePowersSeries.add(step, meanSP / source.getNumberOfServers());
             stdSitePowersSeries.add(step, stdSP / source.getNumberOfServers());
+            maxSitePowersSeries.add(step, maxSP / source.getNumberOfServers());
             confBarsSitePowerSeries[i].add(step,  (meanSP - confSP) / source.getNumberOfServers());
             confBarsSitePowerSeries[i].add(step, (meanSP + confSP) / source.getNumberOfServers());
             dataset.addSeries(confBarsSitePowerSeries[i]);
@@ -198,6 +205,7 @@ public class Monitor extends Graph {
 
         dataset.addSeries(meanSitePowersSeries);
         dataset.addSeries(stdSitePowersSeries);
+        dataset.addSeries(maxSitePowersSeries);
 
         dataset.addSeries(meanChargingDeviationSeries);
         dataset.addSeries(stdChargingDeviationSeries);
@@ -278,6 +286,10 @@ public class Monitor extends Graph {
         renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
         renderer.setSeriesPaint(i, Color.MAGENTA);
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
+
+        renderer.setSeriesPaint(i, Color.MAGENTA);
+        renderer.setSeriesShape(i++, ShapeUtilities.createDownTriangle(1.75f));
+
 
         renderer.setSeriesPaint(i, Color.RED);
         renderer.setSeriesStroke(i++, new BasicStroke(2.4f));

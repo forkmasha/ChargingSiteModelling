@@ -22,7 +22,7 @@ public class ElectricVehicle {
     private double meanServiceTime;
     private final Distribution demandDistribution; // How is the ChargingDemand distributed
     private double maxPower; // Power at which it can be charged (declines with increasing SoC) kW
-    private String plugType; // Plug type required to connect to a ChargingPoint
+    private PlugType plugType = PlugType.CCStype2; // Plug type required to connect to a ChargingPoint
     private String chargingCard; // Charging card used (for payment)
     private double stateOfCharge; //SoC %
     private  double batteryCapacity;//amount Of energy the battery can store kWh
@@ -79,7 +79,7 @@ public class ElectricVehicle {
         this.stateOfCharge = 1 - chargeDemand/batteryCapacity;
     }
 
-    public void addEnergyCharged(double duration, double sitePower) {
+    public void addEnergyCharged(double duration) {
         if (this.stateOfCharge>=1) { return; }
         //this.updateChargingPower(sitePower);
         double chargedEnergy = duration * this.chargingPower;
@@ -120,8 +120,6 @@ public class ElectricVehicle {
         // double newChargingPower = this.chargingPower;
         if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power prior update!");}
         if(this.stateOfCharge<0) {System.out.println("ERROR: Negative SoC prior charging power update!");}
-        double maxChargingPointPower = this.getChargingPoint().getMaxPower();
-        double maxChargingSitePower = this.getSiteModel().getChargingSite().getMaxSitePower();
         if (this.stateOfCharge>=1) {
             this.chargingPower = 0;
         } else if (this.stateOfCharge>0.8) {  // adjust charging power to current state of charge
@@ -139,18 +137,23 @@ public class ElectricVehicle {
         //System.out.println("stateOfCharge = " + this.stateOfCharge);
         //System.out.println("chargingPower = " + this.chargingPower);
 
-        if (this.chargingPower>maxChargingPointPower) {  // limit charging power to max possible
+        double maxChargingPointPower = this.getChargingPoint().getMaxPower();
+        if (this.chargingPower>maxChargingPointPower) {  // limit charging power to max possible per charging point
             this.chargingPower = maxChargingPointPower;
             if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after PointLimiting!");}
         }
 
-        if (sitePower>maxChargingSitePower) {  // limit charging power to max possible for charging site
-            this.chargingPower *= maxChargingSitePower/sitePower;
-            if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after SiteLimiting!");}
-        }
+        //double maxChargingSitePower = this.getSiteModel().getChargingSite().getMaxSitePower();
+        //if (sitePower>maxChargingSitePower) {  // limit charging power to max possible for charging site
+        //    this.scaleChargingPower(maxChargingSitePower/sitePower);
+        //    if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after SiteLimiting!");}
+        //}
+
         // looking for negative charging power (error)
         if(this.chargingPower<0 || this.stateOfCharge<0) {
-            System.out.println("ERROR: " + this.id + ": SoC = " + this.stateOfCharge + " chargingPower = " + this.chargingPower);
+            System.out.println("updateChargingPower ERROR: " + this.id +
+                    ": SoC = " + this.stateOfCharge +
+                    " chargingPower = " + this.chargingPower);
             System.out.println("Battery Capacity: " + this.batteryCapacity + " Energy charged:" + this.getEnergyCharged());
             System.exit(1);
         }
@@ -158,9 +161,16 @@ public class ElectricVehicle {
         //    System.out.println("ERROR1: Charging power " + this.chargingPower + "is bigger than maximum currently available " + sitePower + " !");}
     }
 
-
-    public void setPlugType(String plugType) {
+    public double scaleChargingPower(double scale) {
+        double newPower = scale * this.chargingPower;
+        this.chargingPower = newPower;
+        return newPower;
+    }
+    public void setPlugType(PlugType plugType) {
         this.plugType = plugType;
+    }
+    public PlugType getPlugType() {
+        return plugType;
     }
 
     public void setChargingPoint(ChargingPoint chargingPoint) {
@@ -170,7 +180,9 @@ public class ElectricVehicle {
     public ChargingPoint getChargingPoint() {
         return chargingPoint;
     }
-
+    public void unplugCar() {
+        this.getChargingPoint().unplugCar();
+    }
     private ArrayList<Double> chargingPowerHistory = new ArrayList<>();
 
     public ArrayList<Double> getChargingPowerHistory() {
@@ -180,7 +192,9 @@ public class ElectricVehicle {
     public double getChargingPower() {
         return chargingPower;
     }
-    public double getEnergyCharged() { return energyCharged; }
+    public double getEnergyCharged() {
+        return energyCharged;
+    }
 
     public void setChargingPower(double chargingPower) {
         this.chargingPower = chargingPower;

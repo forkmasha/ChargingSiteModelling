@@ -1,8 +1,6 @@
 package results;
 
-import chargingSite.ElectricVehicle;
 import chargingSite.Simulation;
-import distributions.Distribution;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.*;
@@ -10,7 +8,6 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
@@ -191,8 +188,8 @@ public class Monitor extends Graph {
             confBarsSitePowerSeries[i].add(step, (meanSP + confSP) / source.getNumberOfServers());
             dataset.addSeries(confBarsSitePowerSeries[i]);
 
-            meanChargingDeviationSeries.add(step, meanCD ); //WHY 0.5*?
-            stdChargingDeviationSeries.add(step, stdCD );
+            meanChargingDeviationSeries.add(step,  meanCD ); //WHY 0.5*?
+            stdChargingDeviationSeries.add(step,  stdCD );
             confBarsChargingDeviation[i].add(step, (meanCD - confCD));
             confBarsChargingDeviation[i].add(step, (meanCD + confCD));
             dataset.addSeries(confBarsChargingDeviation[i]);
@@ -213,25 +210,12 @@ public class Monitor extends Graph {
 
     public void drawGraph(Simulation mySim) {
 
-        String title = "Charging Site Energy Characteristics \n"
-                + mySim.getKendallName() + " Queueing System"
-                + " (" + mySim.getMAX_EVENTS() + " samples per evaluation point)";
-
-        String[] titleParts = title.split("\n");
-
-        TextTitle textTitle = new TextTitle(titleParts[0]);
-        textTitle.setFont(new Font("Arial", Font.BOLD, 24));
-
-        Font font = new Font("Arial", Font.PLAIN, 18);
-
-        TextTitle textSubtitle = new TextTitle(titleParts[1]);
-        textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
-
+        String title = "Charging Site Energy Characteristics";
         XYSeriesCollection dataset = new XYSeriesCollection();
         mySim.chargingMonitor.addGraphs(dataset);
 
         MyChart = createXYLineChart(
-                "", //title,
+                title,
                 "Arrival Rate [1/h]",
                 "Mean and Std [kW/server, kWh/car]",
                 dataset,
@@ -240,23 +224,9 @@ public class Monitor extends Graph {
                 true,
                 false
         );
-
-        MyChart.addSubtitle(textTitle);
-        MyChart.addSubtitle(textSubtitle);
-
         XYPlot plot = MyChart.getXYPlot();
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-
-        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-        if (mySim.getMEAN_SERVICE_TIME() > 0) {
-            double maxY = Math.ceil(1.1 * Math.max(
-                    ElectricVehicle.getMAX_BATTERY_CAPACITY(),
-                    mySim.getMAX_SITE_POWER() / mySim.getNUMBER_OF_SERVERS()) );
-            yAxis.setRange(0, maxY);
-        } else {
-            yAxis.setRange(0, Math.ceil(1.1 * ElectricVehicle.getMAX_BATTERY_CAPACITY()));
-        }
 
         int i = 0;
         while (i < 3 * mySim.getSIM_STEPS() + 1) {
@@ -318,7 +288,7 @@ public class Monitor extends Graph {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save the figure?", "Save figure before closing", JOptionPane.YES_NO_CANCEL_OPTION);
+                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save your work before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
                     saveSVGDialogue();
                     frame.dispose();

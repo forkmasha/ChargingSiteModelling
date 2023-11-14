@@ -28,7 +28,7 @@ public class SimulationGUI {
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(LIGHT_BLUE);
-        frame.setPreferredSize(new Dimension(450, 775));
+        frame.setPreferredSize(new Dimension(450, 775)); //450 775
         frame.setMinimumSize(new Dimension(450, 775));
 
         JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
@@ -66,12 +66,13 @@ public class SimulationGUI {
         arrivalType.setUI(new CustomComboBoxUI());
         serviceType.setUI(new CustomComboBoxUI());
         demandType.setUI(new CustomComboBoxUI());
-        // confLevel.setUI(new CustomComboBoxUI());
+        // confLevel.setUI(new CustomComboBoxUI()); //
 
         arrivalType.setBackground(Color.WHITE);
         serviceType.setBackground(Color.white);
         queueingType.setBackground(Color.white);
         demandType.setBackground(Color.white);
+        confLevel.setBackground(Color.WHITE); //
 
 
         JButton runSimulation = new JButton("Run Simulation");
@@ -322,6 +323,4 @@ public class SimulationGUI {
             };
         }
     }
-
-
 }

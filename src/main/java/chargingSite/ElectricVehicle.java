@@ -3,7 +3,6 @@ package chargingSite;
 import distributions.Distribution;
 import distributions.DistributionType;
 import distributions.UniformDistribution;
-import eventSimulation.EventSimulation;
 import queueingSystem.QueueingSystem;
 import queueingSystem.Server;
 
@@ -11,10 +10,6 @@ import java.util.ArrayList;
 
 public class ElectricVehicle {
     static private double MAX_BATTERY_CAPACITY = 0;
-
-    static public double getMAX_BATTERY_CAPACITY() {
-        return MAX_BATTERY_CAPACITY;
-    }
     private String id; // Unique identifier for the EV
     private  String model;
     private double reservationTime; // How long it occupies the ChargingPoint (reservation based) h
@@ -31,6 +26,10 @@ public class ElectricVehicle {
     private ChargingPoint chargingPoint;
     private QueueingSystem siteModel;
     private Server myServer;
+
+    public static  double getMAX_BATTERY_CAPACITY() {
+        return MAX_BATTERY_CAPACITY;
+    }
 
     private double meanChargingDemand;
 

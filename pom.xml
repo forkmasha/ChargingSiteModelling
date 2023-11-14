@@ -27,7 +27,7 @@
     <dependency>
       <groupId>org.tukaani</groupId>
       <artifactId>xz</artifactId>
-      <version>1.8</version>
+      <version>1.9</version>
     </dependency>
     <dependency>
       <groupId>batik</groupId>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>jfreechart</artifactId>
-      <version>1.5.1</version>
+      <version>1.5.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
@@ -59,5 +59,17 @@
       <artifactId>batik-svggen</artifactId>
       <version>1.6-1</version>
     </dependency>
+      <dependency>
+          <groupId>user.java.lang</groupId>
+          <artifactId>user.java.lang</artifactId>
+          <version>2020.164.33984</version>
+      </dependency>
   </dependencies>
+    <repositories>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars</name>
+            <url>https://repo.clojars.org/</url>
+        </repository>
+    </repositories>
 </project>

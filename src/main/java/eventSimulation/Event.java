@@ -37,6 +37,7 @@ public class Event {
     public Client getClient() {
         return client;
     }
+
     public void setExecTime(double execTime) {
         this.execTime = execTime;
     }

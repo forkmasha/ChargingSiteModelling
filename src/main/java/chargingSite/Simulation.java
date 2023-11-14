@@ -36,6 +36,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import static org.jfree.chart.ChartFactory.createXYLineChart;
 
@@ -53,7 +57,7 @@ public class Simulation extends Graph {
     private static final DistributionType ARRIVAL_TYPE = DistributionType.EXPONENTIAL; // EXPONENTIAL is common
     private static final DistributionType SERVICE_TYPE = DistributionType.ERLANGD;   // ERLANGD is a good choice
     private static int confLevel = 98;*/
-
+    private static final Logger LOGGER = Logger.getLogger(Simulation.class.getName());
     private JFreeChart MyChart;
     private double MIN_ARRIVAL_RATE;
     private double MAX_ARRIVAL_RATE;
@@ -89,15 +93,19 @@ public class Simulation extends Graph {
     public int getMAX_EVENTS() {
         return MAX_EVENTS;
     }
+
     public int getNUMBER_OF_SERVERS() {
         return NUMBER_OF_SERVERS;
     }
+
     public int getQUEUE_SIZE() {
         return QUEUE_SIZE;
     }
+
     public DistributionType getARRIVAL_TYPE() {
         return ARRIVAL_TYPE;
     }
+
     public DistributionType getSERVICE_TYPE() {
         return SERVICE_TYPE;
     }
@@ -192,6 +200,7 @@ public class Simulation extends Graph {
     public static void setMaxSitePower(int maxSitePower) {
         MAX_SITE_POWER = maxSitePower;
     }
+
     public double getMAX_SITE_POWER() {
         return MAX_SITE_POWER;
     }
@@ -227,13 +236,32 @@ public class Simulation extends Graph {
             svgGenerator.stream(writer, true);
         }
     }
+
     public String getKendallName() {
         return Distribution.getTitleAbbreviation(String.valueOf(ARRIVAL_TYPE)) + "/"
                 + Distribution.getTitleAbbreviation(String.valueOf(SERVICE_TYPE)) + "/"
-                + NUMBER_OF_SERVERS +"/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
+                + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
     }
+    /*static {
+        // Видаляємо форматування часу для обробника
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(new SimpleFormatter() {
+            @Override
+            public String format(LogRecord record) {
+                return record.getMessage() + "\n";
+            }
+        });
 
+        // Додаємо обробник до логгера
+        LOGGER.addHandler(consoleHandler);
+    }
+*/
     public void runSimulation() {
+        // ConsoleHandler consoleHandler = new ConsoleHandler();
+        //   SimpleFormatter simpleFormatter = new SimpleFormatter();
+        // consoleHandler.setFormatter(simpleFormatter);
+        // LOGGER.addHandler(consoleHandler);
+
         EventSimulation.setMaxEvents(MAX_EVENTS);
         Client[] myFirstClients = new Client[NUMBER_OF_CLIENT_TYPES];
         QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS, QUEUE_SIZE, QUEUEING_TYPE);
@@ -296,7 +324,7 @@ public class Simulation extends Graph {
             chargingMonitor.storeConfCD();
 
             Statistics calc = new Statistics();
-            System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
+         /*   System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
             System.out.println("Service Time (" + mySystem.getTimesInService().size() + "): "
                     + calc.getMean(mySystem.getTimesInService()) + "/"
                     + calc.getStd(mySystem.getTimesInService()) + "/"
@@ -323,7 +351,35 @@ public class Simulation extends Graph {
             System.out.print("\t Server state: " + mySystem.getNumberOfServersInUse());
             System.out.println("\t Clients done: " + Client.getClientCounter());
 
-            System.out.println(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<");
+            System.out.println(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<");*/
+
+            LOGGER.info("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
+            LOGGER.info("Service Time (" + mySystem.getTimesInService().size() + "): "
+                    + calc.getMean(mySystem.getTimesInService()) + "/"
+                    + calc.getStd(mySystem.getTimesInService()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel));
+            LOGGER.info("Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
+                    + calc.getMean(mySystem.getTimesInQueue()) + "/"
+                    + calc.getStd(mySystem.getTimesInQueue()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel));
+            LOGGER.info("System Time (" + mySystem.getTimesInSystem().size() + "): "
+                    + calc.getMean(mySystem.getTimesInSystem()) + "/"
+                    + calc.getStd(mySystem.getTimesInSystem()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel));
+            LOGGER.info("Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
+                    + calc.getMean(mySystem.getAmountsCharged()) + "/"
+                    + calc.getStd(mySystem.getAmountsCharged()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel));
+            LOGGER.info("Site Power Demand (" + mySystem.getSitePowers().size() + "): "
+                    + calc.getMean(mySystem.getSitePowers()) + "/"
+                    + calc.getStd(mySystem.getSitePowers()) + "/"
+                    + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel));
+
+            LOGGER.info("Queue state: " + mySystem.getMyQueue().getOccupation());
+            LOGGER.info("Server state: " + mySystem.getNumberOfServersInUse());
+            LOGGER.info("Clients done: " + Client.getClientCounter());
+
+            LOGGER.info(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<");
 
         }
 
@@ -350,8 +406,8 @@ public class Simulation extends Graph {
         TextTitle textSubtitle = new TextTitle(titleParts[1]);
         textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
 
-      //  TextTitle textSubtitle2 = new TextTitle(titleParts[2]);
-       // textSubtitle2.setFont(font);
+        //  TextTitle textSubtitle2 = new TextTitle(titleParts[2]);
+        // textSubtitle2.setFont(font);
 
 
         XYSeriesCollection dataset = new XYSeriesCollection();
@@ -374,7 +430,7 @@ public class Simulation extends Graph {
 
         MyChart.addSubtitle(textTitle);
         MyChart.addSubtitle(textSubtitle);
-      //  MyChart.addSubtitle(textSubtitle2);
+        //  MyChart.addSubtitle(textSubtitle2);
 
         XYPlot plot = MyChart.getXYPlot();
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();

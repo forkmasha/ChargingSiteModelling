@@ -353,33 +353,32 @@ public class Simulation extends Graph {
 
             System.out.println(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<");*/
 
-            LOGGER.info("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
-            LOGGER.info("Service Time (" + mySystem.getTimesInService().size() + "): "
+            LOGGER.info(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<"
+            + "\n Mean Inter Arrival Time: " + 1.0 / arrivalRate
+            + "\n Service Time (" + mySystem.getTimesInService().size() + "): "
                     + calc.getMean(mySystem.getTimesInService()) + "/"
                     + calc.getStd(mySystem.getTimesInService()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel));
-            LOGGER.info("Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
+                    + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel)
+            + "\n Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
                     + calc.getMean(mySystem.getTimesInQueue()) + "/"
                     + calc.getStd(mySystem.getTimesInQueue()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel));
-            LOGGER.info("System Time (" + mySystem.getTimesInSystem().size() + "): "
+                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel)
+            + "\n System Time (" + mySystem.getTimesInSystem().size() + "): "
                     + calc.getMean(mySystem.getTimesInSystem()) + "/"
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel));
-            LOGGER.info("Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
+                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel)
+            + "\n Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
                     + calc.getMean(mySystem.getAmountsCharged()) + "/"
                     + calc.getStd(mySystem.getAmountsCharged()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel));
-            LOGGER.info("Site Power Demand (" + mySystem.getSitePowers().size() + "): "
+                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel)
+            + "\n Site Power Demand (" + mySystem.getSitePowers().size() + "): "
                     + calc.getMean(mySystem.getSitePowers()) + "/"
                     + calc.getStd(mySystem.getSitePowers()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel));
-
-            LOGGER.info("Queue state: " + mySystem.getMyQueue().getOccupation());
-            LOGGER.info("Server state: " + mySystem.getNumberOfServersInUse());
-            LOGGER.info("Clients done: " + Client.getClientCounter());
-
-            LOGGER.info(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<");
+                    + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel)
+            + "\n Queue state: " + mySystem.getMyQueue().getOccupation()
+                    + " Server state: " + mySystem.getNumberOfServersInUse()
+                    + " Clients done: " + Client.getClientCounter()
+            );
 
         }
 

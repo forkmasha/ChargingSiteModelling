@@ -253,6 +253,7 @@ public class QueueingSystem {
                     currentClient.getSystem()
             );
             nextEvent.setClient(nextClient);
+
             /*if (nextEvent.getExecTime() <= currentTime) {
                 System.out.println("Warning: Zero InterArrivalTime: " + this.getArrivalTimeDistribution().
                         getSample(this.getMeanInterArrivalTime()));
@@ -353,6 +354,9 @@ public class QueueingSystem {
         //nextServer.setClient(currentClient);
         currentClient.getCar().setChargingPoint(this.getChargingSite().getChargingPoint(servers.indexOf(nextServer)));
         currentClient.getCar().setMyServer(nextServer);
+        currentClient.getCar().updateChargingPower();
+        double scale = getChargingSite().getMaxSitePower()/getChargingSite().getSitePower();
+        getChargingSite().scaleChargingPower(scale);
 
         /*double currentChargingPower = currentClient.getCar().getChargingPower();
         double updatedChargingPower = currentChargingPower * occupiedServers;

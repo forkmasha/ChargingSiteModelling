@@ -37,7 +37,7 @@ public class ElectricVehicle {
         this.id = model + "_" + (int) UniformDistribution.createSample(500); // + "_" + System.currentTimeMillis();
         this.model = model;
         this.maxPower = maxPower;
-        this.chargingPower = maxPower;
+        this.chargingPower = 0;
         this.batteryCapacity = batteryCapacity;
         if (batteryCapacity > ElectricVehicle.MAX_BATTERY_CAPACITY) ElectricVehicle.MAX_BATTERY_CAPACITY = batteryCapacity;
         this.demandDistribution = Distribution.create(demandDistributionType);
@@ -115,7 +115,7 @@ public class ElectricVehicle {
 
     public void resetEnergyCharged() {this.energyCharged = 0.0; }
 
-    public void updateChargingPower(double sitePower) {
+    public void updateChargingPower() {
         // double newChargingPower = this.chargingPower;
         if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power prior update!");}
         if(this.stateOfCharge<0) {System.out.println("ERROR: Negative SoC prior charging power update!");}

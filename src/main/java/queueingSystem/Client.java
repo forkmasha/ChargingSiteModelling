@@ -67,10 +67,10 @@ public class Client {
         return arrivalTime;
     }
 
-    public void processClient(double deltaTime, double sitePower) {
+    public void processClient(double deltaTime) {
         if (car==null) {System.out.println("ERROR in processClient: Client without Car!");}
+        this.car.updateChargingPower();
         this.car.addEnergyCharged(deltaTime);
-        this.car.updateChargingPower(sitePower);
         this.getSystem().getSitePowers().add(this.getSystem().getChargingSite().getSitePower());
     }
 

@@ -25,9 +25,8 @@ public class EventProcessor {
         }
 
         if (event.getClient() != null) {
-            double sitePower = event.getClient().getSystem().getChargingSite().getSitePower();
             for (Server next : event.getClient().getSystem().getServers()) {
-                next.getClient().processClient(deltaTime,sitePower);
+                next.getClient().processClient(deltaTime);
             }
             /*
             n = 0;

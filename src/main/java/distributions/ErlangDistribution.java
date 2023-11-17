@@ -36,7 +36,7 @@ public class ErlangDistribution extends Distribution {
     }
 
 
-    public static double[][] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         int numPoints = 1000; // Adjust the number of bins as needed
         int k = level; // Set the shape parameter (number of events), you can adjust this as needed
         double rateParameter = 1.0 / mean; // Calculate the rate parameter (mean time between events)

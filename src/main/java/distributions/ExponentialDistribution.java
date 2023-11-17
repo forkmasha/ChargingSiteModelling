@@ -31,7 +31,7 @@ public class ExponentialDistribution extends Distribution {
     }
 
 
-    public static double[][] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         // Implement PDF calculation for Exponential distribution
         double lambda = 1.0 / mean;
         int numBins = 100; // Adjust the number of bins as needed

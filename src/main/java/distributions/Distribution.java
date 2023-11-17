@@ -11,8 +11,18 @@ public abstract class Distribution {
     }
 
     public abstract double[] getSamples(double mean, int count);
+    public  double[] getSamples(double mean, int count,double maxX){
+        double[] samples = new double[count];
+        for (int i = 0; i < count; i++) {
+            samples[i] = getSample(mean);
+            if(samples[i]>maxX){
+                --i;
+            }
+        }
+        return samples;
+    };
 
-    public static double[][] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         return new double[0][];
     }
 
@@ -47,6 +57,9 @@ public abstract class Distribution {
             }
             case DETERMINISTIC -> {
                 return new DetermanisticDistribution(DistributionType.DETERMINISTIC);
+            }
+            case LOMAX -> {
+                return new LomaxDistribution(DistributionType.LOMAX);
             }
             default -> {
                 System.out.println("Warning: unsupported Distribution Type");

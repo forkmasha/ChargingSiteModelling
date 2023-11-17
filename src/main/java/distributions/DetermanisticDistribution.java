@@ -44,7 +44,7 @@ public class DetermanisticDistribution extends Distribution{
         return pdf;
     }*/
 
-    public static double[][] getPDF(double mean, double xMax) {
+    public double[][] getPDF(double mean, double xMax) {
         int numPoints = 1000;
         double[][] pdfValues = new double[2][numPoints];
         double stepSize = xMax / (numPoints - 1);

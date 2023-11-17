@@ -28,7 +28,7 @@ public class UniformDistribution extends Distribution {
         return samples;
     }
 
-    public static double[][] getPDF(double mean, double xMax) {
+    public  double[][] getPDF(double mean, double xMax) {
         int numPoints = 1000; // Adjust the number of bins as needed
         double probability = 1.0 / xMax; // Calculate the constant PDF value
         double stepSize = xMax / numPoints;

@@ -28,7 +28,7 @@ public class GeometricDistribution extends Distribution {
     }
 
 
-    public static double[][] getPDF(double mean, double xMax) {
+    public  double[][] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed
         double[][] pdf = new double[2][numBins];
         double p = 1.0 / mean; // Calculate the probability of success (p)

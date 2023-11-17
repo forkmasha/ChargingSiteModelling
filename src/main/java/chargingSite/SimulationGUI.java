@@ -16,6 +16,7 @@ public class SimulationGUI {
     private static final Color LIGHT_BLUE = new Color(200, 200, 240);
     private static final Color DARK_BLUE = new Color(136, 186, 242);
     private static final Color ORANGE = new Color(255, 175, 128);
+    private static final Color RED = new Color(255, 102, 102);
 
     public static void runSimulationGUI() {
         JFrame frame = createSimulationFrame();
@@ -50,7 +51,7 @@ public class SimulationGUI {
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
 
 
-        String[] distributionTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC"};
+        String[] distributionTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC","LOMAX"};
         JComboBox<String> arrivalType = new JComboBox<>(distributionTypes);
         JComboBox<String> serviceType = new JComboBox<>(distributionTypes);
         JComboBox<String> demandType = new JComboBox<>(distributionTypes);
@@ -121,6 +122,7 @@ public class SimulationGUI {
                 case "UNIFORM" -> simulation.setARRIVAL_TYPE(DistributionType.UNIFORM);
                 case "BETA" -> simulation.setARRIVAL_TYPE(DistributionType.BETA);
                 case "DETERMINISTIC" -> simulation.setARRIVAL_TYPE(DistributionType.DETERMINISTIC);
+                case "LOMAX" -> simulation.setARRIVAL_TYPE(DistributionType.LOMAX);
             }
 
             String serviceTypeString = (String) serviceType.getSelectedItem();
@@ -132,6 +134,7 @@ public class SimulationGUI {
                 case "UNIFORM" -> simulation.setSERVICE_TYPE(DistributionType.UNIFORM);
                 case "BETA" -> simulation.setSERVICE_TYPE(DistributionType.BETA);
                 case "DETERMINISTIC" -> simulation.setSERVICE_TYPE(DistributionType.DETERMINISTIC);
+                case "LOMAX" -> simulation.setSERVICE_TYPE(DistributionType.LOMAX);
             }
 
             String demandTypeString = (String) demandType.getSelectedItem();
@@ -143,6 +146,7 @@ public class SimulationGUI {
                 case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
                 case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
                 case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
+                case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
             }
 
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
@@ -286,10 +290,11 @@ public class SimulationGUI {
         return panel;
     }
 
-    private static void configureButton(JButton button) {
+     private static void configureButton(JButton button) {
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setForeground(Color.WHITE);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+         button.setBackground(RED);
+         button.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
     }
 
 

@@ -8,5 +8,6 @@ public enum DistributionType {
     ERLANGD,
     BETA,
     UNIFORM,
-    GEOMETRIC
+    GEOMETRIC,
+    LOMAX
 }

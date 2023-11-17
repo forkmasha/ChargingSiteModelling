@@ -2,7 +2,6 @@ package chargingSite;
 
 import distributions.Distribution;
 import distributions.DistributionType;
-import distributions.ErlangDistribution;
 import eventSimulation.*;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -36,10 +35,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import static org.jfree.chart.ChartFactory.createXYLineChart;
 
@@ -242,6 +238,7 @@ public class Simulation extends Graph {
                 + Distribution.getTitleAbbreviation(String.valueOf(SERVICE_TYPE)) + "/"
                 + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
     }
+
     /*static {
         // Видаляємо форматування часу для обробника
         ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -379,15 +376,11 @@ public class Simulation extends Graph {
                     + " Server state: " + mySystem.getNumberOfServersInUse()
                     + " Clients done: " + Client.getClientCounter()
             );
-
         }
-
         drawGraph();
 
         chargingMonitor.drawGraph(this);
     }
-
-
     public void drawGraph() {   // D/D/5/10 Queueing System
         // String title = "Charging Site Queueing Characteristics \n (" + this.MAX_EVENTS + " samples per evaluation point)";
 

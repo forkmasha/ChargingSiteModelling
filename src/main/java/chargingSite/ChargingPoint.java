@@ -17,10 +17,15 @@ public class ChargingPoint {
     }
 
     public void pluginCar(ElectricVehicle chargedCar) {
+        chargedCar.setChargingPoint(this);
         this.chargedCar = chargedCar;
+        chargedCar.updateChargingPower();
     }
-    public ElectricVehicle getChargedCar() { return chargedCar; }
+    public ElectricVehicle getChargedCar() {
+        return chargedCar;
+    }
     public void unplugCar() {
+        this.currentPower = 0;
         chargedCar = null;
     }
 
@@ -30,6 +35,15 @@ public class ChargingPoint {
     public double getMaxPower() {
         return this.maxPower;
     }
+
+    public double checkPower(double power) {
+        if (power>maxPower) {
+            //System.out.println("Power reduced to maxPointPower:" + maxPower + " ?");
+            return maxPower;
+        }
+        return power;
+    }
+
     public double getPower() {
         if (chargedCar != null) {
             return chargedCar.getChargingPower();
@@ -38,6 +52,10 @@ public class ChargingPoint {
             //System.out.println("Warning: <ChargingPoint>.getPower returned zero because no car was assigned!"); it's OK because ChargingPoint ca be idle at times
             return 0;
         }
+    }
+
+    public void setCurrentPower(double power) {
+        this.currentPower=power;
     }
 
 }

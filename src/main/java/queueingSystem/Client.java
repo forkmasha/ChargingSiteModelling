@@ -71,6 +71,7 @@ public class Client {
         if (car==null) {System.out.println("ERROR in processClient: Client without Car!");}
         this.car.updateChargingPower();
         this.car.addEnergyCharged(deltaTime);
+        this.car.updateChargingPower();
         this.getSystem().getSitePowers().add(this.getSystem().getChargingSite().getSitePower());
     }
 

@@ -79,7 +79,10 @@ public class ElectricVehicle {
     }
 
     public void addEnergyCharged(double duration) {
-        if (this.stateOfCharge>=1) { return; }
+        if (this.stateOfCharge>=1) {
+            this.chargingPower=0;
+            return;
+        }
         //this.updateChargingPower(sitePower);
         double chargedEnergy = duration * this.chargingPower;
         if(chargedEnergy<0) {System.out.println("ERROR: Charged Energy is negative!"); System.exit(1);}
@@ -136,17 +139,30 @@ public class ElectricVehicle {
         //System.out.println("stateOfCharge = " + this.stateOfCharge);
         //System.out.println("chargingPower = " + this.chargingPower);
 
-        double maxChargingPointPower = this.getChargingPoint().getMaxPower();
+        // limit charging power to max possible per charging point
+        this.chargingPower = this.getChargingPoint().checkPower(this.chargingPower);
+
+        /*double maxChargingPointPower = this.getChargingPoint().getMaxPower();
         if (this.chargingPower>maxChargingPointPower) {  // limit charging power to max possible per charging point
             this.chargingPower = maxChargingPointPower;
             if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after PointLimiting!");}
-        }
+        }*/
+
+        // limit charging power to max possible for charging site
+        // -> does it for all cars currently charged, adjusting the chargingPower if needed
+        this.getSiteModel().getChargingSite().checkPower();
 
         //double maxChargingSitePower = this.getSiteModel().getChargingSite().getMaxSitePower();
         //if (sitePower>maxChargingSitePower) {  // limit charging power to max possible for charging site
         //    this.scaleChargingPower(maxChargingSitePower/sitePower);
         //    if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after SiteLimiting!");}
         //}
+
+        // limit charging power to maximum specified for the ElectricVehicle
+        if (this.chargingPower>this.maxPower) {
+            this.chargingPower=this.maxPower;
+        }
+        this.getChargingPoint().setCurrentPower(this.chargingPower);
 
         // looking for negative charging power (error)
         if(this.chargingPower<0 || this.stateOfCharge<0) {

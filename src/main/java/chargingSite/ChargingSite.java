@@ -32,7 +32,7 @@ public class ChargingSite {
     public double getMaxSitePower() {
         return this.maxSitePower;
     }
-
+    public void checkPower() { getSitePower(); }
     public double getSitePower() {
         double sitePower = 0;
         int i = 0;

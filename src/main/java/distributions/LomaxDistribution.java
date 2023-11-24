@@ -37,7 +37,7 @@ public class LomaxDistribution extends Distribution {
         double step = xMax / numPoints;
         for (int i = 0; i < numPoints; i++) {
             double x = i * step;
-            double pdfValue = lomaxDistributionPDF(x, mean, scale, shape);
+            double pdfValue = lomaxDistributionPDF(x, mean, this.scale, this.shape);
             pdf[0][i] = x;
             pdf[1][i] = pdfValue;
         }
@@ -46,7 +46,10 @@ public class LomaxDistribution extends Distribution {
     }
 
     private double lomaxDistributionPDF(double x, double mean, double scale, double shape) {
-        double pdfValue = (shape / scale) * Math.pow(1 + (x - mean) / scale, -1 - shape);
+        //double pdfValue = (shape / scale) * Math.pow(1 + (x - mean) / scale, -1 - shape);
+        //double pdfValue = (shape / scale) * Math.pow(1 + x / scale, -1 - shape);
+        double newScale = mean * ( shape - 1 );
+        double pdfValue = shape * Math.pow( newScale , shape ) / Math.pow( x + newScale , shape + 1 );
         return pdfValue;
     }
 }

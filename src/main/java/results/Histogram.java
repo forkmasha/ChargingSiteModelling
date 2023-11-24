@@ -4,6 +4,7 @@ import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
@@ -69,8 +70,17 @@ public class Histogram {
 
     } */
 
-
     public static void generateHistogram(int bins, double samples[], double pdf[][], String distributionName) {
+        double maxX = 0;
+        for (double sample : samples) {
+            if (sample > maxX) {
+                maxX = sample;
+            }
+        }
+        Histogram.generateHistogram(maxX, bins, samples, pdf, distributionName);
+    }
+
+    public static void generateHistogram(double maxX, int bins, double samples[], double pdf[][], String distributionName) {
         HistogramDataset dataset = new HistogramDataset();
         dataset.setType(HistogramType.SCALE_AREA_TO_1);
         dataset.addSeries(distributionName + "  Distribution", samples, bins);

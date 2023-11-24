@@ -19,6 +19,8 @@ public abstract class Distribution {
                 --i;
             }
         }
+        System.out.println("WARNING: Generating a set of samples truncated to < " + maxX
+                + " does not yield an exact " + this.getType().name() + " distribution.");
         return samples;
     };
 
@@ -72,8 +74,8 @@ public abstract class Distribution {
         if (type.equals("EXPONENTIAL")) {
             return "M";
         } else if (type.equals("ERLANG")) {
-            String type1 = "E"+ ErlangDistribution.level;
-            return type1;
+            //String type1 = "E"+ ErlangDistribution.level;
+            return "E";
         } else if (type.equals("DETERMINISTIC")) {
             return "D";
         } else {

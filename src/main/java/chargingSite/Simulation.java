@@ -444,9 +444,10 @@ public class Simulation extends Graph {
         LegendItemCollection legendItems = new LegendItemCollection();
 
         ArrayList<String> legendLabels = new ArrayList<>();
+
         legendLabels.add("System time");
-        legendLabels.add("Queuing time");
         legendLabels.add("Service time");
+        legendLabels.add("Queuing time");
 
         for (LegendItemSource lt : MyChart.getLegend().getSources()) {
             int len = lt.getLegendItems().getItemCount();

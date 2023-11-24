@@ -5,11 +5,12 @@ import java.util.ArrayList;
 public class ChargingPoint {
     private String id; // Unique identifier for the EV
     private  String model;
-    private ArrayList <PlugType> plugTypes = new ArrayList<PlugType>(); // Plug type provided to connect to this ChargingPoint
+    private ArrayList <PlugType> plugTypes = new ArrayList<>(); // Plug type provided to connect to this ChargingPoint
     private double maxPower;
     private boolean state;
     private double currentPower;
     private ElectricVehicle chargedCar;
+
 
     public ChargingPoint(double power) {
         this.plugTypes.add(PlugType.CCStype2);
@@ -57,5 +58,4 @@ public class ChargingPoint {
     public void setCurrentPower(double power) {
         this.currentPower=power;
     }
-
 }

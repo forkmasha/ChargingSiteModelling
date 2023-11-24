@@ -4,14 +4,14 @@ import java.util.Random;
 
 public class LomaxDistribution extends Distribution {
 
-    private double scale=4;
-    private double shape=2;
+    private double scale = 4;
+    private double shape = 2;
     private Random random = new Random();
 
     public LomaxDistribution(DistributionType type) {
         super(DistributionType.LOMAX);
-     //   this.scale = scale;
-     //   this.shape = shape;
+        //   this.scale = scale;
+        //   this.shape = shape;
     }
 
     @Override

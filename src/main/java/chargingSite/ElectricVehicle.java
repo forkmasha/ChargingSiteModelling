@@ -9,8 +9,8 @@ import queueingSystem.Server;
 import java.util.ArrayList;
 
 public class ElectricVehicle {
-    static private double MAX_BATTERY_CAPACITY = 0;
-    private String id; // Unique identifier for the EV
+
+    private String id; // Unique identifier for the E
     private  String model;
     private double reservationTime; // How long it occupies the ChargingPoint (reservation based) h
     private double chargeDemand; // How much energy it wishes to charge (time is determined by charge demand) kWh
@@ -23,10 +23,10 @@ public class ElectricVehicle {
     private  double batteryCapacity;//amount Of energy the battery can store kWh
     private double energyCharged; //amount of energy kWh charged since last charging started [kWh]
     private double chargingPower; //current Charging power (from charging point) kW
+    private static double MAX_BATTERY_CAPACITY = 0;
     private ChargingPoint chargingPoint;
     private QueueingSystem siteModel;
     private Server myServer;
-
     public static  double getMAX_BATTERY_CAPACITY() {
         return MAX_BATTERY_CAPACITY;
     }

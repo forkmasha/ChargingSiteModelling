@@ -239,26 +239,7 @@ public class Simulation extends Graph {
                 + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
     }
 
-    /*static {
-        // Видаляємо форматування часу для обробника
-        ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setFormatter(new SimpleFormatter() {
-            @Override
-            public String format(LogRecord record) {
-                return record.getMessage() + "\n";
-            }
-        });
-
-        // Додаємо обробник до логгера
-        LOGGER.addHandler(consoleHandler);
-    }
-*/
     public void runSimulation() {
-        // ConsoleHandler consoleHandler = new ConsoleHandler();
-        //   SimpleFormatter simpleFormatter = new SimpleFormatter();
-        // consoleHandler.setFormatter(simpleFormatter);
-        // LOGGER.addHandler(consoleHandler);
-
         EventSimulation.setMaxEvents(MAX_EVENTS);
         Client[] myFirstClients = new Client[NUMBER_OF_CLIENT_TYPES];
         QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS, QUEUE_SIZE, QUEUEING_TYPE);
@@ -382,7 +363,6 @@ public class Simulation extends Graph {
         chargingMonitor.drawGraph(this);
     }
     public void drawGraph() {   // D/D/5/10 Queueing System
-        // String title = "Charging Site Queueing Characteristics \n (" + this.MAX_EVENTS + " samples per evaluation point)";
 
         String title = "Charging Site Queueing Characteristics \n"
                 + this.getKendallName() + " Queueing System"
@@ -393,14 +373,8 @@ public class Simulation extends Graph {
         TextTitle textTitle = new TextTitle(titleParts[0]);
         textTitle.setFont(new Font("Arial", Font.BOLD, 24));
 
-        Font font = new Font("Arial", Font.PLAIN, 18);
-
         TextTitle textSubtitle = new TextTitle(titleParts[1]);
         textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        //  TextTitle textSubtitle2 = new TextTitle(titleParts[2]);
-        // textSubtitle2.setFont(font);
-
 
         XYSeriesCollection dataset = new XYSeriesCollection();
 
@@ -409,7 +383,6 @@ public class Simulation extends Graph {
         meanQueueingTimes.addGraphs(dataset);
 
         MyChart = createXYLineChart(
-                // title,
                 "",
                 "Arrival Rate [1/h]",
                 "Mean and Std [h]",
@@ -422,7 +395,6 @@ public class Simulation extends Graph {
 
         MyChart.addSubtitle(textTitle);
         MyChart.addSubtitle(textSubtitle);
-        //  MyChart.addSubtitle(textSubtitle2);
 
         XYPlot plot = MyChart.getXYPlot();
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
@@ -471,13 +443,12 @@ public class Simulation extends Graph {
 
         LegendItemCollection legendItems = new LegendItemCollection();
 
-        ArrayList<String> legendLabels = new ArrayList<String>();
+        ArrayList<String> legendLabels = new ArrayList<>();
         legendLabels.add("System time");
+        legendLabels.add("Queuing time");
         legendLabels.add("Service time");
-        legendLabels.add("Queueing time");
 
         for (LegendItemSource lt : MyChart.getLegend().getSources()) {
-
             int len = lt.getLegendItems().getItemCount();
             for (int j = 0; j < len; j++) {
                 if (!lt.getLegendItems().get(j).getSeriesKey().toString().contains("confBar") && !lt.getLegendItems().get(j).getSeriesKey().toString().contains("Std")) {
@@ -552,43 +523,3 @@ public class Simulation extends Graph {
         }
     }
 }
-
-/*public void saveSVGDialogue() {
-        JPanel panel = new JPanel(new GridLayout(3, 2));
-        JLabel heightLabel = new JLabel("Height:");
-        JTextField heightField = new JTextField("730");
-        JLabel widthLabel = new JLabel("Width:");
-        JTextField widthField = new JTextField("1200");
-        JLabel fileLabel = new JLabel("File:");
-        JTextField fileField = new JTextField("simulation.svg");
-
-        panel.add(heightLabel);
-        panel.add(heightField);
-        panel.add(widthLabel);
-        panel.add(widthField);
-        panel.add(fileLabel);
-        panel.add(fileField);
-
-        int result = JOptionPane.showConfirmDialog(null, panel, "Save as SVG",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (result == JOptionPane.OK_OPTION) {
-            int imageWidth = Integer.parseInt(widthField.getText());
-            int imageHeight = Integer.parseInt(heightField.getText());
-
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setSelectedFile(new File(fileField.getText()));
-
-            int fileChooserResult = fileChooser.showSaveDialog(null);
-
-            if (fileChooserResult == JFileChooser.APPROVE_OPTION) {
-                File chosenFile = fileChooser.getSelectedFile();
-
-                try {
-                    SaveAsSVG(imageWidth, imageHeight, chosenFile);
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                }
-            }
-        }
-    }*/

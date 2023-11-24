@@ -269,8 +269,9 @@ public class Monitor extends Graph {
 
         LegendItemCollection legendItems = new LegendItemCollection();
         legendItems.add(new LegendItem("Energy per charged EV", Color.BLUE));
-        legendItems.add(new LegendItem("Power per Charging Point", Color.MAGENTA));
         legendItems.add(new LegendItem("EV Charging Deviation", Color.RED));
+        legendItems.add(new LegendItem("Power per Charging Point", Color.MAGENTA));
+
 
 
         LegendItemSource source = () -> legendItems;

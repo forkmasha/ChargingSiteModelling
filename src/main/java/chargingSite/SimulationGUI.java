@@ -11,6 +11,8 @@ import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 
+import static org.jfree.chart.ChartColor.LIGHT_GREEN;
+
 public class SimulationGUI {
     private static final Color BLUE = new Color(173, 216, 230);
     private static final Color LIGHT_BLUE = new Color(200, 200, 240);
@@ -32,8 +34,8 @@ public class SimulationGUI {
         frame.setPreferredSize(new Dimension(450, 775)); //450 775
         frame.setMinimumSize(new Dimension(450, 775));
 
-        JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner arrivalRateStep = createSpinner(0.5, 0.1, Double.MAX_VALUE, 0.1);
+        //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
         JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 0.1);
 
         JSpinner numberOfClientTypes = createSpinner(1, 1, 2, 1);
@@ -51,12 +53,12 @@ public class SimulationGUI {
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
 
 
-        String[] distributionTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC","LOMAX"};
+        String[] distributionTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC", "LOMAX"};
         JComboBox<String> arrivalType = new JComboBox<>(distributionTypes);
         JComboBox<String> serviceType = new JComboBox<>(distributionTypes);
         JComboBox<String> demandType = new JComboBox<>(distributionTypes);
         arrivalType.setSelectedItem("EXPONENTIAL");
-        serviceType.setSelectedItem("ERLANGD");
+        serviceType.setSelectedItem("ERLANG");
         demandType.setSelectedItem("BETA");
 
         String[] confidenceLevels = {"80", "90", "95", "98", "99"};
@@ -88,10 +90,13 @@ public class SimulationGUI {
             double meanChargingDemandValue = getSpinnerValueAsDouble(meanChargingDemand);
 
             Simulation simulation = new Simulation();
-            simulation.setMIN_ARRIVAL_RATE(getSpinnerValueAsDouble(minArrivalRate));
-            simulation.setARRIVAL_RATE_STEP(getSpinnerValueAsDouble(arrivalRateStep));
+            //simulation.setMIN_ARRIVAL_RATE(getSpinnerValueAsDouble(minArrivalRate));
+            //simulation.setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate)-getSpinnerValueAsDouble(minArrivalRate))/(getSpinnerValueAsInt(numberOfSteps)-1));
+            simulation.setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate)/getSpinnerValueAsInt(numberOfSteps)));
+            simulation.setMIN_ARRIVAL_RATE(simulation.getARRIVAL_RATE_STEP());
             simulation.setMAX_ARRIVAL_RATE(getSpinnerValueAsDouble(maxArrivalRate));
-            simulation.setSIM_STEPS((int) Math.ceil((simulation.getMAX_ARRIVAL_RATE() - simulation.getMIN_ARRIVAL_RATE()) / simulation.getARRIVAL_RATE_STEP()));
+            //simulation.setSIM_STEPS((int) Math.ceil((simulation.getMAX_ARRIVAL_RATE() - simulation.getMIN_ARRIVAL_RATE()) / simulation.getARRIVAL_RATE_STEP()));
+            simulation.setSIM_STEPS(getSpinnerValueAsInt(numberOfSteps));
             simulation.setNUMBER_OF_CLIENT_TYPES(getSpinnerValueAsInt(numberOfClientTypes));
             simulation.setMAX_EVENTS(getSpinnerValueAsInt(maxEvents));
             simulation.setNUMBER_OF_SERVERS(getSpinnerValueAsInt(numberOfServers));
@@ -161,8 +166,8 @@ public class SimulationGUI {
 
         runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        setSpinnerModel(minArrivalRate);
-        setSpinnerModel(arrivalRateStep);
+        //setSpinnerModel(minArrivalRate);
+        setSpinnerModel(numberOfSteps);
         setSpinnerModel(maxArrivalRate);
         setSpinnerModel(numberOfClientTypes);
         setSpinnerModel(maxEvents);
@@ -179,32 +184,43 @@ public class SimulationGUI {
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel toPanel = createSpinnerPanel("Min Arrival Rate", "Arrival Rate Step", "Max Arrival Rate", minArrivalRate, arrivalRateStep, maxArrivalRate);
-        verticalBox.add(toPanel);
+        //JPanel ProcPanel0 = new JPanel();
+        //ProcPanel0.setLayout(new GridLayout(10, 1));
+
+        //ProcPanel0.setBackground(LIGHT_BLUE);
+        //verticalBox.add(ProcPanel0);
+
+        //JPanel toPanel = createSpinnerPanel("Min Arrival Rate", "Number of Steps", "Max Arrival Rate", minArrivalRate, numberOfSteps, maxArrivalRate);
+        //JPanel toPanel = createSpinnerPanel("",);
+        //verticalBox.add(toPanel);
 
         JPanel ProcPanel = new JPanel();
-        ProcPanel.setLayout(new GridLayout(22, 1));
+        ProcPanel.setLayout(new GridLayout(26, 1));
 
-        ProcPanel.add(new JLabel("Number of Client Types", SwingConstants.CENTER));
-        ProcPanel.add(numberOfClientTypes);
-        ProcPanel.add(new JLabel("Max Events", SwingConstants.CENTER));
+        ProcPanel.add(new JLabel("Number of Steps", SwingConstants.CENTER));
+        ProcPanel.add(numberOfSteps);
+        ProcPanel.add(new JLabel("Max Events per Step", SwingConstants.CENTER));
         ProcPanel.add(maxEvents);
+        ProcPanel.add(new JLabel("Confidence Interval Level", SwingConstants.CENTER));
+        ProcPanel.add(confLevel);
+        ProcPanel.add(new JLabel("Arrival Distribution Type", SwingConstants.CENTER));
+        ProcPanel.add(arrivalType);
+        ProcPanel.add(new JLabel("Max Mean Arrival Rate", SwingConstants.CENTER));
+        ProcPanel.add(maxArrivalRate);
         ProcPanel.add(new JLabel("Number of Servers", SwingConstants.CENTER));
         ProcPanel.add(numberOfServers);
         ProcPanel.add(new JLabel("Queue Size", SwingConstants.CENTER));
         ProcPanel.add(queueSize);
         ProcPanel.add(new JLabel("Queueing Type", SwingConstants.CENTER));
         ProcPanel.add(queueingType);
-        ProcPanel.add(new JLabel("Mean Service Time", SwingConstants.CENTER));
-        ProcPanel.add(meanServiceTime);
-        ProcPanel.add(new JLabel("Arrival Distribution Type", SwingConstants.CENTER));
-        ProcPanel.add(arrivalType);
         ProcPanel.add(new JLabel("Service Distribution Type", SwingConstants.CENTER));
         ProcPanel.add(serviceType);
+        ProcPanel.add(new JLabel("Mean Service Time", SwingConstants.CENTER));
+        ProcPanel.add(meanServiceTime);
+        ProcPanel.add(new JLabel("Number of Client Types", SwingConstants.CENTER));
+        ProcPanel.add(numberOfClientTypes);
         ProcPanel.add(new JLabel("Demand Distribution Type", SwingConstants.CENTER));
         ProcPanel.add(demandType);
-        ProcPanel.add(new JLabel("Confidence Level", SwingConstants.CENTER));
-        ProcPanel.add(confLevel);
         ProcPanel.add(new JLabel("Mean Charging Demand", SwingConstants.CENTER));
         ProcPanel.add(meanChargingDemand);
 
@@ -213,6 +229,12 @@ public class SimulationGUI {
 
         JPanel toPanel2 = createSpinnerPanel("Max Site Power", "Max Point Power", "Max EV Power", maxSitePower, maxPointPower, maxEVPower);
         verticalBox.add(toPanel2);
+
+        //JPanel ProcPanel2 = new JPanel();
+        //ProcPanel0.setLayout(new GridLayout(0, 1));
+
+        //ProcPanel.setBackground(LIGHT_BLUE);
+        //verticalBox.add(ProcPanel);
 
         JPanel bottomPanel = new JPanel();
 
@@ -286,6 +308,24 @@ public class SimulationGUI {
         panel.add(spinner1);
         panel.add(spinner2);
         panel.add(spinner3);
+        panel.setBackground(LIGHT_BLUE);
+        return panel;
+    }
+    private static JPanel createSpinnerPanel(String label1, String label2, JSpinner spinner1, JSpinner spinner2) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(2, 2));
+        panel.add(new JLabel(label1, SwingConstants.CENTER));
+        panel.add(new JLabel(label2, SwingConstants.CENTER));
+        panel.add(spinner1);
+        panel.add(spinner2);
+        panel.setBackground(LIGHT_BLUE);
+        return panel;
+    }
+    private static JPanel createSpinnerPanel(String label1, JSpinner spinner1) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(2, 1));
+        panel.add(new JLabel(label1, SwingConstants.CENTER));
+        panel.add(spinner1);
         panel.setBackground(LIGHT_BLUE);
         return panel;
     }

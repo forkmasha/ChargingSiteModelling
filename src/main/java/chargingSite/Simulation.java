@@ -7,10 +7,13 @@ import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.StandardXYSeriesLabelGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import org.w3c.dom.DOMImplementation;
@@ -38,6 +41,7 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import static org.jfree.chart.ChartFactory.createXYLineChart;
+import static org.jfree.chart.ui.RectangleEdge.*;
 
 public class Simulation extends Graph {
     /*   private static final double MIN_ARRIVAL_RATE = 0.5;
@@ -441,34 +445,25 @@ public class Simulation extends Graph {
         renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
         plot.setRenderer(renderer);
 
-        LegendItemCollection legendItems = new LegendItemCollection();
-
-        ArrayList<String> legendLabels = new ArrayList<>();
-
-        legendLabels.add("System time");
-        legendLabels.add("Service time");
-        legendLabels.add("Queuing time");
-
-        for (LegendItemSource lt : MyChart.getLegend().getSources()) {
-            int len = lt.getLegendItems().getItemCount();
-            for (int j = 0; j < len; j++) {
-                if (!lt.getLegendItems().get(j).getSeriesKey().toString().contains("confBar") && !lt.getLegendItems().get(j).getSeriesKey().toString().contains("Std")) {
-                    legendItems.add(new LegendItem(legendLabels.get(0), lt.getLegendItems().get(j).getFillPaint()));
-                    legendLabels.remove(0);
-                }
-            }
-        }
-        LegendItemSource source = new LegendItemSource() {
+        // Add legend
+        LegendItemSource legendItemSource = new LegendItemSource() {
             @Override
             public LegendItemCollection getLegendItems() {
-                return legendItems;
+                LegendItemCollection items = new LegendItemCollection();
+
+                // Add legend items for each series
+                items.add(new LegendItem("Service Time", Color.blue));
+                items.add(new LegendItem("Queuing Time",Color.RED));
+                items.add(new LegendItem("System Time",Color.MAGENTA));
+
+                return items;
             }
         };
-        MyChart.getLegend().setSources(new LegendItemSource[]{source});
 
+        plot.setFixedLegendItems(legendItemSource.getLegendItems());
 
         ChartPanel chartPanel = new ChartPanel(MyChart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 630));
+        chartPanel.setPreferredSize(new Dimension(800, 630));
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);

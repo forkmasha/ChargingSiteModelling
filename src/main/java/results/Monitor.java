@@ -229,7 +229,7 @@ public class Monitor extends Graph {
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
         int i = 0;
-        while (i < 3 * mySim.getSIM_STEPS() + 1) {
+        while (i < 3 * mySim.getSIM_STEPS()) {
             renderer.setSeriesPaint(i, Color.BLUE);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;

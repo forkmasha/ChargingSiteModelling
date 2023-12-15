@@ -62,7 +62,7 @@ public class Simulation extends Graph {
     private double MIN_ARRIVAL_RATE;
     private double MAX_ARRIVAL_RATE;
     private double ARRIVAL_RATE_STEP;
-    private int SIM_STEPS = (int) Math.ceil((MAX_ARRIVAL_RATE - MIN_ARRIVAL_RATE) / ARRIVAL_RATE_STEP);
+    private int SIM_STEPS;
     private int NUMBER_OF_CLIENT_TYPES;
     private int MAX_EVENTS;
     private int NUMBER_OF_SERVERS;
@@ -412,7 +412,7 @@ public class Simulation extends Graph {
         }
 
         int i = 0;
-        while (i < SIM_STEPS + 1) {
+        while (i < SIM_STEPS) {
             renderer.setSeriesPaint(i, Color.MAGENTA);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
@@ -423,7 +423,7 @@ public class Simulation extends Graph {
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
 
-        while (i < 2 * (SIM_STEPS + 2)) {
+        while (i < 2 * SIM_STEPS + 2) {
             renderer.setSeriesPaint(i, Color.blue);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
@@ -434,7 +434,7 @@ public class Simulation extends Graph {
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
 
-        while (i < 3 * (SIM_STEPS + 2) + 1) {
+        while (i < 3 * SIM_STEPS + 4) {
             renderer.setSeriesPaint(i, Color.red);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;

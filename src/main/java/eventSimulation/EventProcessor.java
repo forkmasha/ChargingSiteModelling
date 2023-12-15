@@ -7,6 +7,7 @@ public class EventProcessor {
     Event nextEvent;
     Server nextServer;
     ElectricVehicle chargedVehicle;
+    double tick = 0.05;
     static double deltaTime = 0;
     static int i, j, k, q, n = 0;
 
@@ -23,7 +24,6 @@ public class EventProcessor {
         if (deltaTime>0) {
             EventSimulation.setCurrentTime(event.getExecTime());
         }
-
         if (event.getClient() != null) {
             for (Server next : event.getClient().getSystem().getServers()) {
                 next.getClient().processClient(deltaTime);

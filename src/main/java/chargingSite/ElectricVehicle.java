@@ -89,6 +89,7 @@ public class ElectricVehicle {
         //if(chargingPower<0) {System.out.println("ERROR: Negative charging power!"); System.exit(1);}
         if (this.stateOfCharge + chargedEnergy/this.batteryCapacity > 1) {
             chargedEnergy = (1-this.stateOfCharge) * this.batteryCapacity;
+            this.chargingPower=0;
         }
         this.stateOfCharge += chargedEnergy/this.batteryCapacity;
         this.energyCharged += chargedEnergy;

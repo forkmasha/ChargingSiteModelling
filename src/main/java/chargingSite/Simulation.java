@@ -259,8 +259,11 @@ public class Simulation extends Graph {
         }
         mySystem.setDistributionType(ARRIVAL_TYPE);
         int stepCounter = 0;
+        double arrivalRate = MIN_ARRIVAL_RATE;
 
-        for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
+        //for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
+        while (stepCounter < SIM_STEPS) {
+            if ( arrivalRate > MAX_ARRIVAL_RATE + 0.001 ) System.out.println("WARNING: Arrival rate " + arrivalRate + " beyond maximum " + MAX_ARRIVAL_RATE + " occurred!");
             stepCounter++;
             mySystem.resetQueueingSystem();
             mySystem.setMeanInterArrivalTime(myFirstClients.length / arrivalRate); //mean inter-arrival time per client
@@ -361,6 +364,7 @@ public class Simulation extends Graph {
                     + " Server state: " + mySystem.getNumberOfServersInUse()
                     + " Clients done: " + Client.getClientCounter()
             );
+        arrivalRate += ARRIVAL_RATE_STEP;
         }
         drawGraph();
 

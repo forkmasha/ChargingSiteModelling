@@ -43,7 +43,7 @@ public class SimulationGUI {
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner meanChargingDemand = createSpinner(0.8, 0.0, 0.9, 0.1);
+        JSpinner meanChargingDemand = createSpinner(0.8, 0.0, 1.0, 0.1);
 
         JSpinner maxSitePower = createSpinner(300, 1.0, Double.MAX_VALUE, 1);
         JSpinner maxPointPower = createSpinner(100, 1.0, Double.MAX_VALUE, 1);

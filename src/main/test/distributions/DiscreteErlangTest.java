@@ -6,10 +6,14 @@ public class DiscreteErlangTest {
     public static void main(String[] args) {
         int numSamples = 2500000;
         int numBins = 25;
-        double mean = 2;
+        int level = 2;
+        double slice = 0.25;
+        double mean = 2.5;
         double maxX = 1.0;
 
         DiscreteErlangDistribution discreteErlangDistribution = new DiscreteErlangDistribution(DistributionType.ERLANGD);
+        discreteErlangDistribution.setErlangLevel(level);
+        discreteErlangDistribution.setSliceLength(slice);
         double[] samples = discreteErlangDistribution.getSamples(mean, numSamples);
         for (double sample : samples) {
             if (sample > maxX) {

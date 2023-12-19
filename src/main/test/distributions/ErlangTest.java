@@ -9,7 +9,7 @@ public class ErlangTest {
         int numSamples = 25000;
         int numBins = 25;
         double mean = 2.0;
-        int k = 5;
+        int k = 2;
         double maxX = 0.0;
 
         ErlangDistribution erlangDistribution = new ErlangDistribution(DistributionType.ERLANG);

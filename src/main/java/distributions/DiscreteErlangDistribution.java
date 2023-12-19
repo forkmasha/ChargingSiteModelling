@@ -4,13 +4,19 @@ import java.util.Random;
 
 public class DiscreteErlangDistribution extends Distribution {
 
-    public static final int level = 7;
-    public static final double slice=0.25;// 15 minutes by default
+    public int level = 2;
+    public double slice=0.25;// 15 minutes by default
 
     public DiscreteErlangDistribution(DistributionType type) {
         super(type);
     }
 
+    public void setErlangLevel(int newLevel) {
+        level = newLevel;
+    }
+    public void setSliceLength(double newLength) {
+        slice = newLength;
+    }
     public double getSample(double mean) {
         //Random random = new Random();
         double sample = 0;
@@ -52,7 +58,7 @@ public class DiscreteErlangDistribution extends Distribution {
         for (int i = 0; i < numBins; i++) {
             double x = i * binWidth;
             pdf[0][i] = x;
-            pdf[1][i] = (1/slice)*(Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1); //* binWidth;
+            pdf[1][i] = (1/mean) * (1/slice) * (Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1); //* binWidth;
         }
 
         return pdf;

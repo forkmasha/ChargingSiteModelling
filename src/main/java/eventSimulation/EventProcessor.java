@@ -21,8 +21,11 @@ public class EventProcessor {
 
     public void processEvent(Event event) {
         deltaTime = event.getExecTime() - EventSimulation.getCurrentTime();
-        if (deltaTime>0) {
+        if (deltaTime>=0) {
             EventSimulation.setCurrentTime(event.getExecTime());
+        } else {
+            System.out.println("Warning: negative time between events " + deltaTime + " occurred and is reset to zero!");
+            deltaTime = 0;
         }
         if (event.getClient() != null) {
             for (Server next : event.getClient().getSystem().getServers()) {

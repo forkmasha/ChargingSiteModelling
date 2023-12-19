@@ -84,8 +84,12 @@ public class ElectricVehicle {
             return;
         }
         //this.updateChargingPower(sitePower);
-        double chargedEnergy = duration * this.chargingPower;
-        if(chargedEnergy<0) {System.out.println("ERROR: Charged Energy is negative!"); System.exit(1);}
+        double ChargingPowerAtBeginOfInterval = this.chargingPower;
+        this.updateChargingPower();
+        double chargedEnergy = duration * (ChargingPowerAtBeginOfInterval + this.chargingPower) / 2;
+        if(chargedEnergy<0) {
+            System.out.println("ERROR: Charged Energy is negative!"); System.exit(1);
+        }
         //if(chargingPower<0) {System.out.println("ERROR: Negative charging power!"); System.exit(1);}
         if (this.stateOfCharge + chargedEnergy/this.batteryCapacity > 1) {
             chargedEnergy = (1-this.stateOfCharge) * this.batteryCapacity;

@@ -24,7 +24,7 @@ public class DiscreteErlangDistribution extends Distribution {
             //sample += exponentialDistribution(mean / slice - 1);
             sample += ExponentialDistribution.createSample(mean/slice);
         }
-        sample = slice * Math.floor(sample/level);
+        sample = slice * (0.5 + Math.floor(sample/level));
         if (sample <= 0) System.out.println("Warning: generated ERLANGD sample is zero...");
         return sample;
     }
@@ -65,7 +65,7 @@ public class DiscreteErlangDistribution extends Distribution {
         //"discretize" the pdf
         double densitiesSum = 0;
         for (int i = 0; i < numBins; i++) {
-            int j = (int) Math.floor(pdf[0][i]/slice);
+            int j = (int) (Math.floor(pdf[0][i]/slice));
             int oldi = i;
             double density = 0;
             while( j - Math.floor(pdf[0][i]/slice) == 0) {
@@ -80,6 +80,9 @@ public class DiscreteErlangDistribution extends Distribution {
             }
             System.out.println(" " + density + " ");
             i--;
+        }
+        for (int i = 0; i < numBins; i++) {
+            pdf[0][i] += 0.5 * slice;
         }
         System.out.println("\n " + densitiesSum * slice);
         return pdf;

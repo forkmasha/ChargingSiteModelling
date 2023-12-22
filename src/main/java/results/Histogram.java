@@ -86,7 +86,7 @@ public class Histogram {
         dataset.addSeries(distributionName + "  Distribution", samples, bins);
         JFreeChart chart = ChartFactory.createHistogram(distributionName, "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
         XYPlot plot = (XYPlot) chart.getPlot();
-        addPDFToHistogram(chart, pdf);
+        if (pdf!=null) addPDFToHistogram(chart, pdf);
 
         // Set colors and transparency for each series
         chart.getPlot().setForegroundAlpha(0.6f); // Adjust transparency (0.0f - fully transparent, 1.0f - fully opaque)
@@ -119,7 +119,9 @@ public class Histogram {
 
         XYSeries pdfSeries = new XYSeries("PDF");
         for (int i = 0; i < pdf[0].length; i++) {
-            pdfSeries.add(pdf[0][i], pdf[1][i]);
+            if (!Double.isInfinite(pdf[1][i])) {
+                pdfSeries.add(pdf[0][i], pdf[1][i]);
+            }
         }
 
         XYSplineRenderer renderer = new XYSplineRenderer();

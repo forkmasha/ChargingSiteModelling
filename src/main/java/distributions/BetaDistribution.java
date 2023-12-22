@@ -1,7 +1,10 @@
 package distributions;
 
-import java.util.Random;
+import org.apache.commons.math3.distribution.GammaDistribution;
 import org.apache.commons.math3.special.Gamma;
+
+import java.util.Random;
+
 
 public class BetaDistribution extends Distribution {
     private Random random;
@@ -57,8 +60,10 @@ public class BetaDistribution extends Distribution {
     }
 
     private static double betaDistribution(double[] ab) {
-        double gamma1 = gammaDistribution(ab[0], 1.0);
-        double gamma2 = gammaDistribution(ab[1], 1.0);
+        //double gamma1 = gammaDistribution(ab[0], 1.0);
+        //double gamma2 = gammaDistribution(ab[1], 1.0);
+        double gamma1 = new GammaDistribution(ab[0], 1.0).sample();
+        double gamma2 = new GammaDistribution(ab[1], 1.0).sample();
         return gamma1 / (gamma1 + gamma2);  // @Masha: this is ok! :-)
         // return (gamma1 * gamma2) / (gamma1 + gamma2); // that's for the Beta-Function NOT the Beta Distribution
         // return gammaDistribution(ab[0] + ab[1], 1.0) / (gamma1 + gamma2); // a variant I found that not works
@@ -107,7 +112,7 @@ public class BetaDistribution extends Distribution {
         for (int i = 0; i < numPoints; i++) {
             double x = i * stepSize;
             pdfValues[0][i] = x;
-            pdfValues[1][i] = betaDistributionPDF(alpha, beta, x);
+            pdfValues[1][i] = betaDistributionPDF(alpha, beta, x); // / (1-Math.abs(0.5-mean));
         }
         return pdfValues;
     }
@@ -120,10 +125,12 @@ public class BetaDistribution extends Distribution {
     }
 
     private static double betaFunction(double alpha, double beta) {
-        return gamaFunction(alpha) * gamaFunction( (beta)) / gamaFunction((alpha + beta));
+        //double x = Gamma.gamma(alpha) * Gamma.gamma(beta) / Gamma.gamma((alpha + beta));
+        //if (x == 0) x = Double.MIN_VALUE;
+        return Gamma.gamma(alpha) * Gamma.gamma(beta) / Gamma.gamma((alpha + beta));
     }
 
-    private static double gamaFunction(double x) {
+    private static double gamaFunction(int x) {
         if (x == 1.0) {
             return 1.0;
         } else if (x < 1.0) {

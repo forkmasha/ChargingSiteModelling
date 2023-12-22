@@ -6,7 +6,7 @@ public class BetaTest {
     public static void main(String[] args) {
         int numSamples = 250000;
         int numBins = 25;
-        double mean = 0.9;
+        double mean = 0.80;
 
         BetaDistribution betaDistribution = new BetaDistribution(DistributionType.BETA);
         double[] samples = betaDistribution.getSamples(mean, numSamples);
@@ -14,7 +14,8 @@ public class BetaTest {
         samples[numSamples - 1] = 0.99999;
         double[][] pdf = betaDistribution.getPDF(mean, 1);
 
-        Histogram.generateHistogram(numBins, samples, pdf,DistributionType.BETA.name());
+        //Histogram.generateHistogram(numBins, samples, null, DistributionType.BETA.name());
+        Histogram.generateHistogram(numBins, samples, pdf, DistributionType.BETA.name());
 
         samples = betaDistribution.getSamples(1 - mean, numSamples);
         samples[0] = 0.00001;

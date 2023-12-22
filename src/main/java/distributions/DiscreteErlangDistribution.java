@@ -21,10 +21,12 @@ public class DiscreteErlangDistribution extends Distribution {
         //Random random = new Random();
         double sample = 0;
         for (int i = 0; i < level; i++) {
-            sample += exponentialDistribution(mean / slice - 1);
+            //sample += exponentialDistribution(mean / slice - 1);
+            sample += ExponentialDistribution.createSample(mean/slice);
         }
-        sample = Math.round(sample / level);
-        return slice * (sample + 1);
+        sample = slice * Math.floor(sample/level);
+        if (sample <= 0) System.out.println("Warning: generated ERLANGD sample is zero...");
+        return sample;
     }
 
     public static double createSample(int level, double mean, double slice) {
@@ -50,7 +52,7 @@ public class DiscreteErlangDistribution extends Distribution {
     public double[][] getPDF(double mean, double xMax) {
         int numBins = 1000; // Adjust the number of bins as needed
         int k = level; // Set the shape parameter (number of events), you can adjust this as needed
-        double rateParameter = 1.0 / mean; // Calculate the rate parameter (mean time between events)
+        double rateParameter = k / mean; // Calculate the rate parameter (mean time between events)
 
         double[][] pdf = new double[2][numBins];
         double binWidth = xMax / numBins;
@@ -58,9 +60,28 @@ public class DiscreteErlangDistribution extends Distribution {
         for (int i = 0; i < numBins; i++) {
             double x = i * binWidth;
             pdf[0][i] = x;
-            pdf[1][i] = (1/mean) * (1/slice) * (Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1); //* binWidth;
+            pdf[1][i] = (Math.pow(rateParameter, k) * Math.pow(x, k - 1) * Math.exp(-rateParameter * x)) / factorial(k - 1); //* binWidth;
         }
-
+        //"discretize" the pdf
+        double densitiesSum = 0;
+        for (int i = 0; i < numBins; i++) {
+            int j = (int) Math.floor(pdf[0][i]/slice);
+            int oldi = i;
+            double density = 0;
+            while( j - Math.floor(pdf[0][i]/slice) == 0) {
+                density += pdf[1][i];
+                i++;
+                if (i>=numBins) break;
+            }
+            density /= (i-oldi);
+            densitiesSum += density;
+            for (int l = oldi; l < i; l++) {
+                pdf[1][l] = density;
+            }
+            System.out.println(" " + density + " ");
+            i--;
+        }
+        System.out.println("\n " + densitiesSum * slice);
         return pdf;
     }
 

@@ -83,7 +83,7 @@ public class Histogram {
     public static void generateHistogram(double maxX, int bins, double samples[], double pdf[][], String distributionName) {
         HistogramDataset dataset = new HistogramDataset();
         dataset.setType(HistogramType.SCALE_AREA_TO_1);
-        dataset.addSeries(distributionName + "  Distribution", samples, bins);
+        dataset.addSeries("Histogram", samples, bins);
         JFreeChart chart = ChartFactory.createHistogram(distributionName, "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
         XYPlot plot = (XYPlot) chart.getPlot();
         if (pdf!=null) addPDFToHistogram(chart, pdf);

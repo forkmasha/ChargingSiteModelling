@@ -1,7 +1,7 @@
 package distributions;
 
 import java.util.Random;
-
+import org.apache.commons.math3.special.Gamma;
 
 public class BetaDistribution extends Distribution {
     private Random random;
@@ -120,10 +120,10 @@ public class BetaDistribution extends Distribution {
     }
 
     private static double betaFunction(double alpha, double beta) {
-        return gamaFunction((int) alpha) * gamaFunction((int) (beta)) / gamaFunction((int)(alpha + beta));
+        return gamaFunction(alpha) * gamaFunction( (beta)) / gamaFunction((alpha + beta));
     }
 
-    private static double gamaFunction(int x) {
+    private static double gamaFunction(double x) {
         if (x == 1.0) {
             return 1.0;
         } else if (x < 1.0) {

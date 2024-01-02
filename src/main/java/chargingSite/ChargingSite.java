@@ -1,6 +1,8 @@
 package chargingSite;
 
 
+import exceptions.SitePowerExceededException;
+
 import java.util.ArrayList;
 
 public class ChargingSite {
@@ -55,7 +57,7 @@ public class ChargingSite {
         if (sitePower > maxSitePower) {
             sitePower = scaleChargingPower(maxSitePower / sitePower);
             if (sitePower - maxSitePower > 0.0001) {
-                System.out.println("Warning in getSitePower: Site power " + sitePower + " is bigger than set maximum " + maxSitePower + " !");
+                throw new SitePowerExceededException("Site power " + sitePower + " is greater than the set maximum " + maxSitePower + " !");
             }
         }
         return sitePower;

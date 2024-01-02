@@ -11,8 +11,6 @@ import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 
-import static org.jfree.chart.ChartColor.LIGHT_GREEN;
-
 public class SimulationGUI {
     private static final Color BLUE = new Color(173, 216, 230);
     private static final Color LIGHT_BLUE = new Color(200, 200, 240);
@@ -31,8 +29,8 @@ public class SimulationGUI {
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(LIGHT_BLUE);
-        frame.setPreferredSize(new Dimension(450, 775)); //450 775
-        frame.setMinimumSize(new Dimension(450, 775));
+        frame.setPreferredSize(new Dimension(450, 820)); //450 775
+        frame.setMinimumSize(new Dimension(450, 820));
 
         //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
@@ -69,7 +67,7 @@ public class SimulationGUI {
         arrivalType.setUI(new CustomComboBoxUI());
         serviceType.setUI(new CustomComboBoxUI());
         demandType.setUI(new CustomComboBoxUI());
-        // confLevel.setUI(new CustomComboBoxUI()); //
+        //confLevel.setUI(new CustomComboBoxUI()); //
 
         arrivalType.setBackground(Color.WHITE);
         serviceType.setBackground(Color.white);
@@ -368,4 +366,6 @@ public class SimulationGUI {
             };
         }
     }
+
+
 }

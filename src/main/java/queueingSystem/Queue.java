@@ -1,11 +1,10 @@
 package queueingSystem;
 
 import distributions.UniformDistribution;
-import eventSimulation.Event;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Queue {
     public enum QueueingType {
@@ -17,34 +16,30 @@ public class Queue {
     private final QueueingType type;
     private List<Client> queuedClients;
     private int occupation = 0;
-
-
-    public int getSize() {
-        return size;
-    }
+    private static final Logger logger = Logger.getLogger(Queue.class.getName());
 
     public Queue(int size, QueueingType type) {
         this.size = size;
         this.type = type;
         this.queuedClients = new ArrayList<>(size);
     }
-
+    public int getSize() {
+        return size;
+    }
     public int getOccupation() {
         return occupation;
     }
 
     public void addClientToQueue(Client client) {
-        //System.out.print("+");
         queuedClients.add(client);
         occupation++;
         if(occupation>size){
-            System.out.println("Error: There are more clients in the queue than it is configured to host!");
+            logger.warning("Error: There are more clients in the queue than it is configured to host!");
         }
         if(queuedClients.size()>size){
-            System.out.println("Error: Queue size exceeded! " + queuedClients.size() + " > " + size);
+            logger.warning("Error: Queue size exceeded! " + queuedClients.size() + " > " + size);
         }
     }
-
     public Client getNextClient() {
         queuedClients.sort(Comparator.comparingDouble(Client::getArrivalTime));
         switch (this.type) {
@@ -59,9 +54,10 @@ public class Queue {
     }
     public Client pullNextClientFromQueue(double currentTime) {
         if( queuedClients.size() != occupation ){
-            System.out.println("Error: Queue size mismatch! " + queuedClients.size() + " > " + occupation);
-        } else if ( occupation == 0 ) {
-            System.out.println("Error: Cannot pull a Client from empty Queue!");
+           logger.warning("Error: Queue size mismatch! " + queuedClients.size() + " > " + occupation);
+        }
+        else if ( occupation == 0 ) {
+            logger.warning("Error: Cannot pull a Client from empty Queue!");
         }
 
         Client nextClient = getNextClient();
@@ -70,11 +66,10 @@ public class Queue {
         occupation--;
 
         if( occupation < 0 ){
-            System.out.println("Error: There are less than zero clients left in the queue!");
+            logger.warning("Error: There are less than zero clients left in the queue!");
             return null;
             //} else if (occupation==0) { System.out.println("Queue is empty again :-)");
         }
-
         return nextClient;
     }
 }

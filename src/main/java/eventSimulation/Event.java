@@ -18,28 +18,27 @@ public class Event {
             System.exit(-100);
         }
     }
-
+    public void setClient(Client client) {
+        this.client = client;
+    }
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+    }
+    public void setExecTime(double execTime) {
+        this.execTime = execTime;
+    }
     public double getExecTime() {
         return execTime;
     }
     public int getIndex() {
         return myIndex;
     }
-    public void setClient(Client client) {
-        this.client = client;
-    }
     public EventType getEventType() {
         return eventType;
     }
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
+
     public Client getClient() {
         return client;
-    }
-
-    public void setExecTime(double execTime) {
-        this.execTime = execTime;
     }
     public static void resetEventCounter() { eventCounter = 0; }
 }

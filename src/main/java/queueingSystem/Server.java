@@ -2,6 +2,7 @@ package queueingSystem;
 
 import chargingSite.ChargingPoint;
 import chargingSite.Simulation;
+import exceptions.ServerException;
 
 import java.util.List;
 
@@ -11,12 +12,12 @@ public class Server {
     private List<Double> serviceTimes;
     Client servedClient;
 
-    public Server(QueueingSystem mySystem, Client myClient) {
+    public Server(QueueingSystem mySystem, Client myClient){
         this.chargingPoint = mySystem.getChargingSite().getIdleChargingPoint(myClient.getCar().getPlugType());
         if (this.chargingPoint != null) {
             this.setClient(myClient);
         } else {
-            System.out.println("ERROR: Server without ChargePoint created!");
+            throw new ServerException("Server without ChargePoint created!");
         }
     }
 
@@ -24,7 +25,7 @@ public class Server {
         this.servedClient = client;
         this.chargingPoint.pluginCar(client.getCar());
         if (chargingPoint.getChargedCar() == null) {
-            System.out.println("ERROR in Server setClient: Could not assign a car to the linked chargingPoint!");
+            throw new ServerException("Could not assign a car to the linked chargingPoint!");
         }
     }
     public Client getClient() {

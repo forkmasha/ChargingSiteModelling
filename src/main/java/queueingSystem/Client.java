@@ -21,10 +21,6 @@ public class Client {
     public ElectricVehicle getCar() {
         return car;
     }
-    // public void setCar(ElectricVehicle car) {
-    //this.car = car;
-    //}
-
     public Client(double arrivalTime, double meanServiceTime, DistributionType serviceType, QueueingSystem system) {
         this.myIndex = clientCounter++;
         this.arrivalTime = arrivalTime;
@@ -74,5 +70,4 @@ public class Client {
         this.car.updateChargingPower();
         this.getSystem().getSitePowers().add(this.getSystem().getChargingSite().getSitePower());
     }
-
 }

@@ -7,20 +7,20 @@ import distributions.DistributionType;
 import eventSimulation.Event;
 import eventSimulation.EventSimulation;
 import eventSimulation.EventType;
-import results.Monitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class QueueingSystem {
+    private static final Logger logger = Logger.getLogger(QueueingSystem.class.getName());
     private String systemName;
-
-    private ChargingSite site;
     private int numberOfServers;
     private int occupiedServers = 0;
     private int queueSize;
     private double blockingRate = 0;
     private double meanInterArrivalTime;
+    private ChargingSite site;
     private Distribution arrivalTimeDistribution;
     private DistributionType distributionType;
     private double meanTimeInSystem;
@@ -36,7 +36,7 @@ public class QueueingSystem {
     private final List<Double> timesInSystem = new ArrayList<>();
     private final List<Double> timesInService = new ArrayList<>();
     private final List<Double> energyCharged = new ArrayList<>();
-    private final Monitor blockingRates = new Monitor();
+
     public List<Double> getTimesInQueue() {
         return timesInQueue;
     }
@@ -49,47 +49,61 @@ public class QueueingSystem {
         return timesInService;
     }
 
-    private  List<Double> amountsCharged  = new ArrayList<>(); // (mean + conf., std, 10% and 90% quantiles )
-    private  List<Double> sitePowers  = new ArrayList<>(); // power demand of entire charging site (mean + conf., std, max )
+    private List<Double> amountsCharged = new ArrayList<>(); // (mean + conf., std, 10% and 90% quantiles )
+    private List<Double> sitePowers = new ArrayList<>(); // power demand of entire charging site (mean + conf., std, max )
 
-    private  List<Double> chargingDeviations  = new ArrayList<>(); // difference between demanded and actually charged energy (mean + conf., std)
+    private List<Double> chargingDeviations = new ArrayList<>(); // difference between demanded and actually charged energy (mean + conf., std)
 
     public List<Double> getSitePowers() {
         return sitePowers;
     }
+
     public List<Double> getAmountsCharged() {
         return amountsCharged;
     }
+
+    public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
+        this.myQueue = new Queue(queueSize, queueingType);
+        this.numberOfServers = numberOfServers;
+        this.site = new ChargingSite(numberOfServers, Simulation.MAX_SITE_POWER); // TO BE SET via GUI
+        this.resetQueueingSystem();
+    }
+    /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!
+                public QueueingSystem(String name) {
+                    this.systemName = name;
+                }*/
+    public void setName(String name) {
+        this.systemName = name;
+    }
+
+    public void setBlockingRate(double blockingRate) {
+        this.blockingRate = blockingRate;
+    }
+    public void setDistributionType(DistributionType distributionType) {
+        this.distributionType = distributionType;
+        this.arrivalTimeDistribution = Distribution.create(distributionType);
+    }
+
+    public void setMeanInterArrivalTime(double meanInterArrivalTime) {
+        this.meanInterArrivalTime = meanInterArrivalTime;
+    }
+
     public String getSystemName() {
         return systemName;
     }
+
     public Queue getMyQueue() {
         return myQueue;
     }
+
     public ChargingSite getChargingSite() {
         return this.site;
-    }
-
-    public double getBlockingRate() {
-        return blockingRate;
     }
 
     public List<Double> getChargingDeviations() {
         return chargingDeviations;
     }
 
-    public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
-        this.myQueue = new Queue(queueSize,queueingType);
-        this.numberOfServers = numberOfServers;
-        this.site = new ChargingSite(numberOfServers, Simulation.MAX_SITE_POWER); // TO BE SET via GUI
-        this.resetQueueingSystem();
-    }
-
-    public String getKendallName(Simulation mySim) {
-        return Distribution.getTitleAbbreviation(String.valueOf(this.arrivalTimeDistribution.getType())) + "/"
-                + Distribution.getTitleAbbreviation(String.valueOf(mySim.getSERVICE_TYPE())) + "/"
-                + numberOfServers + "/" + numberOfServers + queueSize;
-    }
     public int getNumberOfServers() {
         return numberOfServers;
     }
@@ -97,11 +111,21 @@ public class QueueingSystem {
     public ArrayList<Server> getServers() {
         return servers;
     }
+    public double getMeanInterArrivalTime() {
+        return meanInterArrivalTime;
+    }
 
-    /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!
-            public QueueingSystem(String name) {
-                this.systemName = name;
-            }*/
+    public Distribution getArrivalTimeDistribution() {
+        return arrivalTimeDistribution;
+    }
+
+    public String getKendallName(Simulation mySim) {
+        return Distribution.getTitleAbbreviation(String.valueOf(this.arrivalTimeDistribution.getType())) + "/"
+                + Distribution.getTitleAbbreviation(String.valueOf(mySim.getSERVICE_TYPE())) + "/"
+                + numberOfServers + "/" + numberOfServers + queueSize;
+    }
+
+
     public void resetQueueingSystem() {
         timesInQueue.clear();
         timesInSystem.clear();
@@ -109,24 +133,7 @@ public class QueueingSystem {
         amountsCharged.clear();
         sitePowers.clear();
         chargingDeviations.clear();
-        blockingRates.values.clear();
         Client.resetClientCounter();
-    }
-
-    public void setName(String name) { this.systemName = name; }
-
-    public void setBlockingRate(double blockingRate) {
-        this.blockingRate = blockingRate;
-    }
-
-    public void addServer(Server newServer) {
-        servers.add(newServer);
-        occupiedServers++;
-    }
-
-    public void removeServer() {
-        servers.remove(0); //removes the first (longest occupied) server
-        occupiedServers--;
     }
 
     public void removeServer(Client client) {
@@ -136,54 +143,19 @@ public class QueueingSystem {
         servers.remove(server);
         occupiedServers--;
     }
-    //public void removeServer(Server idle) {
-    //    servers.remove(idle);
-    //    occupiedServers--;
-    //}
-
-    public double getTotalPower() {
-    /*    double totalPower = 0;
-        for (Server nextServer : servers) {
-            totalPower += nextServer.getClient().getCar().getChargingPower();
-        }
-        if(totalPower > site.getMaxSitePower()) {
-            for (Server nextServer : servers) {
-                nextServer.getClient().getCar().updateChargingPower(totalPower);
-            }
-            totalPower = 0;
-            for (Server nextServer : servers) {
-                totalPower += nextServer.getClient().getCar().getChargingPower();
-            }
-            if (totalPower>site.getMaxSitePower()) {
-                System.out.println("ERROR in getTotalPower: Site power " + totalPower + "is bigger than maximum possible " + site.getMaxSitePower() + " !");
-            }
-        }
-        return totalPower;
-        */
-        return site.getSitePower();
-    }
 
     public int getNumberOfServersInUse() {
         return this.servers.size();
     }
-
     public Server getIdleServer(QueueingSystem mySystem, Client myClient) {
         Server newServer;
         if (occupiedServers < numberOfServers) {
-            newServer = new Server(mySystem,myClient);
+            newServer = new Server(mySystem, myClient);
             servers.add(newServer);
             occupiedServers++;
             return newServer;
         } else {
             return null;
-        }
-    }
-    public Server getServer(int index) {   // index works :)
-        int n = servers.size();
-        if (n > 0 && index < n) {
-            return servers.get(index);
-        } else {
-            return (null);
         }
     }
     public Server getServer(Client client) {
@@ -198,37 +170,6 @@ public class QueueingSystem {
         }
         return null;
     }
-
-    public void setNumberOfServers(int numberOfServers) {
-        this.numberOfServers = numberOfServers;
-    }
-
-    public void setQueueSize(int queueSize) {
-        this.queueSize = queueSize;
-        //this.myQueue = new Queue(queueSize);
-    }
-
-    public void setDistributionType(DistributionType distributionType) {
-        this.distributionType = distributionType;
-        this.arrivalTimeDistribution = Distribution.create(distributionType);
-    }
-
-    public void setMeanInterArrivalTime(double meanInterArrivalTime) {
-        this.meanInterArrivalTime = meanInterArrivalTime;
-    }
-
-    public double getMeanInterArrivalTime() {
-        return meanInterArrivalTime;
-    }
-
-    public double getMeanTimeInSystem() {
-        return meanTimeInSystem;
-    }
-
-    public Distribution getArrivalTimeDistribution() {
-        return arrivalTimeDistribution;
-    }
-
 
     public void processArrival(Event arrival) {
         currentTime = arrival.getExecTime();
@@ -271,7 +212,6 @@ public class QueueingSystem {
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
-
     public void processDeparture(Event departure) {
         currentTime = departure.getExecTime();
         currentClient = departure.getClient();
@@ -293,28 +233,27 @@ public class QueueingSystem {
                         + numberOfServers/currentClient.getMeanServiceTime() +" clients per time unit!");
             }*/
         } else {
-            timeInQueue=0.0;//to consider 0 queueing time in statistics
+            timeInQueue = 0.0;//to consider 0 queueing time in statistics
 
             // -----------this.powerCharged.add(timeInSystem *currentClient.getCar().getChargingPower());
         }
-        double timeInService = timeInSystem-timeInQueue;
+        double timeInService = timeInSystem - timeInQueue;
         this.timesInQueue.add(timeInQueue);
-        this.timesInService.add(timeInSystem-timeInQueue);
+        this.timesInService.add(timeInSystem - timeInQueue);
 
         //this.amountsCharged.add(timeInService * currentClient.getCar().getMaxPower());
         this.amountsCharged.add(currentClient.getCar().getEnergyCharged());
-        this.chargingDeviations.add(currentClient.getCar().getChargeDemand()-currentClient.getCar().getEnergyCharged());
+        this.chargingDeviations.add(currentClient.getCar().getChargeDemand() - currentClient.getCar().getEnergyCharged());
 
         if (myQueue.getOccupation() > 0) {
             nextClient = myQueue.pullNextClientFromQueue(currentTime);
             if (nextClient.getTimeInQueue() <= 0.0) {
-                System.out.println("Error: A Client with TimeInQueue = " + nextClient.getTimeInQueue() + " has been taken from the queue!");
+                logger.warning("Error: A Client with TimeInQueue = " + nextClient.getTimeInQueue() + " has been taken from the queue!");
             }
             scheduleNextDeparture(currentTime, nextClient);
         }
 
     }
-
     public void processQueueing(Event goInQueue) {
         currentTime = goInQueue.getExecTime();
         currentClient = goInQueue.getClient();
@@ -329,12 +268,13 @@ public class QueueingSystem {
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
+
     public void instantDeparture(Client currentClient) {
         nextEvent = new Event(EventSimulation.getCurrentTime());
         nextEvent.setEventType(EventType.DEPARTURE);
 
         // used to track down the negative time in system issue
-        if(currentTime<=currentClient.getArrivalTime()) {
+        if (currentTime <= currentClient.getArrivalTime()) {
             System.out.println("current Time: " + currentTime
                     + " >? arrival Time: " + currentClient.getArrivalTime());
             // this.removeServer(currentClient);
@@ -348,14 +288,14 @@ public class QueueingSystem {
     public void scheduleNextDeparture(double currentTime, Client currentClient) {
         nextServer = getIdleServer(this, currentClient);
         if (nextServer == null) {
-            System.out.println("Error: Cannot schedule next Departure - NO Server available: " + servers.size());
+            logger.warning("Error: Cannot schedule next Departure - NO Server available: " + servers.size());
             return;
         }
         //nextServer.setClient(currentClient);
         currentClient.getCar().setChargingPoint(this.getChargingSite().getChargingPoint(servers.indexOf(nextServer)));
         currentClient.getCar().setMyServer(nextServer);
         currentClient.getCar().updateChargingPower();
-        double scale = getChargingSite().getMaxSitePower()/getChargingSite().getSitePower();
+        double scale = getChargingSite().getMaxSitePower() / getChargingSite().getSitePower();
         getChargingSite().scaleChargingPower(scale);
 
         /*double currentChargingPower = currentClient.getCar().getChargingPower();
@@ -363,13 +303,62 @@ public class QueueingSystem {
         currentClient.getCar().setChargingPower(updatedChargingPower);
         currentClient.getCar().getChargingPowerHistory().add(updatedChargingPower);*/
 
-        if (currentClient.getMeanServiceTime()>0) {
+        if (currentClient.getMeanServiceTime() > 0) {
             nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
             //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
             nextEvent.setEventType(EventType.DEPARTURE);
             currentClient.setTimeInService(nextEvent.getExecTime() - currentTime);
             nextEvent.setClient(currentClient);
         }
+    }
+
+
+    public void setQueueSize(int queueSize) {
+        this.queueSize = queueSize;
+        //this.myQueue = new Queue(queueSize);
+    }
+    public Server getServer(int index) {   // index works :)
+        int n = servers.size();
+        if (n > 0 && index < n) {
+            return servers.get(index);
+        } else {
+            return (null);
+        }
+    }
+    public void addServer(Server newServer) {
+        servers.add(newServer);
+        occupiedServers++;
+    }
+
+    public void removeServer() {
+        servers.remove(0); //removes the first (longest occupied) server
+        occupiedServers--;
+    }
+    //public void removeServer(Server idle) {
+    //    servers.remove(idle);
+    //    occupiedServers--;
+    //}
+
+    public double getTotalPower() {
+    /*    double totalPower = 0;
+        for (Server nextServer : servers) {
+            totalPower += nextServer.getClient().getCar().getChargingPower();
+        }
+        if(totalPower > site.getMaxSitePower()) {
+            for (Server nextServer : servers) {
+                nextServer.getClient().getCar().updateChargingPower(totalPower);
+            }
+            totalPower = 0;
+            for (Server nextServer : servers) {
+                totalPower += nextServer.getClient().getCar().getChargingPower();
+            }
+            if (totalPower>site.getMaxSitePower()) {
+                System.out.println("ERROR in getTotalPower: Site power " + totalPower + "is bigger than maximum possible " + site.getMaxSitePower() + " !");
+            }
+        }
+        return totalPower;
+        */
+        return site.getSitePower();
     }
 
 

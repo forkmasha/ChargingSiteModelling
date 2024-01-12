@@ -7,13 +7,10 @@ import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.labels.StandardXYSeriesLabelGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import org.w3c.dom.DOMImplementation;
@@ -27,21 +24,18 @@ import results.Statistics;
 import results.Times;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
-import static org.jfree.chart.ChartFactory.createXYLineChart;
-import static org.jfree.chart.ui.RectangleEdge.*;
+import static org.jfree.chart.ChartFactory.createXYLineChart;;
 
 public class Simulation extends Graph {
     /*   private static final double MIN_ARRIVAL_RATE = 0.5;
@@ -80,6 +74,7 @@ public class Simulation extends Graph {
     private DistributionType SERVICE_TYPE;
     private DistributionType DEMAND_TYPE;
     private int confLevel;
+    public static double batteryCapacity;
     public Monitor chargingMonitor;
 
 
@@ -90,22 +85,6 @@ public class Simulation extends Graph {
     //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
 
 
-    public int getMAX_EVENTS() {
-        return MAX_EVENTS;
-    }
-
-    public int getNUMBER_OF_SERVERS() {
-        return NUMBER_OF_SERVERS;
-    }
-
-    public int getQUEUE_SIZE() {
-        return QUEUE_SIZE;
-    }
-
-    public DistributionType getARRIVAL_TYPE() {
-        return ARRIVAL_TYPE;
-    }
-
     public DistributionType getSERVICE_TYPE() {
         return SERVICE_TYPE;
     }
@@ -114,16 +93,8 @@ public class Simulation extends Graph {
         return SIM_STEPS;
     }
 
-    public double getMIN_ARRIVAL_RATE() {
-        return MIN_ARRIVAL_RATE;
-    }
-
     public void setMIN_ARRIVAL_RATE(double MIN_ARRIVAL_RATE) {
         this.MIN_ARRIVAL_RATE = MIN_ARRIVAL_RATE;
-    }
-
-    public double getMAX_ARRIVAL_RATE() {
-        return MAX_ARRIVAL_RATE;
     }
 
     public void setMAX_ARRIVAL_RATE(double MAX_ARRIVAL_RATE) {
@@ -143,6 +114,9 @@ public class Simulation extends Graph {
         this.SIM_STEPS = SIM_STEPS;
     }
 
+    public void setBatteryCapacity(double batteryCapacity) {
+        this.batteryCapacity = batteryCapacity;
+    }
 
     public void setNUMBER_OF_CLIENT_TYPES(int NUMBER_OF_CLIENT_TYPES) {
         this.NUMBER_OF_CLIENT_TYPES = NUMBER_OF_CLIENT_TYPES;
@@ -168,20 +142,12 @@ public class Simulation extends Graph {
         this.MEAN_SERVICE_TIME = MEAN_SERVICE_TIME;
     }
 
-    public double getMEAN_SERVICE_TIME() {
-        return MEAN_SERVICE_TIME;
-    }
-
     public void setARRIVAL_TYPE(DistributionType ARRIVAL_TYPE) {
         this.ARRIVAL_TYPE = ARRIVAL_TYPE;
     }
 
     public void setDEMAND_TYPE(DistributionType DEMAND_TYPE) {
         this.DEMAND_TYPE = DEMAND_TYPE;
-    }
-
-    public DistributionType getDEMAND_TYPE() {
-        return this.DEMAND_TYPE;
     }
 
     public void setSERVICE_TYPE(DistributionType SERVICE_TYPE) {
@@ -193,16 +159,8 @@ public class Simulation extends Graph {
         this.chargingMonitor = new Monitor(confLevel);
     }
 
-    public int getConfLevel() {
-        return confLevel;
-    }
-
     public static void setMaxSitePower(int maxSitePower) {
         MAX_SITE_POWER = maxSitePower;
-    }
-
-    public double getMAX_SITE_POWER() {
-        return MAX_SITE_POWER;
     }
 
     public static void setMeanChargingDemand(double meanChargingDemand) {
@@ -243,6 +201,7 @@ public class Simulation extends Graph {
                 + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
     }
 
+
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);
         Client[] myFirstClients = new Client[NUMBER_OF_CLIENT_TYPES];
@@ -263,7 +222,8 @@ public class Simulation extends Graph {
 
         //for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
         while (stepCounter < SIM_STEPS) {
-            if ( arrivalRate > MAX_ARRIVAL_RATE + 0.001 ) System.out.println("WARNING: Arrival rate " + arrivalRate + " beyond maximum " + MAX_ARRIVAL_RATE + " occurred!");
+            if (arrivalRate > MAX_ARRIVAL_RATE + 0.001)
+                System.out.println("WARNING: Arrival rate " + arrivalRate + " beyond maximum " + MAX_ARRIVAL_RATE + " occurred!");
             stepCounter++;
             mySystem.resetQueueingSystem();
             mySystem.setMeanInterArrivalTime(myFirstClients.length / arrivalRate); //mean inter-arrival time per client
@@ -309,67 +269,40 @@ public class Simulation extends Graph {
             chargingMonitor.storeConfCD();
 
             Statistics calc = new Statistics();
-         /*   System.out.println("Mean Inter Arrival Time: " + 1.0 / arrivalRate);
-            System.out.println("Service Time (" + mySystem.getTimesInService().size() + "): "
-                    + calc.getMean(mySystem.getTimesInService()) + "/"
-                    + calc.getStd(mySystem.getTimesInService()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel));
-            System.out.println("Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
-                    + calc.getMean(mySystem.getTimesInQueue()) + "/"
-                    + calc.getStd(mySystem.getTimesInQueue()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel));
-            System.out.println("System Time (" + mySystem.getTimesInSystem().size() + "): "
-                    + calc.getMean(mySystem.getTimesInSystem()) + "/"
-                    + calc.getStd(mySystem.getTimesInSystem()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel));
-            System.out.println("Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
-                    + calc.getMean(mySystem.getAmountsCharged()) + "/"
-                    + calc.getStd(mySystem.getAmountsCharged()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel));
-            System.out.println("Site Power Demand (" + mySystem.getSitePowers().size() + "): "
-                    + calc.getMean(mySystem.getSitePowers()) + "/"
-                    + calc.getStd(mySystem.getSitePowers()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel));
-
-
-            System.out.print("Queue state: " + mySystem.getMyQueue().getOccupation());
-            System.out.print("\t Server state: " + mySystem.getNumberOfServersInUse());
-            System.out.println("\t Clients done: " + Client.getClientCounter());
-
-            System.out.println(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<");*/
 
             LOGGER.info(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<"
-            + "\n Mean Inter Arrival Time: " + 1.0 / arrivalRate
-            + "\n Service Time (" + mySystem.getTimesInService().size() + "): "
+                    + "\n Mean Inter Arrival Time: " + 1.0 / arrivalRate
+                    + "\n Service Time (" + mySystem.getTimesInService().size() + "): "
                     + calc.getMean(mySystem.getTimesInService()) + "/"
                     + calc.getStd(mySystem.getTimesInService()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel)
-            + "\n Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
+                    + "\n Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
                     + calc.getMean(mySystem.getTimesInQueue()) + "/"
                     + calc.getStd(mySystem.getTimesInQueue()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel)
-            + "\n System Time (" + mySystem.getTimesInSystem().size() + "): "
+                    + "\n System Time (" + mySystem.getTimesInSystem().size() + "): "
                     + calc.getMean(mySystem.getTimesInSystem()) + "/"
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
                     + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel)
-            + "\n Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
+                    + "\n Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
                     + calc.getMean(mySystem.getAmountsCharged()) + "/"
                     + calc.getStd(mySystem.getAmountsCharged()) + "/"
                     + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel)
-            + "\n Site Power Demand (" + mySystem.getSitePowers().size() + "): "
+                    + "\n Site Power Demand (" + mySystem.getSitePowers().size() + "): "
                     + calc.getMean(mySystem.getSitePowers()) + "/"
                     + calc.getStd(mySystem.getSitePowers()) + "/"
                     + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel)
-            + "\n Queue state: " + mySystem.getMyQueue().getOccupation()
+                    + "\n Queue state: " + mySystem.getMyQueue().getOccupation()
                     + " Server state: " + mySystem.getNumberOfServersInUse()
                     + " Clients done: " + Client.getClientCounter()
             );
-        arrivalRate += ARRIVAL_RATE_STEP;
+            arrivalRate += ARRIVAL_RATE_STEP;
         }
         drawGraph();
 
         chargingMonitor.drawGraph(this);
     }
+
     public void drawGraph() {   // D/D/5/10 Queueing System
 
         String title = "Charging Site Queueing Characteristics \n"
@@ -457,8 +390,8 @@ public class Simulation extends Graph {
 
                 // Add legend items for each series
                 items.add(new LegendItem("Service Time", Color.blue));
-                items.add(new LegendItem("Queuing Time",Color.RED));
-                items.add(new LegendItem("System Time",Color.MAGENTA));
+                items.add(new LegendItem("Queuing Time", Color.RED));
+                items.add(new LegendItem("System Time", Color.MAGENTA));
 
                 return items;
             }
@@ -498,28 +431,91 @@ public class Simulation extends Graph {
         chartPanel.repaint();
     }
 
-
     public void saveSVGDialogue() {
-        boolean inputValid = false;
+        // Show dialog for choosing the file format
+        Object[] options = {"SVG", "CSV"};
+        int formatResult = JOptionPane.showOptionDialog(
+                null,
+                "Choose the file format to save:",
+                "Choose File Format",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
 
-        while (!inputValid) {
-            inputValid = getUserInput() && chooseFile();
+        if (formatResult == JOptionPane.YES_OPTION) {
+            // Save as SVG
+            boolean inputValid = getUserInput() && chooseFile();
 
             if (inputValid) {
                 try {
                     int imageWidth = Integer.parseInt(getWidthField().getText());
                     int imageHeight = Integer.parseInt(getHeightField().getText());
-                    int result = JOptionPane.showConfirmDialog(null, "Do you want to save the SVG file?", "Save SVG", JOptionPane.YES_NO_CANCEL_OPTION);
-                    if (result == JOptionPane.YES_OPTION) {
-                        SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
-                    }
+                    SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
                 } catch (IOException ex) {
                     System.out.println("Error: " + ex.getMessage());
                 }
-            } else {
-                // System.exit(0);
-                inputValid = true;
             }
+        } else if (formatResult == JOptionPane.NO_OPTION) {
+            JFileChooser csvFileChooser = new JFileChooser();
+            csvFileChooser.setDialogTitle("Choose CSV File Location");
+            csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+            int csvResult = csvFileChooser.showSaveDialog(null);
+
+            if (csvResult == JFileChooser.APPROVE_OPTION) {
+                String csvFilePath = csvFileChooser.getSelectedFile().toString();
+                if (!csvFilePath.endsWith(".csv")) {
+                    csvFilePath += ".csv";
+                }
+                saveGraphDataToCSV(csvFilePath);
+            }
+        }
+    }
+
+    public void saveGraphDataToCSV(String filePath) {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.append("Arrival Rate [1/h];Mean Service Time;std serviceTime;confidence Service Time; Mean Queueing Time;std queueingTime;confidence Queueing Time; Mean System Time;std systemTime;confidence System Time\n");
+            List<Double> arrivalRates = meanSystemTimes.getSteps();
+            List<Double> meanServiceTimeValues = meanServiceTimes.getMeans();
+            List<Double> meanQueueingTimeValues = meanQueueingTimes.getMeans();
+            List<Double> meanSystemTimeValues = meanSystemTimes.getMeans();
+
+            List<Double> stdServiceTimeValues = meanServiceTimes.getStds();
+            List<Double> stdQueueingTimeValues = meanQueueingTimes.getStds();
+            List<Double> stdSystemTimeValues = meanSystemTimes.getStds();
+
+            List<Double> confServiceTimeValues = meanServiceTimes.getConfidences();
+            List<Double> confQueueingTimeValues = meanQueueingTimes.getConfidences();
+            List<Double> confSystemTimeValues = meanSystemTimes.getConfidences();
+
+            for (int i = 0; i < arrivalRates.size(); i++) {
+                writer.append(arrivalRates.get(i).toString());
+                writer.append(";");
+                writer.append(meanServiceTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(stdServiceTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(confServiceTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(meanQueueingTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(stdQueueingTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(confQueueingTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(meanSystemTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(stdSystemTimeValues.get(i).toString());
+                writer.append(";");
+                writer.append(confSystemTimeValues.get(i).toString());
+                writer.append("\n");
+            }
+            System.out.println("CSV file has been created successfully!");
+
+        } catch (IOException e) {
+            System.out.println("Error writing to CSV: " + e.getMessage());
         }
     }
 }

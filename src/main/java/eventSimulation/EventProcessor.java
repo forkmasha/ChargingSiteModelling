@@ -9,7 +9,7 @@ public class EventProcessor {
     ElectricVehicle chargedVehicle;
     double tick = 0.05;
     static double deltaTime = 0;
-    static int i, j, k, q, n = 0;
+    static int i, j, k, q = 0;
 
     public static void reset() {
         i = 0;

@@ -1,9 +1,7 @@
 package eventSimulation;
 
-import distributions.DistributionType;
 import queueingSystem.Client;
-import queueingSystem.QueueingSystem;
-import results.Statistics;
+
 
 public class EventSimulation {
     private static int maxEvents = 100000;

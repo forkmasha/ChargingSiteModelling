@@ -29,8 +29,9 @@ public class SimulationGUI {
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(LIGHT_BLUE);
-        frame.setPreferredSize(new Dimension(450, 820)); //450 775
-        frame.setMinimumSize(new Dimension(450, 820));
+        frame.setPreferredSize(new Dimension(450, 850)); //450 775
+        frame.setMinimumSize(new Dimension(450, 840));
+
 
         //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
@@ -42,6 +43,7 @@ public class SimulationGUI {
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner meanChargingDemand = createSpinner(0.8, 0.0, 1.0, 0.1);
+        JSpinner batteryCapacity = createSpinner(60.0, 0.0, 200.0, 5);
 
         JSpinner maxSitePower = createSpinner(300, 1.0, Double.MAX_VALUE, 1);
         JSpinner maxPointPower = createSpinner(100, 1.0, Double.MAX_VALUE, 1);
@@ -90,9 +92,10 @@ public class SimulationGUI {
             Simulation simulation = new Simulation();
             //simulation.setMIN_ARRIVAL_RATE(getSpinnerValueAsDouble(minArrivalRate));
             //simulation.setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate)-getSpinnerValueAsDouble(minArrivalRate))/(getSpinnerValueAsInt(numberOfSteps)-1));
-            simulation.setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate)/getSpinnerValueAsInt(numberOfSteps)));
+            simulation.setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate) / getSpinnerValueAsInt(numberOfSteps)));
             simulation.setMIN_ARRIVAL_RATE(simulation.getARRIVAL_RATE_STEP());
             simulation.setMAX_ARRIVAL_RATE(getSpinnerValueAsDouble(maxArrivalRate));
+            ;
             //simulation.setSIM_STEPS((int) Math.ceil((simulation.getMAX_ARRIVAL_RATE() - simulation.getMIN_ARRIVAL_RATE()) / simulation.getARRIVAL_RATE_STEP()));
             simulation.setSIM_STEPS(getSpinnerValueAsInt(numberOfSteps));
             simulation.setNUMBER_OF_CLIENT_TYPES(getSpinnerValueAsInt(numberOfClientTypes));
@@ -104,6 +107,8 @@ public class SimulationGUI {
             simulation.setMaxPointPower((int) maxPointPowerValue);
             simulation.setMaxEvPower((int) maxEVPowerValue);
             simulation.setMeanChargingDemand(meanChargingDemandValue);
+
+            simulation.setBatteryCapacity(getSpinnerValueAsDouble(batteryCapacity));
 
 
             String queueingTypeString = (String) queueingType.getSelectedItem();
@@ -177,10 +182,13 @@ public class SimulationGUI {
         setSpinnerModel(maxPointPower);
         setSpinnerModel(maxEVPower);
         setSpinnerModel(meanChargingDemand);
+        setSpinnerModel(batteryCapacity);
 
 
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+
 
         //JPanel ProcPanel0 = new JPanel();
         //ProcPanel0.setLayout(new GridLayout(10, 1));
@@ -193,7 +201,7 @@ public class SimulationGUI {
         //verticalBox.add(toPanel);
 
         JPanel ProcPanel = new JPanel();
-        ProcPanel.setLayout(new GridLayout(26, 1));
+        ProcPanel.setLayout(new GridLayout(28, 1));
 
         ProcPanel.add(new JLabel("Number of Steps", SwingConstants.CENTER));
         ProcPanel.add(numberOfSteps);
@@ -221,6 +229,8 @@ public class SimulationGUI {
         ProcPanel.add(demandType);
         ProcPanel.add(new JLabel("Mean Charging Demand", SwingConstants.CENTER));
         ProcPanel.add(meanChargingDemand);
+        ProcPanel.add(new JLabel("Battery Capacity", SwingConstants.CENTER));
+        ProcPanel.add(batteryCapacity);
 
         ProcPanel.setBackground(LIGHT_BLUE);
         verticalBox.add(ProcPanel);
@@ -309,6 +319,7 @@ public class SimulationGUI {
         panel.setBackground(LIGHT_BLUE);
         return panel;
     }
+
     private static JPanel createSpinnerPanel(String label1, String label2, JSpinner spinner1, JSpinner spinner2) {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(2, 2));
@@ -319,6 +330,7 @@ public class SimulationGUI {
         panel.setBackground(LIGHT_BLUE);
         return panel;
     }
+
     private static JPanel createSpinnerPanel(String label1, JSpinner spinner1) {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(2, 1));
@@ -328,11 +340,21 @@ public class SimulationGUI {
         return panel;
     }
 
-     private static void configureButton(JButton button) {
+    private static void configureButton(JButton button) {
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setForeground(Color.WHITE);
-         button.setBackground(RED);
-         button.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        button.setBackground(RED);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(BLUE);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(RED);
+            }
+        });
     }
 
 
@@ -366,6 +388,4 @@ public class SimulationGUI {
             };
         }
     }
-
-
 }

@@ -207,7 +207,6 @@ public class Monitor extends Graph {
         dataset.addSeries(meanChargingDeviationSeries);
         dataset.addSeries(stdChargingDeviationSeries);
     }
-
     public void drawGraph(Simulation mySim) {
 
         String title = "Charging Site Energy Characteristics";
@@ -278,7 +277,7 @@ public class Monitor extends Graph {
         MyChart.getLegend().setSources(new LegendItemSource[]{source});
 
         ChartPanel chartPanel = new ChartPanel(MyChart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+        chartPanel.setPreferredSize(new java.awt.Dimension(800, 630));
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);

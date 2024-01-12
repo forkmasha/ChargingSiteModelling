@@ -147,10 +147,10 @@ public class QueueingSystem {
     public int getNumberOfServersInUse() {
         return this.servers.size();
     }
-    public Server getIdleServer(QueueingSystem mySystem, Client myClient) {
+    public Server getIdleServer(Client myClient) {
         Server newServer;
         if (occupiedServers < numberOfServers) {
-            newServer = new Server(mySystem, myClient);
+            newServer = new Server(this, myClient);
             servers.add(newServer);
             occupiedServers++;
             return newServer;
@@ -286,7 +286,7 @@ public class QueueingSystem {
     }
 
     public void scheduleNextDeparture(double currentTime, Client currentClient) {
-        nextServer = getIdleServer(this, currentClient);
+        nextServer = getIdleServer(currentClient);
         if (nextServer == null) {
             logger.warning("Error: Cannot schedule next Departure - NO Server available: " + servers.size());
             return;

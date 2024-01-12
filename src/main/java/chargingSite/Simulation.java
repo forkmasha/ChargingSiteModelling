@@ -32,6 +32,8 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -81,6 +83,7 @@ public class Simulation extends Graph {
     private Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
     private Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
+    private Times analyticWaitingTimes = new Times("ArrivalRate", "AnalyticWaitingTime");
 
     //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
 
@@ -178,6 +181,48 @@ public class Simulation extends Graph {
     public Simulation() {
     }
 
+    public double calcMMnNwaitingTime(double rho) {
+        double meanWaitingTime;
+        double arrivalRate = rho * this.NUMBER_OF_SERVERS / this.MEAN_SERVICE_TIME;
+        double[] pdi = new double[1+this.NUMBER_OF_SERVERS+this.QUEUE_SIZE];
+        double meanQueueLength = 0;
+        double sFac = Distribution.factorial(this.NUMBER_OF_SERVERS);
+        pdi[0] = 0;
+        for (int i = 1; i <= this.QUEUE_SIZE; i++) {
+            pdi[0] += Math.pow(rho / this.NUMBER_OF_SERVERS, i);
+        }
+        pdi[0] *= Math.pow(rho,this.NUMBER_OF_SERVERS)/Distribution.factorial(this.NUMBER_OF_SERVERS);
+        for (int i = 1; i <= this.NUMBER_OF_SERVERS; i++) {
+            pdi[0] += Math.pow(rho,i)/Distribution.factorial(i);
+        }
+        pdi[0] += 1;
+        pdi[0] = 1/pdi[0];
+
+        for (int i = 1; i <= this.NUMBER_OF_SERVERS; i++) {
+            pdi[i] = Math.pow(rho,i)/Distribution.factorial(i) * pdi[0];
+        }
+        for (int i = this.NUMBER_OF_SERVERS+1; i <= this.NUMBER_OF_SERVERS+this.QUEUE_SIZE; i++) {
+            pdi[i] = Math.pow(rho,i)/(sFac * Math.pow(this.NUMBER_OF_SERVERS,i-this.NUMBER_OF_SERVERS));
+        }
+
+        for (int i = 1; i <= this.QUEUE_SIZE; i++) {
+            meanQueueLength += i * pdi[i+this.NUMBER_OF_SERVERS];
+        }
+
+        meanWaitingTime = meanQueueLength / (arrivalRate * (1-pdi[this.NUMBER_OF_SERVERS+this.QUEUE_SIZE]));
+        if (Math.abs(1 - Arrays.stream(pdi).sum()) > 0.000001) {
+            System.out.println("ERROR: sum over all state-probabilities !=1");
+            StringBuilder output = new StringBuilder("M/M/n/S state probabilities: ");
+            for (int i = 0; i < pdi.length; i++) {
+                output.append(pdi[i]).append(" / ");
+            }
+            System.out.println("M/M/n/S state probabilities: " + output);
+        }
+        System.out.println("M/M/n/S: " + arrivalRate + " " + meanQueueLength + " " + meanWaitingTime);
+        return meanWaitingTime;
+    }
+
+
     public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
@@ -219,6 +264,7 @@ public class Simulation extends Graph {
         mySystem.setDistributionType(ARRIVAL_TYPE);
         int stepCounter = 0;
         double arrivalRate = MIN_ARRIVAL_RATE;
+        List<Double> dummy = new ArrayList<>();
 
         //for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
         while (stepCounter < SIM_STEPS) {
@@ -234,6 +280,9 @@ public class Simulation extends Graph {
             // myFirstClients[2] = new Client(0.0, 1.5*MEAN_SERVICE_TIME, DistributionType.EXPONENTIAL, mySystem);  // set service time per client
 
             EventSimulation.run(myFirstClients);
+
+            dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
+            analyticWaitingTimes.addMean(dummy);
 
             meanServiceTimes.addStep(arrivalRate);
             meanServiceTimes.addMean(mySystem.getTimesInService());
@@ -296,6 +345,7 @@ public class Simulation extends Graph {
                     + " Server state: " + mySystem.getNumberOfServersInUse()
                     + " Clients done: " + Client.getClientCounter()
             );
+
             arrivalRate += ARRIVAL_RATE_STEP;
         }
         drawGraph();

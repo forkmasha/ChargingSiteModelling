@@ -61,13 +61,6 @@ public class ErlangDistribution extends Distribution {
     }
 
     // Helper method to calculate the factorial of a number
-    private static double factorial(int n) {
-        double result = 1.0;
-        for (int i = 2; i <= n; i++) {
-            result *= i;
-        }
-        return result;
-    }
 
     private static double exponentialDistribution(double mean) {
         Random random = new Random();

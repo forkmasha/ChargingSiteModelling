@@ -70,6 +70,16 @@ public abstract class Distribution {
 
         }
     }
+
+    // Helper method to calculate the factorial of a number
+    public static double factorial(int n) {
+        double result = 1.0;
+        for (int i = 2; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
     public static String getTitleAbbreviation(String type) {
         if (type.equals("EXPONENTIAL")) {
             return "M";

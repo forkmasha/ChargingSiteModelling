@@ -188,26 +188,26 @@ public class Simulation extends Graph {
         double[] pdi = new double[1+this.NUMBER_OF_SERVERS+this.QUEUE_SIZE];
         double meanQueueLength = 0;
         double sFac = Distribution.factorial(this.NUMBER_OF_SERVERS);
+        rho *= this.NUMBER_OF_SERVERS;
         pdi[0] = 0;
         for (int i = 1; i <= this.QUEUE_SIZE; i++) {
             pdi[0] += Math.pow(rho / this.NUMBER_OF_SERVERS, i);
         }
-        pdi[0] *= Math.pow(rho,this.NUMBER_OF_SERVERS)/Distribution.factorial(this.NUMBER_OF_SERVERS);
+        pdi[0] *= Math.pow(rho,this.NUMBER_OF_SERVERS)/sFac;
         for (int i = 1; i <= this.NUMBER_OF_SERVERS; i++) {
             pdi[0] += Math.pow(rho,i)/Distribution.factorial(i);
         }
-        pdi[0] += 1;
-        pdi[0] = 1/pdi[0];
+        pdi[0] = Math.pow(1+pdi[0],-1);
 
         for (int i = 1; i <= this.NUMBER_OF_SERVERS; i++) {
             pdi[i] = Math.pow(rho,i)/Distribution.factorial(i) * pdi[0];
         }
         for (int i = this.NUMBER_OF_SERVERS+1; i <= this.NUMBER_OF_SERVERS+this.QUEUE_SIZE; i++) {
-            pdi[i] = Math.pow(rho,i)/(sFac * Math.pow(this.NUMBER_OF_SERVERS,i-this.NUMBER_OF_SERVERS));
+            pdi[i] = Math.pow(rho,i)/(sFac * Math.pow(this.NUMBER_OF_SERVERS,i-this.NUMBER_OF_SERVERS)) * pdi[0];
         }
 
         for (int i = 1; i <= this.QUEUE_SIZE; i++) {
-            meanQueueLength += i * pdi[i+this.NUMBER_OF_SERVERS];
+            meanQueueLength += i * pdi[this.NUMBER_OF_SERVERS + i];
         }
 
         meanWaitingTime = meanQueueLength / (arrivalRate * (1-pdi[this.NUMBER_OF_SERVERS+this.QUEUE_SIZE]));
@@ -451,7 +451,7 @@ public class Simulation extends Graph {
                 items.add(new LegendItem("Service Time", Color.blue));
                 items.add(new LegendItem("Queuing Time", Color.RED));
                 items.add(new LegendItem("System Time", Color.MAGENTA));
-                items.add(new LegendItem("Analytical Queueing Time",Color.BLACK));
+                items.add(new LegendItem("M/M/n/N Queueing Time",Color.BLACK));
 
                 return items;
             }

@@ -11,6 +11,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import org.w3c.dom.DOMImplementation;
@@ -83,7 +84,7 @@ public class Simulation extends Graph {
     private Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
     private Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
-    private Times analyticWaitingTimes = new Times("ArrivalRate", "AnalyticWaitingTime");
+    private XYSeries analyticWaitingTimes = new XYSeries("Value");
 
     //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
 
@@ -281,8 +282,8 @@ public class Simulation extends Graph {
 
             EventSimulation.run(myFirstClients);
 
-            dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
-            analyticWaitingTimes.addMean(dummy);
+            //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
+            analyticWaitingTimes.add(arrivalRate,this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
 
             meanServiceTimes.addStep(arrivalRate);
             meanServiceTimes.addMean(mySystem.getTimesInService());
@@ -372,7 +373,8 @@ public class Simulation extends Graph {
         meanSystemTimes.addGraphs(dataset);
         meanServiceTimes.addGraphs(dataset);
         meanQueueingTimes.addGraphs(dataset);
-        analyticWaitingTimes.addGraphs(dataset);
+        //analyticWaitingTimes.addGraphs(dataset);
+        dataset.addSeries(analyticWaitingTimes);
 
         MyChart = createXYLineChart(
                 "",
@@ -433,15 +435,11 @@ public class Simulation extends Graph {
         renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
         plot.setRenderer(renderer);
 
-        while (i < 4 * SIM_STEPS + 6) {
-            renderer.setSeriesPaint(i, Color.black);  // Set the color for Analytical Queueing Time
-            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
-            i++;
-        }
-        renderer.setSeriesPaint(i, Color.black);
-        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
-        renderer.setSeriesPaint(i, Color.black);
-        renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
+        // draw analytic calculated waiting time of M/M/n/N queueing system
+        renderer.setSeriesPaint(++i, Color.black);
+        renderer.setSeriesStroke(i, new BasicStroke(0.6f));
+        renderer.setSeriesShape(i, ShapeUtilities.createDiagonalCross(0.75f, 0.75f));
+        plot.setRenderer(renderer);
 
         // Add legend
         LegendItemSource legendItemSource = new LegendItemSource() {

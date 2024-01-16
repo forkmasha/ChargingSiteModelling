@@ -223,7 +223,7 @@ public class Simulation extends Graph {
     }
 
 
-    public void SaveAsSVG(int wi, int hi, File svgFile) throws IOException {
+    public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -372,6 +372,7 @@ public class Simulation extends Graph {
         meanSystemTimes.addGraphs(dataset);
         meanServiceTimes.addGraphs(dataset);
         meanQueueingTimes.addGraphs(dataset);
+        analyticWaitingTimes.addGraphs(dataset);
 
         MyChart = createXYLineChart(
                 "",
@@ -432,6 +433,16 @@ public class Simulation extends Graph {
         renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
         plot.setRenderer(renderer);
 
+        while (i < 4 * SIM_STEPS + 6) {
+            renderer.setSeriesPaint(i, Color.black);  // Set the color for Analytical Queueing Time
+            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
+            i++;
+        }
+        renderer.setSeriesPaint(i, Color.black);
+        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+        renderer.setSeriesPaint(i, Color.black);
+        renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
+
         // Add legend
         LegendItemSource legendItemSource = new LegendItemSource() {
             @Override
@@ -442,6 +453,7 @@ public class Simulation extends Graph {
                 items.add(new LegendItem("Service Time", Color.blue));
                 items.add(new LegendItem("Queuing Time", Color.RED));
                 items.add(new LegendItem("System Time", Color.MAGENTA));
+                items.add(new LegendItem("Analytical Queueing Time",Color.BLACK));
 
                 return items;
             }
@@ -482,7 +494,6 @@ public class Simulation extends Graph {
     }
 
     public void saveSVGDialogue() {
-        // Show dialog for choosing the file format
         Object[] options = {"SVG", "CSV"};
         int formatResult = JOptionPane.showOptionDialog(
                 null,
@@ -502,7 +513,7 @@ public class Simulation extends Graph {
                 try {
                     int imageWidth = Integer.parseInt(getWidthField().getText());
                     int imageHeight = Integer.parseInt(getHeightField().getText());
-                    SaveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
+                    saveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
                 } catch (IOException ex) {
                     System.out.println("Error: " + ex.getMessage());
                 }

@@ -16,14 +16,12 @@ import org.w3c.dom.Document;
 import queueingSystem.QueueingSystem;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +109,7 @@ public class Monitor extends Graph {
     public void storeStdSitePower() {
         stdsSitePower.add(calc.getStd(source.getSitePowers()));
     }
+
     public void storeMaxSitePower() {
         maxSitePower.add(calc.getMax(source.getSitePowers()));
     }
@@ -171,7 +170,7 @@ public class Monitor extends Graph {
 
             confBars[i] = new XYSeries("confBar" + i);
             confBarsSitePowerSeries[i] = new XYSeries("confBarSitePower" + i);
-            confBarsChargingDeviation[i]=new XYSeries("confBarChargingDeviation"+i);
+            confBarsChargingDeviation[i] = new XYSeries("confBarChargingDeviation" + i);
 
             meanSeries.add(step, mean);
             stdSeries.add(step, std);
@@ -184,12 +183,12 @@ public class Monitor extends Graph {
             meanSitePowersSeries.add(step, meanSP / source.getNumberOfServers());
             stdSitePowersSeries.add(step, stdSP / source.getNumberOfServers());
             maxSitePowersSeries.add(step, maxSP / source.getNumberOfServers());
-            confBarsSitePowerSeries[i].add(step,  (meanSP - confSP) / source.getNumberOfServers());
+            confBarsSitePowerSeries[i].add(step, (meanSP - confSP) / source.getNumberOfServers());
             confBarsSitePowerSeries[i].add(step, (meanSP + confSP) / source.getNumberOfServers());
             dataset.addSeries(confBarsSitePowerSeries[i]);
 
-            meanChargingDeviationSeries.add(step,  meanCD ); //WHY 0.5*?
-            stdChargingDeviationSeries.add(step,  stdCD );
+            meanChargingDeviationSeries.add(step, meanCD); //WHY 0.5*?
+            stdChargingDeviationSeries.add(step, stdCD);
             confBarsChargingDeviation[i].add(step, (meanCD - confCD));
             confBarsChargingDeviation[i].add(step, (meanCD + confCD));
             dataset.addSeries(confBarsChargingDeviation[i]);
@@ -207,6 +206,7 @@ public class Monitor extends Graph {
         dataset.addSeries(meanChargingDeviationSeries);
         dataset.addSeries(stdChargingDeviationSeries);
     }
+
     public void drawGraph(Simulation mySim) {
 
         String title = "Charging Site Energy Characteristics";
@@ -272,7 +272,6 @@ public class Monitor extends Graph {
         legendItems.add(new LegendItem("Average Power per Charging Point", Color.MAGENTA));
 
 
-
         LegendItemSource source = () -> legendItems;
         MyChart.getLegend().setSources(new LegendItemSource[]{source});
 
@@ -326,27 +325,79 @@ public class Monitor extends Graph {
 
 
     public void saveSVGDialogue() {
-        boolean inputValid = false;
+        Object[] options = {"SVG", "CSV"};
+        int formatResult = JOptionPane.showOptionDialog(
+                null,
+                "Choose the file format to save:",
+                "Choose File Format",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
 
-        while (!inputValid) {
-            inputValid = getUserInput() && chooseFile();
+        if (formatResult == JOptionPane.YES_OPTION) {
+            // Save as SVG
+            boolean inputValid = getUserInput() && chooseFile();
 
             if (inputValid) {
                 try {
                     int imageWidth = Integer.parseInt(getWidthField().getText());
                     int imageHeight = Integer.parseInt(getHeightField().getText());
-                    int result = JOptionPane.showConfirmDialog(null, "Do you want to save the SVG file?", "Save SVG", JOptionPane.YES_NO_CANCEL_OPTION);
-                    if (result == JOptionPane.YES_OPTION) {
-                        saveAsSVG(imageWidth, imageHeight, new File(getChosenFile()));
-                    }
+                    saveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
                 } catch (IOException ex) {
                     System.out.println("Error: " + ex.getMessage());
                 }
-            } else {
-                // System.exit(0);
-                inputValid = true;
+            }
+        } else if (formatResult == JOptionPane.NO_OPTION) {
+            JFileChooser csvFileChooser = new JFileChooser();
+            csvFileChooser.setDialogTitle("Choose CSV File Location");
+            csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+            int csvResult = csvFileChooser.showSaveDialog(null);
+
+            if (csvResult == JFileChooser.APPROVE_OPTION) {
+                String csvFilePath = csvFileChooser.getSelectedFile().toString();
+                if (!csvFilePath.endsWith(".csv")) {
+                    csvFilePath += ".csv";
+                }
+                saveGraphDataToCSV(csvFilePath);
+            }
+        }
+    }
+
+    public void saveGraphDataToCSV(String filePath) {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.append("Step;Mean;Std;Max90;Min10;MeanSitePower;StdSitePower;MaxSitePower;MeanChargingDeviation;StdChargingDeviation;ConfChargingDeviation\n");
+
+            for (int i = 0; i < steps.size(); i++) {
+                writer.append(steps.get(i).toString());
+                writer.append(";");
+                writer.append(means.get(i).toString());
+                writer.append(";");
+                writer.append(stds.get(i).toString());
+                writer.append(";");
+                writer.append(maxs90.get(i).toString());
+                writer.append(";");
+                writer.append(mins10.get(i).toString());
+                writer.append(";");
+                writer.append(meansSitePower.get(i).toString());
+                writer.append(";");
+                writer.append(stdsSitePower.get(i).toString());
+                writer.append(";");
+                writer.append(maxSitePower.get(i).toString());
+                writer.append(";");
+                writer.append(meansChargingDeviation.get(i).toString());
+                writer.append(";");
+                writer.append(stdsChargingDeviation.get(i).toString());
+                writer.append(";");
+                writer.append(confidencesChargingDeviation.get(i).toString());
+                writer.append("\n");
             }
 
+            System.out.println("CSV file has been created successfully!");
+        } catch (IOException e) {
+            System.out.println("Error writing to CSV: " + e.getMessage());
         }
     }
 }

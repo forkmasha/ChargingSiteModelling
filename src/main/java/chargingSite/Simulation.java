@@ -19,10 +19,7 @@ import org.w3c.dom.Document;
 import queueingSystem.Client;
 import queueingSystem.Queue.QueueingType;
 import queueingSystem.QueueingSystem;
-import results.Graph;
-import results.Monitor;
-import results.Statistics;
-import results.Times;
+import results.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -56,6 +53,7 @@ public class Simulation extends Graph {
     private static int confLevel = 98;*/
     private static final Logger LOGGER = Logger.getLogger(Simulation.class.getName());
     private JFreeChart MyChart;
+    private JFreeChart SitePowerGraph;
     private double MIN_ARRIVAL_RATE;
     private double MAX_ARRIVAL_RATE;
     private double ARRIVAL_RATE_STEP;
@@ -281,6 +279,10 @@ public class Simulation extends Graph {
             // myFirstClients[2] = new Client(0.0, 1.5*MEAN_SERVICE_TIME, DistributionType.EXPONENTIAL, mySystem);  // set service time per client
 
             EventSimulation.run(myFirstClients);
+
+            // add the site powers of the current run to the existing graph (if not possible draw one and ask what to do (save and continue / discard and continue))
+            mySystem.getChargingSite().addSitePowerGraph(SitePowerGraph);
+            Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
 
             //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
             analyticWaitingTimes.add(arrivalRate,this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));

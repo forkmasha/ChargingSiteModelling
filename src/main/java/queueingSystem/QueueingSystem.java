@@ -119,6 +119,10 @@ public class QueueingSystem {
         return arrivalTimeDistribution;
     }
 
+    public Double getEquilibriumArrivalRate(){
+        return numberOfServers/meanInterArrivalTime;
+    }
+
     public String getKendallName(Simulation mySim) {
         return Distribution.getTitleAbbreviation(String.valueOf(this.arrivalTimeDistribution.getType())) + "/"
                 + Distribution.getTitleAbbreviation(String.valueOf(mySim.getSERVICE_TYPE())) + "/"

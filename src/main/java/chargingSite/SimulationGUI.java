@@ -32,7 +32,6 @@ public class SimulationGUI {
         frame.setPreferredSize(new Dimension(450, 850)); //450 775
         frame.setMinimumSize(new Dimension(450, 840));
 
-
         //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
         JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 0.1);

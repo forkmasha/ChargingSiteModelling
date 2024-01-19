@@ -1,7 +1,10 @@
 package chargingSite;
 
 
+import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYSeries;
 
 import java.util.ArrayList;
 
@@ -10,6 +13,7 @@ public class ChargingSite {
     private int numberOfChargingPoints;
     private ArrayList<Double> chargingPowers = new ArrayList<>();
     private double maxSitePower;
+    private XYSeries sitePowerSeries = new XYSeries("Site Power");
 
     public ChargingSite(int numberOfChargingPoints, double maxSitePower) {
         this.numberOfChargingPoints = numberOfChargingPoints;
@@ -60,6 +64,7 @@ public class ChargingSite {
                 throw new SitePowerExceededException("Site power " + sitePower + " is greater than the set maximum " + maxSitePower + " !");
             }
         }
+        sitePowerSeries.add(EventSimulation.getCurrentTime(),sitePower);
         return sitePower;
     }
 
@@ -71,5 +76,11 @@ public class ChargingSite {
             if (car != null) newSitePower += car.scaleChargingPower(scale);
         }
         return newSitePower;
+    }
+
+    public void addSitePowerGraph(JFreeChart myChart) {
+        // add sitePowerSeries (XYSeries) to myChart (JFreeChart);
+        sitePowerSeries.clear();
+        return;
     }
 }

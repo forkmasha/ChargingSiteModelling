@@ -17,6 +17,7 @@ import javax.swing.*;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 public class Histogram {
    /* public static void generateHistogram(int bins, double samples[], double pdf[][], String distributionName) {
@@ -78,6 +79,16 @@ public class Histogram {
             }
         }
         Histogram.generateHistogram(maxX, bins, samples, pdf, distributionName);
+    }
+    public static void generateHistogram(int bins, List<Double> samplesList, double pdf[][], String distributionName) {
+
+        double samples[] = new double[samplesList.size()];
+
+        for (int i=0; i<samplesList.size();i++) {
+            samples[i] = samplesList.get(i);
+        }
+
+        Histogram.generateHistogram(bins, samples, pdf, distributionName);
     }
 
     public static void generateHistogram(double maxX, int bins, double samples[], double pdf[][], String distributionName) {

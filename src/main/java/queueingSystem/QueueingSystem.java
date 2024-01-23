@@ -193,7 +193,7 @@ public class QueueingSystem {
             nextEvent.setEventType(EventType.ARRIVAL);
             nextClient = new Client(  // schedule the arrival of the next client with the same properties the currently arriving client has
                     nextEvent.getExecTime(),
-                    currentClient.getMeanServiceTime(),
+                    currentClient.getMeanServiceTime(), // change to: new Car(currentClient.getCar.CarType)
                     currentClient.getServiceTimeDistribution().getType(),
                     currentClient.getSystem()
             );

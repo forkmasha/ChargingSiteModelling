@@ -144,7 +144,7 @@ public class SimulationGUI {
                 case "RANDOM" -> simulation.setQUEUEING_TYPE(Queue.QueueingType.RAND);
             }
 
-            simulation.setMEAN_SERVICE_TIME(getSpinnerValueAsDouble(meanServiceTime));
+            simulation.setAVERAGE_SERVICE_TIME(getSpinnerValueAsDouble(meanServiceTime));
 
             String arrivalTypeString = (String) arrivalType.getSelectedItem();
 

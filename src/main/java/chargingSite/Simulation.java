@@ -72,8 +72,9 @@ public class Simulation extends Graph {
     private int QUEUE_SIZE;
     private QueueingType QUEUEING_TYPE;
     private double MEAN_SERVICE_TIME;
-    private DistributionType ARRIVAL_TYPE;
     private DistributionType SERVICE_TYPE;
+    private double AVERAGE_SERVICE_TIME;
+    private DistributionType ARRIVAL_TYPE;
     private DistributionType DEMAND_TYPE;
     private int confLevel;
     public static double batteryCapacity;
@@ -141,8 +142,8 @@ public class Simulation extends Graph {
         this.QUEUEING_TYPE = QUEUEING_TYPE;
     }
 
-    public void setMEAN_SERVICE_TIME(double MEAN_SERVICE_TIME) {
-        this.MEAN_SERVICE_TIME = MEAN_SERVICE_TIME;
+    public void setAVERAGE_SERVICE_TIME(double AVERAGE_SERVICE_TIME) {
+        this.AVERAGE_SERVICE_TIME = AVERAGE_SERVICE_TIME;
     }
 
     public void setARRIVAL_TYPE(DistributionType ARRIVAL_TYPE) {
@@ -179,11 +180,12 @@ public class Simulation extends Graph {
     }
 
     public Simulation() {
+        AVERAGE_SERVICE_TIME = MEAN_SERVICE_TIME;
     }
 
     public double calcMMnNwaitingTime(double rho) {
         double meanWaitingTime;
-        double arrivalRate = rho * this.NUMBER_OF_SERVERS / this.MEAN_SERVICE_TIME;
+        double arrivalRate = rho * this.NUMBER_OF_SERVERS / this.AVERAGE_SERVICE_TIME;
         double[] pdi = new double[1+this.NUMBER_OF_SERVERS+this.QUEUE_SIZE];
         double meanQueueLength = 0;
         double sFac = Distribution.factorial(this.NUMBER_OF_SERVERS);
@@ -274,10 +276,18 @@ public class Simulation extends Graph {
             mySystem.resetQueueingSystem();
             mySystem.setMeanInterArrivalTime(myFirstClients.length / arrivalRate); //mean inter-arrival time per client
 
-            myFirstClients[0] = new Client(0.0, MEAN_SERVICE_TIME, SERVICE_TYPE, mySystem);  // set service time per client
             // add as manny client types as necessary -> adjust the numberOfClientTypes accordingly!
-            //  myFirstClients[1] = new Client(0.0, 0.5*MEAN_SERVICE_TIME, DistributionType.BETA, mySystem);  // set service time per client
-            // myFirstClients[2] = new Client(0.0, 1.5*MEAN_SERVICE_TIME, DistributionType.EXPONENTIAL, mySystem);  // set service time per client
+        /*    if (NUMBER_OF_CLIENT_TYPES>2) {
+                myFirstClients[1] = new Client(0.0, PERCENTAGE_OF_CARS_3*MEAN_SERVICE_TIME_3, SERVICE_TYPE_3, mySystem);  // set service time per client
+            }
+            if (NUMBER_OF_CLIENT_TYPES>1) {
+                myFirstClients[1] = new Client(0.0, PERCENTAGE_OF_CARS_2*MEAN_SERVICE_TIME_2, SERVICE_TYPE_2, mySystem);  // set service time per client
+            }
+        */
+            for (int i=0; i < myFirstClients.length; i++) {
+                myFirstClients[i] = new Client(0.0, AVERAGE_SERVICE_TIME, SERVICE_TYPE, mySystem);  // set service time per client
+                //myFirstClients[i] = new Client(0.0, AVERAGE_SERVICE_TIME, SERVICE_TYPE[i], mySystem);  // set service time per client
+            }
 
             EventSimulation.run(myFirstClients);
 
@@ -288,7 +298,7 @@ public class Simulation extends Graph {
 
 
                 //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
-                analyticWaitingTimes.add(arrivalRate, this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
+                analyticWaitingTimes.add(arrivalRate, this.calcMMnNwaitingTime(arrivalRate * this.AVERAGE_SERVICE_TIME / this.NUMBER_OF_SERVERS));
 
                 meanServiceTimes.addStep(arrivalRate);
                 meanServiceTimes.addMean(mySystem.getTimesInService());
@@ -400,8 +410,8 @@ public class Simulation extends Graph {
             XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
             NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-            if (MEAN_SERVICE_TIME > 0) {
-                yAxis.setRange(0, Math.ceil(1.1 * MEAN_SERVICE_TIME * (1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
+            if (AVERAGE_SERVICE_TIME > 0) {
+                yAxis.setRange(0, Math.ceil(1.1 * AVERAGE_SERVICE_TIME * (1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
             } else {
                 yAxis.setRange(0, 3);
             }

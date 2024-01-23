@@ -21,13 +21,13 @@ public class Client {
     public ElectricVehicle getCar() {
         return car;
     }
-    public Client(double arrivalTime, double meanServiceTime, DistributionType serviceType, QueueingSystem system) {
+    public Client(double arrivalTime, double meanServiceTime, DistributionType serviceType, QueueingSystem system) {  //change meanServiceTime to CarType
         this.myIndex = clientCounter++;
         this.arrivalTime = arrivalTime;
         this.meanServiceTime = meanServiceTime;
         this.system = system;
         this.addServiceTimeDistribution(serviceType);
-        this.car=new ElectricVehicle("car", Simulation.MAX_EV_POWER,Simulation.batteryCapacity, DistributionType.BETA);  // batteryCapacity may also be set in GUI some time...
+        this.car=new ElectricVehicle("car", Simulation.MAX_EV_POWER,Simulation.batteryCapacity, DistributionType.BETA);  // change to new EV(CarType)
         this.car.setQueueingSystem(system);
         this.car.setMeanServiceTime(meanServiceTime);
     }

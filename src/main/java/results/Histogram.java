@@ -91,4 +91,11 @@ public class Histogram {
         plot.setDataset(1, new XYSeriesCollection(pdfSeries));
         plot.setRenderer(1, renderer);
     }
+
+    public static JFreeChart makeHistogram(double[] samples, int bins) {
+        HistogramDataset dataset = new HistogramDataset();
+        dataset.setType(HistogramType.SCALE_AREA_TO_1);
+        dataset.addSeries("Histogram", samples, bins);
+        return ChartFactory.createHistogram("Site Power Distribution", "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
+    }
 }

@@ -3,9 +3,12 @@ package chargingSite;
 
 import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
+import results.Histogram;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class ChargingSite {
@@ -81,7 +84,20 @@ public class ChargingSite {
     public void addSitePowerGraph(JFreeChart myChart) {
         // add sitePowerSeries (XYSeries) to myChart (JFreeChart);
 
+        // Color[HTML type] = #33cc99  (#r#g#b)
+        // Color[RGB type] = (50,200,150) [0..255]
+        // Color[rgb type] = (0.2,0.8,0.6)
+
+        sitePowerSeries.clear();
+        return;
+    }
+    public void addSitePowerHistogram(ChartPanel chartPanel) {
+        // add JFreeChart sitePowerHistogram to chartPanel;
+
+        JFreeChart chart = Histogram.makeHistogram(sitePowerSeries.toArray()[1], 15);
+
         sitePowerSeries.clear();
         return;
     }
 }
+

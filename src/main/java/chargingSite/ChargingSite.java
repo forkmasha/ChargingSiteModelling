@@ -80,6 +80,7 @@ public class ChargingSite {
 
     public void addSitePowerGraph(JFreeChart myChart) {
         // add sitePowerSeries (XYSeries) to myChart (JFreeChart);
+
         sitePowerSeries.clear();
         return;
     }

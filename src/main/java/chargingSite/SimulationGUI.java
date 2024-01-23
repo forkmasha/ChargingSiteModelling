@@ -4,6 +4,9 @@ import distributions.DistributionType;
 import queueingSystem.Queue;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicComboPopup;
@@ -12,6 +15,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class SimulationGUI {
+    private static final Color LIGHT_PINK = new Color(255, 182, 193);
+    private static final Color LAVENDER = new Color(230, 230, 250);
+    private static final Color PEACH = new Color(255, 218, 185);
     private static final Color BLUE = new Color(173, 216, 230);
     private static final Color LIGHT_BLUE = new Color(200, 200, 240);
     private static final Color DARK_BLUE = new Color(136, 186, 242);
@@ -25,28 +31,42 @@ public class SimulationGUI {
     }
 
     private static JFrame createSimulationFrame() {
-
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setBackground(LIGHT_BLUE);
+        //  frame.getContentPane().setBackground(LIGHT_BLUE);
         frame.setPreferredSize(new Dimension(450, 850)); //450 775
-        frame.setMinimumSize(new Dimension(450, 840));
+//        frame.setMinimumSize(new Dimension(450, 840));
 
         //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
         JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 0.1);
 
-        JSpinner numberOfClientTypes = createSpinner(1, 1, 2, 1);
+        JSpinner numberOfClientTypes = createSpinner(1, 1, 3, 1);
+
         JSpinner maxEvents = createSpinner(25000, 1, Integer.MAX_VALUE, 1);
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner meanChargingDemand = createSpinner(0.8, 0.0, 1.0, 0.1);
         JSpinner batteryCapacity = createSpinner(60.0, 0.0, 200.0, 5);
+        JSpinner maxEVPower = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
+        JSpinner percentageOfCars = createSpinner(100, 1, 100, 1);
+
+        JSpinner percentageOfCars2 = createSpinner(100, 1, 100, 1);
+        JSpinner meanServiceTime2 = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner meanChargingDemand2 = createSpinner(0.8, 0.0, 1.0, 0.1);
+        JSpinner batteryCapacity2 = createSpinner(60.0, 0.0, 200.0, 5);
+        JSpinner maxEVPower2 = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
+
+        JSpinner percentageOfCars3 = createSpinner(100, 1, 100, 1);
+        JSpinner meanServiceTime3 = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner meanChargingDemand3 = createSpinner(0.8, 0.0, 1.0, 0.1);
+        JSpinner batteryCapacity3 = createSpinner(60.0, 0.0, 200.0, 5);
+        JSpinner maxEVPower3 = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
 
         JSpinner maxSitePower = createSpinner(300, 1.0, Double.MAX_VALUE, 1);
         JSpinner maxPointPower = createSpinner(100, 1.0, Double.MAX_VALUE, 1);
-        JSpinner maxEVPower = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
+
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
@@ -56,9 +76,16 @@ public class SimulationGUI {
         JComboBox<String> arrivalType = new JComboBox<>(distributionTypes);
         JComboBox<String> serviceType = new JComboBox<>(distributionTypes);
         JComboBox<String> demandType = new JComboBox<>(distributionTypes);
+
+        JComboBox<String> demandType2 = new JComboBox<>(distributionTypes);
+        JComboBox<String> demandType3 = new JComboBox<>(distributionTypes);
+
         arrivalType.setSelectedItem("EXPONENTIAL");
         serviceType.setSelectedItem("ERLANG");
         demandType.setSelectedItem("BETA");
+
+        demandType2.setSelectedItem("BETA");
+        demandType3.setSelectedItem("BETA");
 
         String[] confidenceLevels = {"80", "90", "95", "98", "99"};
         JComboBox<String> confLevel = new JComboBox<>(confidenceLevels);
@@ -156,6 +183,18 @@ public class SimulationGUI {
                 case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
             }
 
+            String demandTypeString2 = (String) demandType2.getSelectedItem();
+            switch (demandTypeString2) {
+                case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
+                case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
+                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
+                case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
+            }
+
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
             simulation.setConfLevel(selectedConfidenceLevel);
 
@@ -164,7 +203,6 @@ public class SimulationGUI {
             // frame.dispose(); //fix the bug=)
 
         });
-
 
         runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
@@ -183,65 +221,102 @@ public class SimulationGUI {
         setSpinnerModel(meanChargingDemand);
         setSpinnerModel(batteryCapacity);
 
+        setSpinnerModel(percentageOfCars);
+
 
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        JPanel procPanel = new JPanel();
+        procPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        TitledBorder titledBorder = BorderFactory.createTitledBorder("General Parameters");
+        procPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), titledBorder));
+        JScrollPane jScrollPane = new JScrollPane(procPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        jScrollPane.setMaximumSize(new Dimension(430, 550));
+        numberOfClientTypes.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int selectedClientTypes = getSpinnerValueAsInt(numberOfClientTypes);
+                if (isThirdCarPanelAdded(procPanel)) {
+                    removeThirdCarPanel(procPanel);
+                }
+
+                if (selectedClientTypes == 1) {
+                    if (isSecondCarPanelAdded(procPanel)) {
+                        removeSecondCarPanel(procPanel);
+                    }
+                } else if (selectedClientTypes == 2) {
+                    if (isThirdCarPanelAdded(procPanel)) {
+                        removeThirdCarPanel(procPanel);
+                    }
 
 
-        //JPanel ProcPanel0 = new JPanel();
-        //ProcPanel0.setLayout(new GridLayout(10, 1));
+                    // Now add the second car panel directly to the right
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, meanChargingDemand2, batteryCapacity2, maxEVPower2);
 
-        //ProcPanel0.setBackground(LIGHT_BLUE);
-        //verticalBox.add(ProcPanel0);
+                    GridBagConstraints secondCarGbc = new GridBagConstraints();
+                    secondCarGbc.anchor = GridBagConstraints.WEST;
+                    secondCarGbc.insets = new Insets(5, 5, 5, 5);
+                    secondCarGbc.gridx = 0;  // Set the column index for the second car panel
+                    secondCarGbc.gridy = 28;
+                    procPanel.add(secondCarPanel, secondCarGbc);
+                    procPanel.revalidate();
+                    procPanel.repaint();
 
-        //JPanel toPanel = createSpinnerPanel("Min Arrival Rate", "Number of Steps", "Max Arrival Rate", minArrivalRate, numberOfSteps, maxArrivalRate);
-        //JPanel toPanel = createSpinnerPanel("",);
-        //verticalBox.add(toPanel);
+                } else if (selectedClientTypes == 3) {
 
-        JPanel ProcPanel = new JPanel();
-        ProcPanel.setLayout(new GridLayout(28, 1));
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, meanChargingDemand2, batteryCapacity2, maxEVPower2);
+                    GridBagConstraints secondCarGbc = new GridBagConstraints();
+                    secondCarGbc.anchor = GridBagConstraints.WEST;
+                    secondCarGbc.insets = new Insets(5, 5, 5, 5);
+                    secondCarGbc.gridx = 0;
+                    secondCarGbc.gridy = 28;
+                    procPanel.add(secondCarPanel, secondCarGbc);
 
-        ProcPanel.add(new JLabel("Number of Steps", SwingConstants.CENTER));
-        ProcPanel.add(numberOfSteps);
-        ProcPanel.add(new JLabel("Max Events per Step", SwingConstants.CENTER));
-        ProcPanel.add(maxEvents);
-        ProcPanel.add(new JLabel("Confidence Interval Level", SwingConstants.CENTER));
-        ProcPanel.add(confLevel);
-        ProcPanel.add(new JLabel("Arrival Distribution Type", SwingConstants.CENTER));
-        ProcPanel.add(arrivalType);
-        ProcPanel.add(new JLabel("Max Mean Arrival Rate", SwingConstants.CENTER));
-        ProcPanel.add(maxArrivalRate);
-        ProcPanel.add(new JLabel("Number of Servers", SwingConstants.CENTER));
-        ProcPanel.add(numberOfServers);
-        ProcPanel.add(new JLabel("Queue Size", SwingConstants.CENTER));
-        ProcPanel.add(queueSize);
-        ProcPanel.add(new JLabel("Queueing Type", SwingConstants.CENTER));
-        ProcPanel.add(queueingType);
-        ProcPanel.add(new JLabel("Service Distribution Type", SwingConstants.CENTER));
-        ProcPanel.add(serviceType);
-        ProcPanel.add(new JLabel("Mean Service Time", SwingConstants.CENTER));
-        ProcPanel.add(meanServiceTime);
-        ProcPanel.add(new JLabel("Number of Client Types", SwingConstants.CENTER));
-        ProcPanel.add(numberOfClientTypes);
-        ProcPanel.add(new JLabel("Demand Distribution Type", SwingConstants.CENTER));
-        ProcPanel.add(demandType);
-        ProcPanel.add(new JLabel("Mean Charging Demand", SwingConstants.CENTER));
-        ProcPanel.add(meanChargingDemand);
-        ProcPanel.add(new JLabel("Battery Capacity", SwingConstants.CENTER));
-        ProcPanel.add(batteryCapacity);
+                    JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3, meanChargingDemand3, batteryCapacity3, maxEVPower3);
+                    GridBagConstraints thirdCarGbc = new GridBagConstraints();
+                    thirdCarGbc.anchor = GridBagConstraints.WEST;
+                    thirdCarGbc.insets = new Insets(5, 5, 5, 5);
+                    thirdCarGbc.gridx = 0;
+                    thirdCarGbc.gridy = 35; // Adjust the row index as needed
+                    procPanel.add(thirdCarPanel, thirdCarGbc);
 
-        ProcPanel.setBackground(LIGHT_BLUE);
-        verticalBox.add(ProcPanel);
+                    procPanel.revalidate();
+                    procPanel.repaint();
+                }
+            }
+        });
+
+
+        addRowToPanel(procPanel, gbc, "Number of Steps", numberOfSteps);
+        addRowToPanel(procPanel, gbc, "Max Events per Step", maxEvents);
+        addRowToPanel(procPanel, gbc, "Confidence Interval Level", confLevel);
+        addRowToPanel(procPanel, gbc, "Arrival Distribution Type", arrivalType);
+        addRowToPanel(procPanel, gbc, "Max Mean Arrival Rate", maxArrivalRate);
+        addRowToPanel(procPanel, gbc, "Number of Servers", numberOfServers);
+        addRowToPanel(procPanel, gbc, "Queue Size", queueSize);
+        addRowToPanel(procPanel, gbc, "Queueing Type", queueingType);
+        addRowToPanel(procPanel, gbc, "Service Distribution Type", serviceType);
+        addRowToPanel(procPanel, gbc, "Number of Client Types", numberOfClientTypes);
+        addRowToPanel(procPanel, gbc, "Mean Service Time", meanServiceTime);
+        addRowToPanel(procPanel, gbc, "Demand Distribution Type", demandType);
+        addRowToPanel(procPanel, gbc, "Mean Charging Demand", meanChargingDemand);
+        addRowToPanel(procPanel, gbc, "Battery Capacity", batteryCapacity);
+
+
+        procPanel.setBackground(LIGHT_BLUE);
+
+
+        procPanel.setBackground(LIGHT_BLUE);
+        verticalBox.add(jScrollPane);
 
         JPanel toPanel2 = createSpinnerPanel("Max Site Power", "Max Point Power", "Max EV Power", maxSitePower, maxPointPower, maxEVPower);
         verticalBox.add(toPanel2);
 
-        //JPanel ProcPanel2 = new JPanel();
-        //ProcPanel0.setLayout(new GridLayout(0, 1));
-
-        //ProcPanel.setBackground(LIGHT_BLUE);
-        //verticalBox.add(ProcPanel);
 
         JPanel bottomPanel = new JPanel();
 
@@ -256,6 +331,124 @@ public class SimulationGUI {
         frame.setVisible(true);
         frame.setResizable(false);
         return frame;
+    }
+
+
+    private static boolean isSecondCarPanelAdded(JPanel panel) {
+        Component[] components = panel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JPanel && ((JPanel) component).getComponentCount() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void removeSecondCarPanel(JPanel panel) {
+        Component[] components = panel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JPanel && ((JPanel) component).getComponentCount() > 0) {
+                panel.remove(component);
+                panel.revalidate();
+                panel.repaint();
+                return;
+            }
+        }
+    }
+
+    private static JPanel createThirdCarPanel(JSpinner percentageOfCars3, JSpinner meanServiceTime3, JSpinner meanChargingDemand3, JSpinner batteryCapacity3, JSpinner maxEVPower3) {
+        JPanel thirdCarPanel = new JPanel();
+        thirdCarPanel.setLayout(new GridBagLayout());
+        thirdCarPanel.setBackground(LIGHT_PINK);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        // TitledBorder titledBorder = BorderFactory.createTitledBorder("Parameters for third car type");
+        // thirdCarPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), titledBorder));
+
+
+        addRowToPanel(thirdCarPanel, gbc, "Percentage of Cars 3", percentageOfCars3);
+        addRowToPanel(thirdCarPanel, gbc, "Mean Service Time 3", meanServiceTime3);
+        addRowToPanel(thirdCarPanel, gbc, "Max EV Power 3", maxEVPower3);
+        addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", createDemandTypeComboBox());
+        addRowToPanel(thirdCarPanel, gbc, "Mean Charging Demand 3", meanChargingDemand3);
+        addRowToPanel(thirdCarPanel, gbc, "Battery Capacity 3", batteryCapacity3);
+
+        return thirdCarPanel;
+    }
+
+    private static void addRowToPanel(JPanel panel, GridBagConstraints gbc, String labelText, JComponent component) {
+        gbc.gridx = 0;
+        gbc.gridy++;
+
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Add a bit of space between label and component
+        gbc.insets = new Insets(5, 5, 0, 5);
+
+        JLabel label = new JLabel(labelText, SwingConstants.CENTER);
+        label.setPreferredSize(new Dimension(200, 20)); // Adjust the width as needed for labels
+        panel.add(label, gbc);
+
+        gbc.gridy++;
+
+        // Reset the anchor and insets for the component
+        gbc.anchor = GridBagConstraints.LINE_START; // Set the anchor to LINE_START to left-align components
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        component.setPreferredSize(new Dimension(200, 20)); // Adjust the width as needed for components
+        panel.add(component, gbc);
+    }
+
+    private static boolean isThirdCarPanelAdded(JPanel panel) {
+        Component[] components = panel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JPanel && ((JPanel) component).getComponentCount() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void removeThirdCarPanel(JPanel panel) {
+        Component[] components = panel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JPanel && ((JPanel) component).getComponentCount() > 0) {
+                panel.remove(component);
+                panel.revalidate();
+                panel.repaint();
+                return;
+            }
+        }
+    }
+
+    private static JPanel createSecondCarPanel(JSpinner percentageOfCars2, JSpinner meanServiceTime2, JSpinner maxEVPower2, JSpinner meanChargingDemand2, JSpinner batteryCapacity2) {
+        JPanel secondCarPanel = new JPanel();
+        secondCarPanel.setLayout(new GridBagLayout());
+        secondCarPanel.setBackground(PEACH);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+       // TitledBorder titledBorder = BorderFactory.createTitledBorder("Parameters for second car type");
+       // secondCarPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), titledBorder));
+
+        addRowToPanel(secondCarPanel, gbc, "Percentage of Cars 2", percentageOfCars2);
+        addRowToPanel(secondCarPanel, gbc, "Mean Service Time 2", meanServiceTime2);
+        addRowToPanel(secondCarPanel, gbc, "Max EV Power 2", maxEVPower2);
+        addRowToPanel(secondCarPanel, gbc, "Demand Distribution Type 2", createDemandTypeComboBox());
+        addRowToPanel(secondCarPanel, gbc, "Mean Charging Demand 2", meanChargingDemand2);
+        addRowToPanel(secondCarPanel, gbc, "Battery Capacity 2", batteryCapacity2);
+
+        return secondCarPanel;
+    }
+
+    private static JComboBox<String> createDemandTypeComboBox() {
+        String[] demandTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC", "LOMAX"};
+        return new JComboBox<>(demandTypes);
     }
 
     private static void addWindowCloseListener(JFrame frame) {
@@ -319,25 +512,6 @@ public class SimulationGUI {
         return panel;
     }
 
-    private static JPanel createSpinnerPanel(String label1, String label2, JSpinner spinner1, JSpinner spinner2) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 2));
-        panel.add(new JLabel(label1, SwingConstants.CENTER));
-        panel.add(new JLabel(label2, SwingConstants.CENTER));
-        panel.add(spinner1);
-        panel.add(spinner2);
-        panel.setBackground(LIGHT_BLUE);
-        return panel;
-    }
-
-    private static JPanel createSpinnerPanel(String label1, JSpinner spinner1) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 1));
-        panel.add(new JLabel(label1, SwingConstants.CENTER));
-        panel.add(spinner1);
-        panel.setBackground(LIGHT_BLUE);
-        return panel;
-    }
 
     private static void configureButton(JButton button) {
         button.setFont(new Font("Arial", Font.BOLD, 14));

@@ -35,7 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static org.jfree.chart.ChartFactory.createXYLineChart;;
+import static org.jfree.chart.ChartFactory.createXYLineChart;
+import static results.Histogram.generateHistogram;;
 
 public class Simulation extends Graph {
     /*   private static final double MIN_ARRIVAL_RATE = 0.5;
@@ -282,301 +283,303 @@ public class Simulation extends Graph {
 
             // add the site powers of the current run to the existing graph (if not possible draw one and ask what to do (save and continue / discard and continue))
             mySystem.getChargingSite().addSitePowerGraph(SitePowerGraph);
-            Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
+            //Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
 
-            //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
-            analyticWaitingTimes.add(arrivalRate,this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
 
-            meanServiceTimes.addStep(arrivalRate);
-            meanServiceTimes.addMean(mySystem.getTimesInService());
-            meanServiceTimes.addStds(mySystem.getTimesInService());
-            meanServiceTimes.addConfidence(mySystem.getTimesInService(), confLevel);
 
-            meanQueueingTimes.addStep(arrivalRate);
-            meanQueueingTimes.addMean(mySystem.getTimesInQueue());
-            meanQueueingTimes.addStds(mySystem.getTimesInQueue());
-            meanQueueingTimes.addConfidence(mySystem.getTimesInQueue(), confLevel);
+                //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
+                analyticWaitingTimes.add(arrivalRate, this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
 
-            meanSystemTimes.addStep(arrivalRate);
-            meanSystemTimes.addMean(mySystem.getTimesInSystem());
-            meanSystemTimes.addStds(mySystem.getTimesInSystem());
-            meanSystemTimes.addConfidence(mySystem.getTimesInSystem(), confLevel);
+                meanServiceTimes.addStep(arrivalRate);
+                meanServiceTimes.addMean(mySystem.getTimesInService());
+                meanServiceTimes.addStds(mySystem.getTimesInService());
+                meanServiceTimes.addConfidence(mySystem.getTimesInService(), confLevel);
 
-            chargingMonitor.storeStep(arrivalRate);
-            chargingMonitor.storeMean();
-            chargingMonitor.storeStd();
-            chargingMonitor.storeMax();
-            chargingMonitor.storeMin();
-            chargingMonitor.storeConf();
-            chargingMonitor.store90thQuantile();
-            chargingMonitor.store10thQuantile();
+                meanQueueingTimes.addStep(arrivalRate);
+                meanQueueingTimes.addMean(mySystem.getTimesInQueue());
+                meanQueueingTimes.addStds(mySystem.getTimesInQueue());
+                meanQueueingTimes.addConfidence(mySystem.getTimesInQueue(), confLevel);
 
-            chargingMonitor.storeMeanSitePower();
-            chargingMonitor.storeMaxSitePower();
-            chargingMonitor.storeStdSitePower();
-            chargingMonitor.storeConfSitePower();
+                meanSystemTimes.addStep(arrivalRate);
+                meanSystemTimes.addMean(mySystem.getTimesInSystem());
+                meanSystemTimes.addStds(mySystem.getTimesInSystem());
+                meanSystemTimes.addConfidence(mySystem.getTimesInSystem(), confLevel);
 
-            chargingMonitor.storeMeanCD();
-            chargingMonitor.storeStdCD();
-            chargingMonitor.storeConfCD();
+                chargingMonitor.storeStep(arrivalRate);
+                chargingMonitor.storeMean();
+                chargingMonitor.storeStd();
+                chargingMonitor.storeMax();
+                chargingMonitor.storeMin();
+                chargingMonitor.storeConf();
+                chargingMonitor.store90thQuantile();
+                chargingMonitor.store10thQuantile();
 
-            Statistics calc = new Statistics();
+                chargingMonitor.storeMeanSitePower();
+                chargingMonitor.storeMaxSitePower();
+                chargingMonitor.storeStdSitePower();
+                chargingMonitor.storeConfSitePower();
 
-            LOGGER.info(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<"
-                    + "\n Mean Inter Arrival Time: " + 1.0 / arrivalRate
-                    + "\n Service Time (" + mySystem.getTimesInService().size() + "): "
-                    + calc.getMean(mySystem.getTimesInService()) + "/"
-                    + calc.getStd(mySystem.getTimesInService()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel)
-                    + "\n Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
-                    + calc.getMean(mySystem.getTimesInQueue()) + "/"
-                    + calc.getStd(mySystem.getTimesInQueue()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel)
-                    + "\n System Time (" + mySystem.getTimesInSystem().size() + "): "
-                    + calc.getMean(mySystem.getTimesInSystem()) + "/"
-                    + calc.getStd(mySystem.getTimesInSystem()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel)
-                    + "\n Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
-                    + calc.getMean(mySystem.getAmountsCharged()) + "/"
-                    + calc.getStd(mySystem.getAmountsCharged()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel)
-                    + "\n Site Power Demand (" + mySystem.getSitePowers().size() + "): "
-                    + calc.getMean(mySystem.getSitePowers()) + "/"
-                    + calc.getStd(mySystem.getSitePowers()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel)
-                    + "\n Queue state: " + mySystem.getMyQueue().getOccupation()
-                    + " Server state: " + mySystem.getNumberOfServersInUse()
-                    + " Clients done: " + Client.getClientCounter()
+                chargingMonitor.storeMeanCD();
+                chargingMonitor.storeStdCD();
+                chargingMonitor.storeConfCD();
+
+                Statistics calc = new Statistics();
+
+                LOGGER.info(">--------- " + mySystem.getSystemName() + " Simulation step# " + stepCounter + " done -----------<"
+                        + "\n Mean Inter Arrival Time: " + 1.0 / arrivalRate
+                        + "\n Service Time (" + mySystem.getTimesInService().size() + "): "
+                        + calc.getMean(mySystem.getTimesInService()) + "/"
+                        + calc.getStd(mySystem.getTimesInService()) + "/"
+                        + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel)
+                        + "\n Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
+                        + calc.getMean(mySystem.getTimesInQueue()) + "/"
+                        + calc.getStd(mySystem.getTimesInQueue()) + "/"
+                        + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel)
+                        + "\n System Time (" + mySystem.getTimesInSystem().size() + "): "
+                        + calc.getMean(mySystem.getTimesInSystem()) + "/"
+                        + calc.getStd(mySystem.getTimesInSystem()) + "/"
+                        + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel)
+                        + "\n Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
+                        + calc.getMean(mySystem.getAmountsCharged()) + "/"
+                        + calc.getStd(mySystem.getAmountsCharged()) + "/"
+                        + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel)
+                        + "\n Site Power Demand (" + mySystem.getSitePowers().size() + "): "
+                        + calc.getMean(mySystem.getSitePowers()) + "/"
+                        + calc.getStd(mySystem.getSitePowers()) + "/"
+                        + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel)
+                        + "\n Queue state: " + mySystem.getMyQueue().getOccupation()
+                        + " Server state: " + mySystem.getNumberOfServersInUse()
+                        + " Clients done: " + Client.getClientCounter()
+                );
+
+                arrivalRate += ARRIVAL_RATE_STEP;
+            }
+            drawGraph();
+
+            chargingMonitor.drawGraph(this);
+        }
+
+        public void drawGraph () {   // D/D/5/10 Queueing System
+
+            String title = "Charging Site Queueing Characteristics \n"
+                    + this.getKendallName() + " Queueing System"
+                    + " (" + this.MAX_EVENTS + " samples per evaluation point)";
+
+            String[] titleParts = title.split("\n");
+
+            TextTitle textTitle = new TextTitle(titleParts[0]);
+            textTitle.setFont(new Font("Arial", Font.BOLD, 24));
+
+            TextTitle textSubtitle = new TextTitle(titleParts[1]);
+            textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
+
+            XYSeriesCollection dataset = new XYSeriesCollection();
+
+            meanSystemTimes.addGraphs(dataset);
+            meanServiceTimes.addGraphs(dataset);
+            meanQueueingTimes.addGraphs(dataset);
+            //analyticWaitingTimes.addGraphs(dataset);
+            dataset.addSeries(analyticWaitingTimes);
+
+            MyChart = createXYLineChart(
+                    "",
+                    "Arrival Rate [1/h]",
+                    "Mean and Std [h]",
+                    dataset,
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    false
             );
 
-            arrivalRate += ARRIVAL_RATE_STEP;
-        }
-        drawGraph();
+            MyChart.addSubtitle(textTitle);
+            MyChart.addSubtitle(textSubtitle);
 
-        chargingMonitor.drawGraph(this);
-    }
+            XYPlot plot = MyChart.getXYPlot();
+            NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
+            XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
-    public void drawGraph() {   // D/D/5/10 Queueing System
+            NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+            if (MEAN_SERVICE_TIME > 0) {
+                yAxis.setRange(0, Math.ceil(1.1 * MEAN_SERVICE_TIME * (1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
+            } else {
+                yAxis.setRange(0, 3);
+            }
 
-        String title = "Charging Site Queueing Characteristics \n"
-                + this.getKendallName() + " Queueing System"
-                + " (" + this.MAX_EVENTS + " samples per evaluation point)";
-
-        String[] titleParts = title.split("\n");
-
-        TextTitle textTitle = new TextTitle(titleParts[0]);
-        textTitle.setFont(new Font("Arial", Font.BOLD, 24));
-
-        TextTitle textSubtitle = new TextTitle(titleParts[1]);
-        textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        XYSeriesCollection dataset = new XYSeriesCollection();
-
-        meanSystemTimes.addGraphs(dataset);
-        meanServiceTimes.addGraphs(dataset);
-        meanQueueingTimes.addGraphs(dataset);
-        //analyticWaitingTimes.addGraphs(dataset);
-        dataset.addSeries(analyticWaitingTimes);
-
-        MyChart = createXYLineChart(
-                "",
-                "Arrival Rate [1/h]",
-                "Mean and Std [h]",
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-
-        MyChart.addSubtitle(textTitle);
-        MyChart.addSubtitle(textSubtitle);
-
-        XYPlot plot = MyChart.getXYPlot();
-        NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-
-        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-        if (MEAN_SERVICE_TIME > 0) {
-            yAxis.setRange(0, Math.ceil(1.1 * MEAN_SERVICE_TIME * (1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
-        } else {
-            yAxis.setRange(0, 3);
-        }
-
-        int i = 0;
-        while (i < SIM_STEPS) {
-            renderer.setSeriesPaint(i, Color.MAGENTA);
-            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
-            i++;
-        }
-        renderer.setSeriesPaint(i, Color.magenta);
-        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
-        renderer.setSeriesPaint(i, Color.magenta);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
+            int i = 0;
+            while (i < SIM_STEPS) {
+                renderer.setSeriesPaint(i, Color.MAGENTA);
+                renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
+                i++;
+            }
+            renderer.setSeriesPaint(i, Color.magenta);
+            renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+            renderer.setSeriesPaint(i, Color.magenta);
+            renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
 
-        while (i < 2 * SIM_STEPS + 2) {
+            while (i < 2 * SIM_STEPS + 2) {
+                renderer.setSeriesPaint(i, Color.blue);
+                renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
+                i++;
+            }
             renderer.setSeriesPaint(i, Color.blue);
-            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
-            i++;
-        }
-        renderer.setSeriesPaint(i, Color.blue);
-        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
-        renderer.setSeriesPaint(i, Color.blue);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
+            renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+            renderer.setSeriesPaint(i, Color.blue);
+            renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
 
-        while (i < 3 * SIM_STEPS + 4) {
+            while (i < 3 * SIM_STEPS + 4) {
+                renderer.setSeriesPaint(i, Color.red);
+                renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
+                i++;
+            }
             renderer.setSeriesPaint(i, Color.red);
-            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
-            i++;
+            renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
+            renderer.setSeriesPaint(i, Color.red);
+            renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
+            plot.setRenderer(renderer);
+
+            // draw analytic calculated waiting time of M/M/n/N queueing system
+            renderer.setSeriesPaint(++i, Color.black);
+            renderer.setSeriesStroke(i, new BasicStroke(0.6f));
+            renderer.setSeriesShape(i, ShapeUtilities.createDiagonalCross(0.75f, 0.75f));
+            plot.setRenderer(renderer);
+
+            // Add legend
+            LegendItemSource legendItemSource = new LegendItemSource() {
+                @Override
+                public LegendItemCollection getLegendItems() {
+                    LegendItemCollection items = new LegendItemCollection();
+
+                    // Add legend items for each series
+                    items.add(new LegendItem("Service Time", Color.blue));
+                    items.add(new LegendItem("Queuing Time", Color.RED));
+                    items.add(new LegendItem("System Time", Color.MAGENTA));
+                    items.add(new LegendItem("M/M/n/N Queueing Time", Color.BLACK));
+
+                    return items;
+                }
+            };
+
+            plot.setFixedLegendItems(legendItemSource.getLegendItems());
+
+            ChartPanel chartPanel = new ChartPanel(MyChart);
+            chartPanel.setPreferredSize(new Dimension(800, 630));
+            chartPanel.setDomainZoomable(true);
+            chartPanel.setRangeZoomable(true);
+            chartPanel.setMouseWheelEnabled(true);
+
+            JFrame frame = new JFrame(title);
+            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    int result = JOptionPane.showConfirmDialog(frame, "Do you want to save the figure?", "Save figure before closing", JOptionPane.YES_NO_CANCEL_OPTION);
+                    if (result == JOptionPane.YES_OPTION) {
+                        saveSVGDialogue();
+                        frame.dispose();
+                    } else if (result == JOptionPane.NO_OPTION) {
+                        frame.dispose();
+                    }
+                }
+            });
+
+            frame.setContentPane(chartPanel);
+            frame.pack();
+
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int screenWidth = (int) screenSize.getWidth();
+            frame.setLocation(screenWidth - frame.getWidth(), 0);
+
+            frame.setVisible(true);
+            chartPanel.repaint();
         }
-        renderer.setSeriesPaint(i, Color.red);
-        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
-        renderer.setSeriesPaint(i, Color.red);
-        renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
-        plot.setRenderer(renderer);
 
-        // draw analytic calculated waiting time of M/M/n/N queueing system
-        renderer.setSeriesPaint(++i, Color.black);
-        renderer.setSeriesStroke(i, new BasicStroke(0.6f));
-        renderer.setSeriesShape(i, ShapeUtilities.createDiagonalCross(0.75f, 0.75f));
-        plot.setRenderer(renderer);
+        public void saveSVGDialogue () {
+            Object[] options = {"SVG", "CSV"};
+            int formatResult = JOptionPane.showOptionDialog(
+                    null,
+                    "Choose the file format to save:",
+                    "Choose File Format",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
 
-        // Add legend
-        LegendItemSource legendItemSource = new LegendItemSource() {
-            @Override
-            public LegendItemCollection getLegendItems() {
-                LegendItemCollection items = new LegendItemCollection();
+            if (formatResult == JOptionPane.YES_OPTION) {
+                // Save as SVG
+                boolean inputValid = getUserInput() && chooseFile();
 
-                // Add legend items for each series
-                items.add(new LegendItem("Service Time", Color.blue));
-                items.add(new LegendItem("Queuing Time", Color.RED));
-                items.add(new LegendItem("System Time", Color.MAGENTA));
-                items.add(new LegendItem("M/M/n/N Queueing Time",Color.BLACK));
+                if (inputValid) {
+                    try {
+                        int imageWidth = Integer.parseInt(getWidthField().getText());
+                        int imageHeight = Integer.parseInt(getHeightField().getText());
+                        saveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
+                    } catch (IOException ex) {
+                        System.out.println("Error: " + ex.getMessage());
+                    }
+                }
+            } else if (formatResult == JOptionPane.NO_OPTION) {
+                JFileChooser csvFileChooser = new JFileChooser();
+                csvFileChooser.setDialogTitle("Choose CSV File Location");
+                csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+                int csvResult = csvFileChooser.showSaveDialog(null);
 
-                return items;
-            }
-        };
-
-        plot.setFixedLegendItems(legendItemSource.getLegendItems());
-
-        ChartPanel chartPanel = new ChartPanel(MyChart);
-        chartPanel.setPreferredSize(new Dimension(800, 630));
-        chartPanel.setDomainZoomable(true);
-        chartPanel.setRangeZoomable(true);
-        chartPanel.setMouseWheelEnabled(true);
-
-        JFrame frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save the figure?", "Save figure before closing", JOptionPane.YES_NO_CANCEL_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    saveSVGDialogue();
-                    frame.dispose();
-                } else if (result == JOptionPane.NO_OPTION) {
-                    frame.dispose();
+                if (csvResult == JFileChooser.APPROVE_OPTION) {
+                    String csvFilePath = csvFileChooser.getSelectedFile().toString();
+                    if (!csvFilePath.endsWith(".csv")) {
+                        csvFilePath += ".csv";
+                    }
+                    saveGraphDataToCSV(csvFilePath);
                 }
             }
-        });
+        }
 
-        frame.setContentPane(chartPanel);
-        frame.pack();
+        public void saveGraphDataToCSV (String filePath){
+            try (FileWriter writer = new FileWriter(filePath)) {
+                writer.append("Arrival Rate [1/h];Mean Service Time;std serviceTime;confidence Service Time; Mean Queueing Time;std queueingTime;confidence Queueing Time; Mean System Time;std systemTime;confidence System Time\n");
+                List<Double> arrivalRates = meanSystemTimes.getSteps();
+                List<Double> meanServiceTimeValues = meanServiceTimes.getMeans();
+                List<Double> meanQueueingTimeValues = meanQueueingTimes.getMeans();
+                List<Double> meanSystemTimeValues = meanSystemTimes.getMeans();
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int screenWidth = (int) screenSize.getWidth();
-        frame.setLocation(screenWidth - frame.getWidth(), 0);
+                List<Double> stdServiceTimeValues = meanServiceTimes.getStds();
+                List<Double> stdQueueingTimeValues = meanQueueingTimes.getStds();
+                List<Double> stdSystemTimeValues = meanSystemTimes.getStds();
 
-        frame.setVisible(true);
-        chartPanel.repaint();
-    }
+                List<Double> confServiceTimeValues = meanServiceTimes.getConfidences();
+                List<Double> confQueueingTimeValues = meanQueueingTimes.getConfidences();
+                List<Double> confSystemTimeValues = meanSystemTimes.getConfidences();
 
-    public void saveSVGDialogue() {
-        Object[] options = {"SVG", "CSV"};
-        int formatResult = JOptionPane.showOptionDialog(
-                null,
-                "Choose the file format to save:",
-                "Choose File Format",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
-
-        if (formatResult == JOptionPane.YES_OPTION) {
-            // Save as SVG
-            boolean inputValid = getUserInput() && chooseFile();
-
-            if (inputValid) {
-                try {
-                    int imageWidth = Integer.parseInt(getWidthField().getText());
-                    int imageHeight = Integer.parseInt(getHeightField().getText());
-                    saveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
+                for (int i = 0; i < arrivalRates.size(); i++) {
+                    writer.append(arrivalRates.get(i).toString());
+                    writer.append(";");
+                    writer.append(meanServiceTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(stdServiceTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(confServiceTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(meanQueueingTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(stdQueueingTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(confQueueingTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(meanSystemTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(stdSystemTimeValues.get(i).toString());
+                    writer.append(";");
+                    writer.append(confSystemTimeValues.get(i).toString());
+                    writer.append("\n");
                 }
-            }
-        } else if (formatResult == JOptionPane.NO_OPTION) {
-            JFileChooser csvFileChooser = new JFileChooser();
-            csvFileChooser.setDialogTitle("Choose CSV File Location");
-            csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
-            int csvResult = csvFileChooser.showSaveDialog(null);
+                System.out.println("CSV file has been created successfully!");
 
-            if (csvResult == JFileChooser.APPROVE_OPTION) {
-                String csvFilePath = csvFileChooser.getSelectedFile().toString();
-                if (!csvFilePath.endsWith(".csv")) {
-                    csvFilePath += ".csv";
-                }
-                saveGraphDataToCSV(csvFilePath);
+            } catch (IOException e) {
+                System.out.println("Error writing to CSV: " + e.getMessage());
             }
         }
     }
-
-    public void saveGraphDataToCSV(String filePath) {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            writer.append("Arrival Rate [1/h];Mean Service Time;std serviceTime;confidence Service Time; Mean Queueing Time;std queueingTime;confidence Queueing Time; Mean System Time;std systemTime;confidence System Time\n");
-            List<Double> arrivalRates = meanSystemTimes.getSteps();
-            List<Double> meanServiceTimeValues = meanServiceTimes.getMeans();
-            List<Double> meanQueueingTimeValues = meanQueueingTimes.getMeans();
-            List<Double> meanSystemTimeValues = meanSystemTimes.getMeans();
-
-            List<Double> stdServiceTimeValues = meanServiceTimes.getStds();
-            List<Double> stdQueueingTimeValues = meanQueueingTimes.getStds();
-            List<Double> stdSystemTimeValues = meanSystemTimes.getStds();
-
-            List<Double> confServiceTimeValues = meanServiceTimes.getConfidences();
-            List<Double> confQueueingTimeValues = meanQueueingTimes.getConfidences();
-            List<Double> confSystemTimeValues = meanSystemTimes.getConfidences();
-
-            for (int i = 0; i < arrivalRates.size(); i++) {
-                writer.append(arrivalRates.get(i).toString());
-                writer.append(";");
-                writer.append(meanServiceTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(stdServiceTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(confServiceTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(meanQueueingTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(stdQueueingTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(confQueueingTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(meanSystemTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(stdSystemTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(confSystemTimeValues.get(i).toString());
-                writer.append("\n");
-            }
-            System.out.println("CSV file has been created successfully!");
-
-        } catch (IOException e) {
-            System.out.println("Error writing to CSV: " + e.getMessage());
-        }
-    }
-}

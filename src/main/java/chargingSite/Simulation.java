@@ -292,8 +292,9 @@ public class Simulation extends Graph {
             EventSimulation.run(myFirstClients);
 
             // add the site powers of the current run to the existing graph (if not possible draw one and ask what to do (save and continue / discard and continue))
-            mySystem.getChargingSite().addSitePowerGraph(SitePowerGraph);
-            Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
+            //  mySystem.getChargingSite().addSitePowerGraph(SitePowerGraph);
+            mySystem.getChargingSite().addSitePowerGraph();
+          //  Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
 
 
 

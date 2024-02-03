@@ -215,7 +215,6 @@ public class ElectricVehicle {
         if (this.chargingPower > this.maxPower) {
             this.chargingPower = this.maxPower;
         }
-        this.getChargingPoint().setCurrentPower(this.chargingPower);
 
         // looking for negative charging power (error)
         if (this.chargingPower < 0 || this.stateOfCharge < 0) {
@@ -228,6 +227,8 @@ public class ElectricVehicle {
 
         //if(this.chargingPower>maxChargingSitePower/getSiteModel().getNumberOfServers()) {
         //    System.out.println("ERROR1: Charging power " + this.chargingPower + "is bigger than maximum currently available " + sitePower + " !");}
+
+        this.getChargingPoint().setCurrentPower(this.chargingPower);
     }
 
     public double scaleChargingPower(double scale) {

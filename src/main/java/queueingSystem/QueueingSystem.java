@@ -68,6 +68,7 @@ public class QueueingSystem {
         this.site = new ChargingSite(numberOfServers, Simulation.MAX_SITE_POWER); // TO BE SET via GUI
         this.resetQueueingSystem();
     }
+
     /* this generator creates a non-functional (dummy) queueing system only - DO NOT USE!
                 public QueueingSystem(String name) {
                     this.systemName = name;
@@ -79,6 +80,7 @@ public class QueueingSystem {
     public void setBlockingRate(double blockingRate) {
         this.blockingRate = blockingRate;
     }
+
     public void setDistributionType(DistributionType distributionType) {
         this.distributionType = distributionType;
         this.arrivalTimeDistribution = Distribution.create(distributionType);
@@ -111,6 +113,7 @@ public class QueueingSystem {
     public ArrayList<Server> getServers() {
         return servers;
     }
+
     public double getMeanInterArrivalTime() {
         return meanInterArrivalTime;
     }
@@ -119,8 +122,8 @@ public class QueueingSystem {
         return arrivalTimeDistribution;
     }
 
-    public Double getEquilibriumArrivalRate(){
-        return numberOfServers/meanInterArrivalTime;
+    public Double getEquilibriumArrivalRate() {
+        return numberOfServers / meanInterArrivalTime;
     }
 
     public String getKendallName(Simulation mySim) {
@@ -151,6 +154,7 @@ public class QueueingSystem {
     public int getNumberOfServersInUse() {
         return this.servers.size();
     }
+
     public Server getIdleServer(Client myClient) {
         Server newServer;
         if (occupiedServers < numberOfServers) {
@@ -162,6 +166,7 @@ public class QueueingSystem {
             return null;
         }
     }
+
     public Server getServer(Client client) {
         //System.out.println("Error "+servers.size());
         if (!servers.isEmpty()) {
@@ -216,6 +221,7 @@ public class QueueingSystem {
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
+
     public void processDeparture(Event departure) {
         currentTime = departure.getExecTime();
         currentClient = departure.getClient();
@@ -258,6 +264,7 @@ public class QueueingSystem {
         }
 
     }
+
     public void processQueueing(Event goInQueue) {
         currentTime = goInQueue.getExecTime();
         currentClient = goInQueue.getClient();
@@ -300,7 +307,10 @@ public class QueueingSystem {
         currentClient.getCar().setMyServer(nextServer);
         currentClient.getCar().updateChargingPower();
         double scale = getChargingSite().getMaxSitePower() / getChargingSite().getSitePower();
-        getChargingSite().scaleChargingPower(scale);
+        if (scale < 1) {
+            getChargingSite().scaleChargingPower(scale);
+        }
+
 
         /*double currentChargingPower = currentClient.getCar().getChargingPower();
         double updatedChargingPower = currentChargingPower * occupiedServers;
@@ -321,6 +331,7 @@ public class QueueingSystem {
         this.queueSize = queueSize;
         //this.myQueue = new Queue(queueSize);
     }
+
     public Server getServer(int index) {   // index works :)
         int n = servers.size();
         if (n > 0 && index < n) {
@@ -329,6 +340,7 @@ public class QueueingSystem {
             return (null);
         }
     }
+
     public void addServer(Server newServer) {
         servers.add(newServer);
         occupiedServers++;

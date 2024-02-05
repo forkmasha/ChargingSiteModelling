@@ -98,4 +98,13 @@ public class Histogram {
         dataset.addSeries("Histogram", samples, bins);
         return ChartFactory.createHistogram("Site Power Distribution", "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
     }
+
+    public static JFreeChart make3DHistogram(double[] samples, int bins) {
+        HistogramDataset dataset = new HistogramDataset();
+        dataset.setType(HistogramType.SCALE_AREA_TO_1);
+        dataset.addSeries("Histogram", samples, bins);
+
+        return ChartFactory.createHistogram("Site Power Distribution", "Values", "Probability Mass",
+                dataset, PlotOrientation.VERTICAL, true, true, false);
+    }
 }

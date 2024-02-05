@@ -293,8 +293,14 @@ public class Simulation extends Graph {
 
             // add the site powers of the current run to the existing graph (if not possible draw one and ask what to do (save and continue / discard and continue))
             //  mySystem.getChargingSite().addSitePowerGraph(SitePowerGraph);
-            mySystem.getChargingSite().addSitePowerGraph();
-          //  Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
+            // mySystem.getChargingSite().addSitePowerGraph();
+            // mySystem.getChargingSite().addSitePowerHistogram();
+
+            XYSeries series = mySystem.getChargingSite().getSitePowerSeries();
+            mySystem.getChargingSite().addSitePower3DHistogram(series);
+
+
+          // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
 
 
 

@@ -52,17 +52,19 @@ public class SimulationGUI {
         JSpinner maxEVPower = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
         JSpinner percentageOfCars = createSpinner(100, 1, 100, 1);
 
-        JSpinner percentageOfCars2 = createSpinner(100, 1, 100, 1);
-        JSpinner meanServiceTime2 = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner meanChargingDemand2 = createSpinner(0.8, 0.0, 1.0, 0.1);
-        JSpinner batteryCapacity2 = createSpinner(60.0, 0.0, 200.0, 5);
-        JSpinner maxEVPower2 = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
+        JSpinner percentageOfCars2 = createSpinner(50, 1, 100, 10);
+        JSpinner meanServiceTime2 = createSpinner(0.75, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner maxEVPower2 = createSpinner(250, 1.0, Double.MAX_VALUE, 1);
+        JSpinner meanChargingDemand2 = createSpinner(0.7, 0.0, 1.0, 0.1);
+        JSpinner batteryCapacity2 = createSpinner(90.0, 0.0, 200.0, 5);
 
-        JSpinner percentageOfCars3 = createSpinner(100, 1, 100, 1);
-        JSpinner meanServiceTime3 = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner meanChargingDemand3 = createSpinner(0.8, 0.0, 1.0, 0.1);
-        JSpinner batteryCapacity3 = createSpinner(60.0, 0.0, 200.0, 5);
-        JSpinner maxEVPower3 = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
+
+        JSpinner percentageOfCars3 = createSpinner(30, 1, 100, 10);
+        JSpinner meanServiceTime3 = createSpinner(0.25, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner maxEVPower3 = createSpinner(50, 1.0, Double.MAX_VALUE, 1);
+        JSpinner meanChargingDemand3 = createSpinner(0.9, 0.0, 1.0, 0.1);
+        JSpinner batteryCapacity3 = createSpinner(15.0, 0.0, 200.0, 5);
+
 
         JSpinner maxSitePower = createSpinner(300, 1.0, Double.MAX_VALUE, 1);
         JSpinner maxPointPower = createSpinner(100, 1.0, Double.MAX_VALUE, 1);
@@ -256,7 +258,7 @@ public class SimulationGUI {
 
 
                     // Now add the second car panel directly to the right
-                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, meanChargingDemand2, batteryCapacity2, maxEVPower2);
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2,meanChargingDemand2, batteryCapacity2);
 
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
@@ -269,7 +271,7 @@ public class SimulationGUI {
 
                 } else if (selectedClientTypes == 3) {
 
-                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, meanChargingDemand2, batteryCapacity2, maxEVPower2);
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2,maxEVPower2, meanChargingDemand2, batteryCapacity2);
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
                     secondCarGbc.insets = new Insets(5, 5, 5, 5);
@@ -277,7 +279,7 @@ public class SimulationGUI {
                     secondCarGbc.gridy = 28;
                     procPanel.add(secondCarPanel, secondCarGbc);
 
-                    JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3, meanChargingDemand3, batteryCapacity3, maxEVPower3);
+                    JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3,maxEVPower3, meanChargingDemand3, batteryCapacity3);
                     GridBagConstraints thirdCarGbc = new GridBagConstraints();
                     thirdCarGbc.anchor = GridBagConstraints.WEST;
                     thirdCarGbc.insets = new Insets(5, 5, 5, 5);

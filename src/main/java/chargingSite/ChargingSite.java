@@ -12,18 +12,26 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.statistics.HistogramBin;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jzy3d.chart.AWTChart;
 import org.jzy3d.chart.Chart;
+import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.primitives.Scatter;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
 import results.Histogram;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -75,6 +83,8 @@ public class ChargingSite {
         getSitePower();
     }
 
+    List<double[]> dataPoints = new ArrayList<double[]>();
+
     public double getSitePower() {
         double sitePower = 0;
         int i = 0;
@@ -115,10 +125,9 @@ public class ChargingSite {
         sitePowerSeries.clear();
         return;
     }
+
     private CombinedDomainXYPlot mainPlot;
     private int histogramCount = 0;
-
-
 
     public XYSeries getSitePowerSeries() {
         return sitePowerSeries;
@@ -152,7 +161,7 @@ public class ChargingSite {
 
     private HistogramDataset histogramDataset = null;
 
-    public void addSitePower3DHistogram(XYSeries series) {
+    public void addSitePower3DHistogram(XYSeries series, double arrivalRate) {
         double[] samples = convertXYSeriesToDoubleArray(series);
 
         double[] filteredSamples = DoubleStream.of(samples)
@@ -165,8 +174,8 @@ public class ChargingSite {
                 histogramDataset.setType(HistogramType.SCALE_AREA_TO_1);
             }
 
-            String seriesTitle = "Series " + (++histogramCount);
-            histogramDataset.addSeries(seriesTitle, filteredSamples, 15); // Додавання серії до існуючого датасету
+            String seriesTitle = "Series " + (arrivalRate);
+            histogramDataset.addSeries(seriesTitle, filteredSamples, 15);
 
             if (!isChartInitialized) {
                 initializeChart();
@@ -174,26 +183,23 @@ public class ChargingSite {
 
             if (isChartInitialized) {
                 JFreeChart histogramChart = ChartFactory.createHistogram(
-                        "Histogram", "Value", "Frequency",
+                        "Histogram", "Value", "Probability",
                         histogramDataset, PlotOrientation.VERTICAL, true, true, false);
 
                 XYPlot plot = (XYPlot) histogramChart.getPlot();
                 XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
 
-                // Sort series by the sum of their values in descending order
                 int[] seriesOrder = getSeriesOrder(histogramDataset);
 
-                // Set background color and outline color for the largest series (in the back)
                 int backgroundSeries = seriesOrder[seriesOrder.length - 1];
-                renderer.setSeriesPaint(backgroundSeries, Color.WHITE); // Background color
-                renderer.setSeriesOutlinePaint(backgroundSeries, Color.BLACK); // Outline color
+                renderer.setSeriesPaint(backgroundSeries, Color.WHITE);
+                renderer.setSeriesOutlinePaint(backgroundSeries, Color.BLACK);
 
-                // Set colors for the other series (in the front)
                 for (int i = 0; i < seriesOrder.length - 1; i++) {
                     int seriesIndex = seriesOrder[i];
                     Color color = generateTransparentColor();
                     renderer.setSeriesPaint(seriesIndex, color);
-                    renderer.setSeriesOutlinePaint(seriesIndex, Color.BLACK); // Outline color
+                    renderer.setSeriesOutlinePaint(seriesIndex, Color.BLACK);
                 }
 
                 if (mainPlot.getSubplots().size() == 0) {
@@ -205,8 +211,9 @@ public class ChargingSite {
 
                 chartFrame.validate();
                 chartFrame.repaint();
+                saveDataToCSV(chartFrame, seriesTitle, histogramDataset, arrivalRate);
             }
-
+            //saveDataToCSV(chartFrame, seriesTitle, histogramDataset, arrivalRate);
         } else {
             System.out.println("No non-zero data available for histogram.");
         }
@@ -227,7 +234,6 @@ public class ChargingSite {
             seriesOrder[i] = i;
         }
 
-        // Sort seriesOrder array based on sums in descending order
         IntStream.range(0, seriesOrder.length)
                 .boxed()
                 .sorted(Comparator.comparingDouble(i -> sums[(int) i]).reversed())
@@ -300,6 +306,61 @@ public class ChargingSite {
         float g = rand.nextFloat();
         float b = rand.nextFloat();
         return new Color(r, g, b);
+    }
+    private String lastFilePath;
+
+
+    private void saveDataToCSV(JFrame frame, String seriesTitle, HistogramDataset dataset, double arrivalRate) {
+        if (lastFilePath == null || !new File(lastFilePath).exists()) {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Save CSV File");
+
+            int userSelection = fileChooser.showSaveDialog(frame);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                lastFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+            } else {
+                return;
+            }
+        }
+
+        try (FileWriter writer = new FileWriter(lastFilePath, true)) {
+            int seriesIndex = dataset.indexOf(seriesTitle);
+            if (seriesIndex >= 0) {
+                int itemCount = dataset.getItemCount(seriesIndex);
+                for (int i = 0; i < itemCount; i++) {
+                    double binStart = dataset.getStartXValue(seriesIndex, i);
+                    double binEnd = dataset.getEndXValue(seriesIndex, i);
+                    double binMidpoint = (binStart + binEnd) / 2.0;
+                    double binProbability = dataset.getYValue(seriesIndex, i);
+
+                    writer.append(String.valueOf(binMidpoint)); // SitePower
+                    writer.append(';');
+                    writer.append(String.valueOf(binProbability)); // Probability
+                    writer.append(';');
+                    writer.append(String.valueOf(arrivalRate)); // Arrival Rate
+                    writer.append("00\n");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // frame.dispose();
+    }
+
+
+    private double getProbability(double value) {
+        double minValue = 1;
+        double maxValue = 10;
+
+        double range = maxValue - minValue;
+
+        if (value >= minValue && value <= maxValue) {
+            return 1.0 / range;
+        } else {
+            return 0.0;
+        }
     }
 }
 

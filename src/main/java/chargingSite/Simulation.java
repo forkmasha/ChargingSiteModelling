@@ -297,7 +297,7 @@ public class Simulation extends Graph {
             // mySystem.getChargingSite().addSitePowerHistogram();
 
             XYSeries series = mySystem.getChargingSite().getSitePowerSeries();
-            mySystem.getChargingSite().addSitePower3DHistogram(series);
+            mySystem.getChargingSite().addSitePower3DHistogram(series,arrivalRate);
 
 
           // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);

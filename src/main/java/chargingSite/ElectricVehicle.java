@@ -60,6 +60,14 @@ public class ElectricVehicle {
         this.energyCharged = 0;
     }
 
+    public ElectricVehicle createRandomCar(int numberOfCarTypes){
+        double chooser = Math.random();
+        double th1,th2 = 1;
+        ElectricVehicle newCar;
+        newCar = null;
+        return newCar;
+
+    }
     public void setMeanServiceTime(double meanServiceTime) {
         this.meanServiceTime = meanServiceTime;
     }

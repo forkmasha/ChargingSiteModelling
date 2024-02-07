@@ -27,7 +27,7 @@ public class Client {
         this.meanServiceTime = meanServiceTime;
         this.system = system;
         this.addServiceTimeDistribution(serviceType);
-        this.car=new ElectricVehicle("car", Simulation.MAX_EV_POWER,Simulation.batteryCapacity, DistributionType.BETA);  // change to new EV(CarType)
+        this.car = new ElectricVehicle("car", Simulation.MAX_EV_POWER,Simulation.batteryCapacity, DistributionType.BETA);  // change to new EV(CarType)
         this.car.setQueueingSystem(system);
         this.car.setMeanServiceTime(meanServiceTime);
     }

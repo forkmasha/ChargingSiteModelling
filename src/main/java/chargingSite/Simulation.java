@@ -426,7 +426,8 @@ public class Simulation extends Graph {
 
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);
-        Client[] myFirstClients = new Client[NUMBER_OF_CAR_TYPES];
+        Client myFirstClients[] = new Client[1];
+        Client myFirstClient;
         QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS, QUEUE_SIZE, QUEUEING_TYPE);
         chargingMonitor.setSource(mySystem);
         if (NUMBER_OF_CAR_TYPES > 1) {
@@ -460,10 +461,9 @@ public class Simulation extends Graph {
             }
         */
             //for (int i=0; i < myFirstClients.length; i++) {
-                myFirstClients[0] = new Client(0.0, ElectricVehicle.createRandomCar(this), mySystem);  // set service time per client
+                myFirstClients[0] = new Client(0.0, ElectricVehicle.createRandomCar(this), mySystem);
                 //myFirstClients[i] = new Client(0.0, AVERAGE_SERVICE_TIME, SERVICE_TYPE[i], mySystem);  // set service time per client
-           // }
-
+            //}
             EventSimulation.run(myFirstClients);
 
             // add the site powers of the current run to the existing graph (if not possible draw one and ask what to do (save and continue / discard and continue))

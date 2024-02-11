@@ -9,7 +9,7 @@ public class Event {
     private Client client;
     private EventType eventType;
 
-    public Event(double time) {
+    public Event(double time, EventType type, Client client) {
         this.execTime = time;
         myIndex = eventCounter++;
         EventSimulation.eventStack.addEvent(this);
@@ -17,16 +17,19 @@ public class Event {
             System.out.println("Number of generated events exceeds 10.000.000");
             System.exit(-100);
         }
-    }
-    public void setClient(Client client) {
+        this.eventType = type;
         this.client = client;
+        if (client == null) System.out.println("Error: no client for " + type.name() + " event " + eventCounter + " at time " + time + " !");
     }
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
-    public void setExecTime(double execTime) {
-        this.execTime = execTime;
-    }
+    // public void setClient(Client client) {
+    //    this.client = client;
+    //}
+    // public void setEventType(EventType eventType) {
+    //    this.eventType = eventType;
+    //}
+    //public void setExecTime(double execTime) {
+    //    this.execTime = execTime;
+    //}
     public double getExecTime() {
         return execTime;
     }

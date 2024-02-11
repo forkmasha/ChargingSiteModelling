@@ -194,16 +194,20 @@ public class QueueingSystem {
 
         if (EventSimulation.getNumberOfEvents() < EventSimulation.getMaxEvents()) {
             EventSimulation.incNumberOfEvents();
-            nextEvent = new Event(currentTime +
-                    this.getArrivalTimeDistribution().getSample(this.getMeanInterArrivalTime()));
-            nextEvent.setEventType(EventType.ARRIVAL);
-            nextClient = new Client(  // schedule the arrival of the next client with the same properties the currently arriving client has
-                    nextEvent.getExecTime(),
+            double newExecTime = currentTime + this.getArrivalTimeDistribution().getSample(this.getMeanInterArrivalTime());
+            nextClient = new Client(  // create next client with the same properties the currently arriving client has
+                    newExecTime,
                     ElectricVehicle.createRandomCar(currentClient.getCar().getSim()),
                     //currentClient.getCar(),
                     currentClient.getSystem()
             );
-            nextEvent.setClient(nextClient);
+            nextEvent = new Event( // schedule the arrival of the next client
+                    newExecTime,
+                    EventType.ARRIVAL,
+                    nextClient
+                    );
+            //nextEvent.setEventType(EventType.ARRIVAL);
+            //nextEvent.setClient(nextClient);
 
             /*if (nextEvent.getExecTime() <= currentTime) {
                 System.out.println("Warning: Zero InterArrivalTime: " + this.getArrivalTimeDistribution().
@@ -216,9 +220,9 @@ public class QueueingSystem {
             scheduleNextDeparture(currentTime, currentClient);
         } else {
             //currentClient.setTimeInQueue(0.0);
-            nextEvent = new Event(currentTime);
-            nextEvent.setEventType(EventType.QUEUEING);
-            nextEvent.setClient(currentClient);
+            nextEvent = new Event(currentTime,EventType.QUEUEING,currentClient);
+            //nextEvent.setEventType(EventType.QUEUEING);
+            //nextEvent.setClient(currentClient);
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
@@ -274,26 +278,24 @@ public class QueueingSystem {
             //currentClient.setTimeInQueue(0.0);
             //currentClient.setArrivalTime(currentTime);
         } else {
-            nextEvent = new Event(currentTime);
-            nextEvent.setEventType(EventType.BLOCKING);
-            nextEvent.setClient(currentClient);
+            nextEvent = new Event(currentTime,EventType.BLOCKING, currentClient);
+            //nextEvent.setEventType(EventType.BLOCKING);
+            //nextEvent.setClient(currentClient);
             EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
         }
     }
 
     public void instantDeparture(Client currentClient) {
-        nextEvent = new Event(EventSimulation.getCurrentTime());
-        nextEvent.setEventType(EventType.DEPARTURE);
-
         // used to track down the negative time in system issue
         if (currentTime <= currentClient.getArrivalTime()) {
             System.out.println("current Time: " + currentTime
                     + " >? arrival Time: " + currentClient.getArrivalTime());
             // this.removeServer(currentClient);
         }
-
         currentClient.setTimeInService(currentTime - (currentClient.getArrivalTime() + currentClient.getTimeInQueue()));
-        nextEvent.setClient(currentClient);
+        nextEvent = new Event(EventSimulation.getCurrentTime(),EventType.DEPARTURE,currentClient);
+        //nextEvent.setEventType(EventType.DEPARTURE);
+        //nextEvent.setClient(currentClient);
         EventSimulation.eventProcessor.processEvent(nextEvent); // process instantly
     }
 
@@ -319,11 +321,15 @@ public class QueueingSystem {
         currentClient.getCar().getChargingPowerHistory().add(updatedChargingPower);*/
 
         if (currentClient.getMeanServiceTime() > 0) {
-            nextEvent = new Event(currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()));
-            //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
-            nextEvent.setEventType(EventType.DEPARTURE);
             currentClient.setTimeInService(nextEvent.getExecTime() - currentTime);
-            nextEvent.setClient(currentClient);
+            nextEvent = new Event(
+                    currentTime + currentClient.getServiceTimeDistribution().getSample(currentClient.getMeanServiceTime()),
+                    EventType.DEPARTURE,
+                    currentClient
+            );
+            //if (nextEvent.getExecTime() <= currentTime) { System.out.println("Error: Next departure cannot be in the past!"); }
+            //nextEvent.setEventType(EventType.DEPARTURE);
+            //nextEvent.setClient(currentClient);
         }
     }
 

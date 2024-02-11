@@ -50,9 +50,10 @@ public class EventSimulation {
         EventSimulation.reset();
         Event.resetEventCounter();
         for(Client myClient : myClients) {
-            Event initialEvent = new Event(0.0); // execution time
-            initialEvent.setEventType(EventType.ARRIVAL);
-            initialEvent.setClient(myClient);
+            //Event initialEvent =
+            new Event(0.0, EventType.ARRIVAL, myClient);
+            //initialEvent.setEventType(EventType.ARRIVAL);
+            //initialEvent.setClient(myClient);
             numberOfEvents++;
         }
         //maxEvents = 1000;

@@ -37,7 +37,7 @@ public class ElectricVehicle {
 
     private static final Logger logger = Logger.getLogger(ElectricVehicle.class.getName());
 
-    public ElectricVehicle(Simulation sim, String model, double meanServiceTime, double maxPower, double batteryCapacity, DistributionType demandDistributionType) {
+    public ElectricVehicle(Simulation sim, String model, double meanServiceTime, double maxPower,DistributionType demandDistributionType, double batteryCapacity) {
         this.sim = sim;
         this.id = model + "_" + (int) UniformDistribution.createSample(500); // + "_" + System.currentTimeMillis();
         // this.id = model + "_" + UUID.randomUUID();
@@ -71,7 +71,7 @@ public class ElectricVehicle {
 
         if (sim.getNUMBER_OF_CAR_TYPES() <= 1) {
             sim.setPercentageOfCars(1);
-            return new ElectricVehicle(sim, model, sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(), sim.getBatteryCapacity(), sim.getDEMAND_TYPE());
+            return new ElectricVehicle(sim, model, sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(),sim.getDEMAND_TYPE(), sim.getBatteryCapacity());
         } else if (sim.getNUMBER_OF_CAR_TYPES() <= 2) {
             if (sim.getPercentageOfCars2() >= 1) sim.setPercentageOfCars(1 - sim.getPercentageOfCars2()/100);
             else sim.setPercentageOfCars(1 - sim.getPercentageOfCars2());
@@ -85,11 +85,11 @@ public class ElectricVehicle {
         }
         th1 = sim.getPercentageOfCars();
         if (chooser > th2) {
-            return new ElectricVehicle(sim, model+'3', sim.getMEAN_SERVICE_TIME3(), sim.getMaxEvPower3(), sim.getBatteryCapacity3(), sim.getDEMAND_TYPE3());
+            return new ElectricVehicle(sim, model+'3', sim.getMEAN_SERVICE_TIME3(), sim.getMaxEvPower3(),sim.getDEMAND_TYPE3(), sim.getBatteryCapacity3());
         } else if (chooser > th1) {
-            return new ElectricVehicle(sim, model+'2', sim.getMEAN_SERVICE_TIME2(), sim.getMaxEvPower2(), sim.getBatteryCapacity2(), sim.getDEMAND_TYPE2());
+            return new ElectricVehicle(sim, model+'2', sim.getMEAN_SERVICE_TIME2(), sim.getMaxEvPower2(), sim.getDEMAND_TYPE2(), sim.getBatteryCapacity2());
         } else {
-            return new ElectricVehicle(sim, model+'1', sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(), sim.getBatteryCapacity(), sim.getDEMAND_TYPE());
+            return new ElectricVehicle(sim, model+'1', sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(), sim.getDEMAND_TYPE(),sim.getBatteryCapacity());
         }
     }
 

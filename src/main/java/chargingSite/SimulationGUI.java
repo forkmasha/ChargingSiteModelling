@@ -97,12 +97,14 @@ public class SimulationGUI {
         arrivalType.setUI(new CustomComboBoxUI());
         serviceType.setUI(new CustomComboBoxUI());
         demandType.setUI(new CustomComboBoxUI());
+        demandType2.setUI(new CustomComboBoxUI());
         //confLevel.setUI(new CustomComboBoxUI()); //
 
         arrivalType.setBackground(Color.WHITE);
         serviceType.setBackground(Color.white);
         queueingType.setBackground(Color.white);
         demandType.setBackground(Color.white);
+        demandType2.setBackground(Color.white);
         confLevel.setBackground(Color.WHITE); //
 
 
@@ -207,26 +209,26 @@ public class SimulationGUI {
 
             String demandTypeString2 = (String) demandType2.getSelectedItem();
             switch (demandTypeString2) {
-                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
-                case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
-                case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
-                case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
-                case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
-                case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
+                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE2(DistributionType.DETERMINISTIC);
+                case "GEOMETRIC" -> simulation.setDEMAND_TYPE2(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE2(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.setDEMAND_TYPE2(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.setDEMAND_TYPE2(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.setDEMAND_TYPE2(DistributionType.UNIFORM);
+                case "BETA" -> simulation.setDEMAND_TYPE2(DistributionType.BETA);
+                case "LOMAX" -> simulation.setDEMAND_TYPE2(DistributionType.LOMAX);
             }
 
             String demandTypeString3 = (String) demandType3.getSelectedItem();
             switch (demandTypeString3) {
-                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
-                case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
-                case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
-                case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
-                case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
-                case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
+                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE3(DistributionType.DETERMINISTIC);
+                case "GEOMETRIC" -> simulation.setDEMAND_TYPE3(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE3(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.setDEMAND_TYPE3(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.setDEMAND_TYPE3(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.setDEMAND_TYPE3(DistributionType.UNIFORM);
+                case "BETA" -> simulation.setDEMAND_TYPE3(DistributionType.BETA);
+                case "LOMAX" -> simulation.setDEMAND_TYPE3(DistributionType.LOMAX);
             }
 
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
@@ -303,8 +305,7 @@ public class SimulationGUI {
                     }
 
 
-                    // Now add the second car panel directly to the right
-                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2,meanChargingDemand2, batteryCapacity2);
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2,meanChargingDemand2,demandType2, batteryCapacity2);
 
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
@@ -317,7 +318,7 @@ public class SimulationGUI {
 
                 } else if (selectedClientTypes == 3) {
 
-                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2,maxEVPower2, meanChargingDemand2, batteryCapacity2);
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2,maxEVPower2, meanChargingDemand2, demandType2,batteryCapacity2);
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
                     secondCarGbc.insets = new Insets(5, 5, 5, 5);
@@ -325,7 +326,7 @@ public class SimulationGUI {
                     secondCarGbc.gridy = 28;
                     procPanel.add(secondCarPanel, secondCarGbc);
 
-                    JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3,maxEVPower3, meanChargingDemand3, batteryCapacity3);
+                    JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3,maxEVPower3, meanChargingDemand3, demandType3,batteryCapacity3);
                     GridBagConstraints thirdCarGbc = new GridBagConstraints();
                     thirdCarGbc.anchor = GridBagConstraints.WEST;
                     thirdCarGbc.insets = new Insets(5, 5, 5, 5);
@@ -404,7 +405,7 @@ public class SimulationGUI {
         }
     }
 
-    private static JPanel createThirdCarPanel(JSpinner percentageOfCars3, JSpinner meanServiceTime3, JSpinner meanChargingDemand3, JSpinner batteryCapacity3, JSpinner maxEVPower3) {
+    private static JPanel createThirdCarPanel(JSpinner percentageOfCars3, JSpinner meanServiceTime3, JSpinner maxEVPower3,JSpinner meanChargingDemand3,  JComboBox<String> demandType3, JSpinner batteryCapacity3) {
         JPanel thirdCarPanel = new JPanel();
         thirdCarPanel.setLayout(new GridBagLayout());
         thirdCarPanel.setBackground(LIGHT_PINK);
@@ -420,7 +421,9 @@ public class SimulationGUI {
         addRowToPanel(thirdCarPanel, gbc, "Percentage of Cars 3", percentageOfCars3);
         addRowToPanel(thirdCarPanel, gbc, "Mean Service Time 3", meanServiceTime3);
         addRowToPanel(thirdCarPanel, gbc, "Max EV Power 3", maxEVPower3);
-        addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", createDemandTypeComboBox());
+       // addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", createDemandTypeComboBox());
+        addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", demandType3);
+
         addRowToPanel(thirdCarPanel, gbc, "Mean Charging Demand 3", meanChargingDemand3);
         addRowToPanel(thirdCarPanel, gbc, "Battery Capacity 3", batteryCapacity3);
 
@@ -472,7 +475,7 @@ public class SimulationGUI {
         }
     }
 
-    private static JPanel createSecondCarPanel(JSpinner percentageOfCars2, JSpinner meanServiceTime2, JSpinner maxEVPower2, JSpinner meanChargingDemand2, JSpinner batteryCapacity2) {
+    private static JPanel createSecondCarPanel(JSpinner percentageOfCars2, JSpinner meanServiceTime2, JSpinner maxEVPower2, JSpinner meanChargingDemand2, JComboBox<String> demandType2, JSpinner batteryCapacity2) {
         JPanel secondCarPanel = new JPanel();
         secondCarPanel.setLayout(new GridBagLayout());
         secondCarPanel.setBackground(PEACH);
@@ -481,18 +484,16 @@ public class SimulationGUI {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(5, 5, 5, 5);
 
-       // TitledBorder titledBorder = BorderFactory.createTitledBorder("Parameters for second car type");
-       // secondCarPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), titledBorder));
-
         addRowToPanel(secondCarPanel, gbc, "Percentage of Cars 2", percentageOfCars2);
         addRowToPanel(secondCarPanel, gbc, "Mean Service Time 2", meanServiceTime2);
         addRowToPanel(secondCarPanel, gbc, "Max EV Power 2", maxEVPower2);
-        addRowToPanel(secondCarPanel, gbc, "Demand Distribution Type 2", createDemandTypeComboBox());
+        addRowToPanel(secondCarPanel, gbc, "Demand Distribution Type 2", demandType2);
         addRowToPanel(secondCarPanel, gbc, "Mean Charging Demand 2", meanChargingDemand2);
         addRowToPanel(secondCarPanel, gbc, "Battery Capacity 2", batteryCapacity2);
 
         return secondCarPanel;
     }
+
 
     private static JComboBox<String> createDemandTypeComboBox() {
         String[] demandTypes = {"DETERMINISTIC","GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "LOMAX"};

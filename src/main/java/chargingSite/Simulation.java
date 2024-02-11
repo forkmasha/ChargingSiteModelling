@@ -227,27 +227,34 @@ public class Simulation extends Graph {
     }
 
     public void setPercentageOfCars(double percentageOfCars) {
+        if (percentageOfCars>1) percentageOfCars /= 100;
+        if (percentageOfCars<0) System.out.println("ERROR: percentage of type 1 cars " + percentageOfCars + "is smaller than 0!");
         this.percentageOfCars = percentageOfCars;
     }
 
-    public void setPercentageOfCars2(double percentageOfCars2) {
-        this.percentageOfCars2 = percentageOfCars2;
+    public void setPercentageOfCars2(double percentageOfCars) {
+        if (percentageOfCars>1) percentageOfCars /= 100;
+        if (percentageOfCars<0) System.out.println("ERROR: percentage of type 1 cars " + percentageOfCars + "is smaller than 0!");
+        this.percentageOfCars2 = percentageOfCars;
     }
 
-    public void setPercentageOfCars3(double percentageOfCars3) {
-        this.percentageOfCars3 = percentageOfCars3;
+    public void setPercentageOfCars3(double percentageOfCars) {
+        if (percentageOfCars>1) percentageOfCars /= 100;
+        if (percentageOfCars<0) System.out.println("ERROR: percentage of type 1 cars " + percentageOfCars + "is smaller than 0!");
+        this.percentageOfCars3 = percentageOfCars;
     }
 
-    public void setMEAN_SERVICE_TIME(double MEAN_SERVICE_TIME) {
-        this.MEAN_SERVICE_TIME = MEAN_SERVICE_TIME;
+    public void setMEAN_SERVICE_TIME(double time) {
+        if (time == 0) System.out.println("Warning: charging till 80% is yet not implemented correctly!");
+        this.MEAN_SERVICE_TIME = time;
     }
 
-    public void setMEAN_SERVICE_TIME2(double MEAN_SERVICE_TIME2) {
-        this.MEAN_SERVICE_TIME2 = MEAN_SERVICE_TIME2;
+    public void setMEAN_SERVICE_TIME2(double time) {
+        this.MEAN_SERVICE_TIME2 = time;
     }
 
-    public void setMEAN_SERVICE_TIME3(double MEAN_SERVICE_TIME3) {
-        this.MEAN_SERVICE_TIME3 = MEAN_SERVICE_TIME3;
+    public void setMEAN_SERVICE_TIME3(double time) {
+        this.MEAN_SERVICE_TIME3 = time;
     }
 
     public int getNUMBER_OF_CAR_TYPES() {

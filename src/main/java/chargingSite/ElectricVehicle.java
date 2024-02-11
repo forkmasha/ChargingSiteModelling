@@ -67,25 +67,23 @@ public class ElectricVehicle {
     public static ElectricVehicle createRandomCar(Simulation sim) {
         double chooser = Math.random();
         double th1, th2 = 1;
-        double totalPercentage;
         String model = "testCar";
 
         if (sim.getNUMBER_OF_CAR_TYPES() <= 1) {
+            sim.setPercentageOfCars(1);
             return new ElectricVehicle(sim, model, sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(), sim.getBatteryCapacity(), sim.getDEMAND_TYPE());
         } else if (sim.getNUMBER_OF_CAR_TYPES() <= 2) {
-            if (sim.getPercentageOfCars2() >= 1) sim.setPercentageOfCars(100 - sim.getPercentageOfCars2());
+            if (sim.getPercentageOfCars2() >= 1) sim.setPercentageOfCars(1 - sim.getPercentageOfCars2()/100);
             else sim.setPercentageOfCars(1 - sim.getPercentageOfCars2());
-            totalPercentage = sim.getPercentageOfCars() + sim.getPercentageOfCars2();
         } else {
             if (sim.getPercentageOfCars2() >= 1)
-                sim.setPercentageOfCars(100 - sim.getPercentageOfCars2() - sim.getPercentageOfCars3());
+                sim.setPercentageOfCars(1 - (sim.getPercentageOfCars2() + sim.getPercentageOfCars3())/100);
             else sim.setPercentageOfCars(1 - sim.getPercentageOfCars2() - sim.getPercentageOfCars3());
-            totalPercentage = sim.getPercentageOfCars() + sim.getPercentageOfCars2() + sim.getPercentageOfCars3();
         }
         if (sim.getNUMBER_OF_CAR_TYPES() > 2) {
-            th2 = (sim.getPercentageOfCars() + sim.getPercentageOfCars2()) / totalPercentage;
+            th2 = sim.getPercentageOfCars() + sim.getPercentageOfCars2();
         }
-        th1 = sim.getPercentageOfCars() / totalPercentage;
+        th1 = sim.getPercentageOfCars();
         if (chooser > th2) {
             return new ElectricVehicle(sim, model+'3', sim.getMEAN_SERVICE_TIME3(), sim.getMaxEvPower3(), sim.getBatteryCapacity3(), sim.getDEMAND_TYPE3());
         } else if (chooser > th1) {

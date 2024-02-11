@@ -59,25 +59,39 @@ public class Simulation extends Graph {
     private double MAX_ARRIVAL_RATE;
     private double ARRIVAL_RATE_STEP;
     private int SIM_STEPS;
-    private int NUMBER_OF_CLIENT_TYPES;
+    private int NUMBER_OF_CAR_TYPES;
     private int MAX_EVENTS;
     private int NUMBER_OF_SERVERS;
 
     public static int MAX_SITE_POWER;  // Maximum Charging Site Power (50.000)
     public static int MAX_POINT_POWER; // Maximum Charging Point Power (750)
     public static int MAX_EV_POWER; // Maximum EV Charging Power (750)
+    public static int MAX_EV_POWER2;
+    public static int MAX_EV_POWER3;
 
     public static double MEAN_CHARGING_DEMAND;
+    public static double MEAN_CHARGING_DEMAND2;
+    public static double MEAN_CHARGING_DEMAND3;
 
     private int QUEUE_SIZE;
     private QueueingType QUEUEING_TYPE;
     private double MEAN_SERVICE_TIME;
-    private DistributionType SERVICE_TYPE;
+    private double MEAN_SERVICE_TIME2;
+    private double MEAN_SERVICE_TIME3;
+    public static DistributionType SERVICE_TYPE;
     private double AVERAGE_SERVICE_TIME;
     private DistributionType ARRIVAL_TYPE;
     private DistributionType DEMAND_TYPE;
+    private DistributionType DEMAND_TYPE2;
+    private DistributionType DEMAND_TYPE3;
     private int confLevel;
     public static double batteryCapacity;
+    public static double batteryCapacity2;
+    public static double batteryCapacity3;
+
+    private double percentageOfCars = 1;
+    private double percentageOfCars2;
+    private double percentageOfCars3;
     public Monitor chargingMonitor;
 
 
@@ -122,8 +136,8 @@ public class Simulation extends Graph {
         this.batteryCapacity = batteryCapacity;
     }
 
-    public void setNUMBER_OF_CLIENT_TYPES(int NUMBER_OF_CLIENT_TYPES) {
-        this.NUMBER_OF_CLIENT_TYPES = NUMBER_OF_CLIENT_TYPES;
+    public void setNUMBER_OF_CAR_TYPES(int NUMBER_OF_CAR_TYPES) {
+        this.NUMBER_OF_CAR_TYPES = NUMBER_OF_CAR_TYPES;
     }
 
     public void setMAX_EVENTS(int MAX_EVENTS) {
@@ -154,8 +168,8 @@ public class Simulation extends Graph {
         this.DEMAND_TYPE = DEMAND_TYPE;
     }
 
-    public void setSERVICE_TYPE(DistributionType SERVICE_TYPE) {
-        this.SERVICE_TYPE = SERVICE_TYPE;
+    public static void setSERVICE_TYPE(DistributionType type) {
+        SERVICE_TYPE = type;
     }
 
     public void setConfLevel(int confLevel) {
@@ -179,9 +193,163 @@ public class Simulation extends Graph {
         MAX_EV_POWER = maxEvPower;
     }
 
-    public Simulation() {
-        AVERAGE_SERVICE_TIME = MEAN_SERVICE_TIME;
+
+    public static void setMaxEvPower2(int maxEvPower2) {
+        MAX_EV_POWER2 = maxEvPower2;
     }
+
+    public static void setMaxEvPower3(int maxEvPower3) {
+        MAX_EV_POWER3 = maxEvPower3;
+    }
+
+    public static void setMeanChargingDemand2(double meanChargingDemand2) {
+        MEAN_CHARGING_DEMAND2 = meanChargingDemand2;
+    }
+
+    public static void setMeanChargingDemand3(double meanChargingDemand3) {
+        MEAN_CHARGING_DEMAND3 = meanChargingDemand3;
+    }
+
+    public void setDEMAND_TYPE2(DistributionType DEMAND_TYPE2) {
+        this.DEMAND_TYPE2 = DEMAND_TYPE2;
+    }
+
+    public void setDEMAND_TYPE3(DistributionType DEMAND_TYPE3) {
+        this.DEMAND_TYPE3 = DEMAND_TYPE3;
+    }
+
+    public static void setBatteryCapacity2(double batteryCapacity2) {
+        Simulation.batteryCapacity2 = batteryCapacity2;
+    }
+
+    public static void setBatteryCapacity3(double batteryCapacity3) {
+        Simulation.batteryCapacity3 = batteryCapacity3;
+    }
+
+    public void setPercentageOfCars(double percentageOfCars) {
+        this.percentageOfCars = percentageOfCars;
+    }
+
+    public void setPercentageOfCars2(double percentageOfCars2) {
+        this.percentageOfCars2 = percentageOfCars2;
+    }
+
+    public void setPercentageOfCars3(double percentageOfCars3) {
+        this.percentageOfCars3 = percentageOfCars3;
+    }
+
+    public void setMEAN_SERVICE_TIME(double MEAN_SERVICE_TIME) {
+        this.MEAN_SERVICE_TIME = MEAN_SERVICE_TIME;
+    }
+
+    public void setMEAN_SERVICE_TIME2(double MEAN_SERVICE_TIME2) {
+        this.MEAN_SERVICE_TIME2 = MEAN_SERVICE_TIME2;
+    }
+
+    public void setMEAN_SERVICE_TIME3(double MEAN_SERVICE_TIME3) {
+        this.MEAN_SERVICE_TIME3 = MEAN_SERVICE_TIME3;
+    }
+
+    public int getNUMBER_OF_CAR_TYPES() {
+        return NUMBER_OF_CAR_TYPES;
+    }
+
+    public int getMaxEvPower() {
+        return MAX_EV_POWER;
+    }
+
+    public int getMaxEvPower2() {
+        return MAX_EV_POWER2;
+    }
+
+    public int getMaxEvPower3() {
+        return MAX_EV_POWER3;
+    }
+
+    public double getMeanChargingDemand() {
+        return MEAN_CHARGING_DEMAND;
+    }
+
+    public double getMeanChargingDemand2() {
+        return MEAN_CHARGING_DEMAND2;
+    }
+
+    public double getMeanChargingDemand3() {
+        return MEAN_CHARGING_DEMAND3;
+    }
+
+    public double getMEAN_SERVICE_TIME() {
+        return MEAN_SERVICE_TIME;
+    }
+
+    public double getMEAN_SERVICE_TIME2() {
+        return MEAN_SERVICE_TIME2;
+    }
+
+    public double getMEAN_SERVICE_TIME3() {
+        return MEAN_SERVICE_TIME3;
+    }
+
+    public DistributionType getDEMAND_TYPE() {
+        return DEMAND_TYPE;
+    }
+
+    public DistributionType getDEMAND_TYPE2() {
+        return DEMAND_TYPE2;
+    }
+
+    public DistributionType getDEMAND_TYPE3() {
+        return DEMAND_TYPE3;
+    }
+
+    public double getBatteryCapacity() {
+        return batteryCapacity;
+    }
+
+    public double getBatteryCapacity2() {
+        return batteryCapacity2;
+    }
+
+    public double getBatteryCapacity3() {
+        return batteryCapacity3;
+    }
+
+    public double getPercentageOfCars() {
+        return percentageOfCars;
+    }
+
+    public double getPercentageOfCars2() {
+        return percentageOfCars2;
+    }
+
+    public double getPercentageOfCars3() {
+        return percentageOfCars3;
+    }
+
+    public Simulation() {
+        calcAvgServiceTime();
+    }
+
+    private double calcAvgServiceTime() {
+        double p1, p2, p3;
+        if (getNUMBER_OF_CAR_TYPES() < 2) AVERAGE_SERVICE_TIME = MEAN_SERVICE_TIME;
+        else if (getNUMBER_OF_CAR_TYPES() < 3) {
+            if (getPercentageOfCars2() > 1) p2 = getPercentageOfCars2() / 100;
+            else p2 = getPercentageOfCars2();
+            p1 = 1 - p2;
+            AVERAGE_SERVICE_TIME = p1 * MEAN_SERVICE_TIME + p2 * MEAN_SERVICE_TIME2;
+        } else {
+            if (getPercentageOfCars2() > 1) p2 = getPercentageOfCars2() / 100;
+            else p2 = getPercentageOfCars2();
+            if (getPercentageOfCars3() > 1) p3 = getPercentageOfCars3() / 100;
+            else p3 = getPercentageOfCars3();
+            p1 = 1 - p2 - p3;
+            AVERAGE_SERVICE_TIME = p1 * MEAN_SERVICE_TIME + p2 * MEAN_SERVICE_TIME2 + p3 * MEAN_SERVICE_TIME3;
+        }
+        return AVERAGE_SERVICE_TIME;
+    }
+
+
 
     public double calcMMnNwaitingTime(double rho) {
         double meanWaitingTime;
@@ -251,10 +419,10 @@ public class Simulation extends Graph {
 
     public void runSimulation() {
         EventSimulation.setMaxEvents(MAX_EVENTS);
-        Client[] myFirstClients = new Client[NUMBER_OF_CLIENT_TYPES];
+        Client[] myFirstClients = new Client[NUMBER_OF_CAR_TYPES];
         QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS, QUEUE_SIZE, QUEUEING_TYPE);
         chargingMonitor.setSource(mySystem);
-        if (NUMBER_OF_CLIENT_TYPES > 1) {
+        if (NUMBER_OF_CAR_TYPES > 1) {
             mySystem.setName(Distribution.getTitleAbbreviation(ARRIVAL_TYPE.toString())
                     + "/MIXED/"
                     + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
@@ -284,10 +452,10 @@ public class Simulation extends Graph {
                 myFirstClients[1] = new Client(0.0, PERCENTAGE_OF_CARS_2*MEAN_SERVICE_TIME_2, SERVICE_TYPE_2, mySystem);  // set service time per client
             }
         */
-            for (int i=0; i < myFirstClients.length; i++) {
-                myFirstClients[i] = new Client(0.0, AVERAGE_SERVICE_TIME, SERVICE_TYPE, mySystem);  // set service time per client
+            //for (int i=0; i < myFirstClients.length; i++) {
+                myFirstClients[0] = new Client(0.0, ElectricVehicle.createRandomCar(this), mySystem);  // set service time per client
                 //myFirstClients[i] = new Client(0.0, AVERAGE_SERVICE_TIME, SERVICE_TYPE[i], mySystem);  // set service time per client
-            }
+           // }
 
             EventSimulation.run(myFirstClients);
 
@@ -305,7 +473,7 @@ public class Simulation extends Graph {
 
 
                 //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
-                analyticWaitingTimes.add(arrivalRate, this.calcMMnNwaitingTime(arrivalRate * this.AVERAGE_SERVICE_TIME / this.NUMBER_OF_SERVERS));
+                analyticWaitingTimes.add(arrivalRate, this.calcMMnNwaitingTime(arrivalRate * calcAvgServiceTime() / this.NUMBER_OF_SERVERS));
 
                 meanServiceTimes.addStep(arrivalRate);
                 meanServiceTimes.addMean(mySystem.getTimesInService());

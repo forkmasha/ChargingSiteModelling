@@ -1,6 +1,7 @@
 package queueingSystem;
 
 import chargingSite.ChargingSite;
+import chargingSite.ElectricVehicle;
 import chargingSite.Simulation;
 import distributions.Distribution;
 import distributions.DistributionType;
@@ -198,8 +199,8 @@ public class QueueingSystem {
             nextEvent.setEventType(EventType.ARRIVAL);
             nextClient = new Client(  // schedule the arrival of the next client with the same properties the currently arriving client has
                     nextEvent.getExecTime(),
-                    currentClient.getMeanServiceTime(), // change to: new Car(currentClient.getCar.CarType)
-                    currentClient.getServiceTimeDistribution().getType(),
+                    ElectricVehicle.createRandomCar(currentClient.getCar().getSim()),
+                    //currentClient.getCar(),
                     currentClient.getSystem()
             );
             nextEvent.setClient(nextClient);

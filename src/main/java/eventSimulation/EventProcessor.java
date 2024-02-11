@@ -28,8 +28,10 @@ public class EventProcessor {
             deltaTime = 0;
         }
         if (event.getClient() != null) {
-            for (Server next : event.getClient().getSystem().getServers()) {
-                next.getClient().processClient(deltaTime);
+            //for (Server next : event.getClient().getSystem().getServers()) {
+            for (int i=0; i<event.getClient().getSystem().getServers().size();i++) {
+                Server next = event.getClient().getSystem().getServers().get(i);
+                if (next != null ) next.getClient().processClient(deltaTime);
             }
             /*
             n = 0;

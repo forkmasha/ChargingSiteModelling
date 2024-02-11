@@ -16,9 +16,11 @@ public class ElectricVehicle {
 
     private String id; // Unique identifier for the EV
     private String model;
+    Simulation sim;
     private double reservationTime; // How long it occupies the ChargingPoint (reservation based) h
     private double chargeDemand; // How much energy it wishes to charge (time is determined by charge demand) kWh
     private double meanServiceTime;
+    private DistributionType serviceType = Simulation.SERVICE_TYPE;
     private final Distribution demandDistribution; // How is the ChargingDemand distributed
     private double maxPower; // Power at which it can be charged (declines with increasing SoC) kW
     private PlugType plugType = PlugType.CCStype2; // Plug type required to connect to a ChargingPoint
@@ -35,10 +37,12 @@ public class ElectricVehicle {
 
     private static final Logger logger = Logger.getLogger(ElectricVehicle.class.getName());
 
-    public ElectricVehicle(String model, double maxPower, double batteryCapacity, DistributionType demandDistributionType) {
+    public ElectricVehicle(Simulation sim, String model, double meanServiceTime, double maxPower, double batteryCapacity, DistributionType demandDistributionType) {
+        this.sim = sim;
         this.id = model + "_" + (int) UniformDistribution.createSample(500); // + "_" + System.currentTimeMillis();
         // this.id = model + "_" + UUID.randomUUID();
         this.model = model;
+        this.meanServiceTime = meanServiceTime;
         this.maxPower = maxPower;
         this.chargingPower = 0;
         this.batteryCapacity = batteryCapacity;
@@ -60,14 +64,37 @@ public class ElectricVehicle {
         this.energyCharged = 0;
     }
 
-    public ElectricVehicle createRandomCar(int numberOfCarTypes){
+    public static ElectricVehicle createRandomCar(Simulation sim) {
         double chooser = Math.random();
-        double th1,th2 = 1;
-        ElectricVehicle newCar;
-        newCar = null;
-        return newCar;
+        double th1, th2 = 1;
+        double totalPercentage;
+        String model = "testCar";
 
+        if (sim.getNUMBER_OF_CAR_TYPES() <= 1) {
+            return new ElectricVehicle(sim, model, sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(), sim.getBatteryCapacity(), sim.getDEMAND_TYPE());
+        } else if (sim.getNUMBER_OF_CAR_TYPES() <= 2) {
+            if (sim.getPercentageOfCars2() >= 1) sim.setPercentageOfCars(100 - sim.getPercentageOfCars2());
+            else sim.setPercentageOfCars(1 - sim.getPercentageOfCars2());
+            totalPercentage = sim.getPercentageOfCars() + sim.getPercentageOfCars2();
+        } else {
+            if (sim.getPercentageOfCars2() >= 1)
+                sim.setPercentageOfCars(100 - sim.getPercentageOfCars2() - sim.getPercentageOfCars3());
+            else sim.setPercentageOfCars(1 - sim.getPercentageOfCars2() - sim.getPercentageOfCars3());
+            totalPercentage = sim.getPercentageOfCars() + sim.getPercentageOfCars2() + sim.getPercentageOfCars3();
+        }
+        if (sim.getNUMBER_OF_CAR_TYPES() > 2) {
+            th2 = (sim.getPercentageOfCars() + sim.getPercentageOfCars2()) / totalPercentage;
+        }
+        th1 = sim.getPercentageOfCars() / totalPercentage;
+        if (chooser > th2) {
+            return new ElectricVehicle(sim, model+'3', sim.getMEAN_SERVICE_TIME3(), sim.getMaxEvPower3(), sim.getBatteryCapacity3(), sim.getDEMAND_TYPE3());
+        } else if (chooser > th1) {
+            return new ElectricVehicle(sim, model+'2', sim.getMEAN_SERVICE_TIME2(), sim.getMaxEvPower2(), sim.getBatteryCapacity2(), sim.getDEMAND_TYPE2());
+        } else {
+            return new ElectricVehicle(sim, model+'1', sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(), sim.getBatteryCapacity(), sim.getDEMAND_TYPE());
+        }
     }
+
     public void setMeanServiceTime(double meanServiceTime) {
         this.meanServiceTime = meanServiceTime;
     }
@@ -82,6 +109,14 @@ public class ElectricVehicle {
 
     public void setMyServer(Server myServer) {
         this.myServer = myServer;
+    }
+
+    public Simulation getSim() {
+        return this.sim;
+    }
+
+    public double getMeanServiceTime() {
+        return this.meanServiceTime;
     }
 
     public QueueingSystem getSiteModel() {
@@ -176,20 +211,17 @@ public class ElectricVehicle {
         }
         if (this.stateOfCharge >= 1) {
             this.chargingPower = 0;
-        }
-        else if (this.stateOfCharge > 0.8) {  // adjust charging power to current state of charge
+        } else if (this.stateOfCharge > 0.8) {  // adjust charging power to current state of charge
             this.chargingPower = this.batteryCapacity * (1 - stateOfCharge) / 0.2;
             if (this.chargingPower < 0) {
                 throw new NegativeChargingPowerException("Negative charging power for SoC > 0.8!");
             }
-        }
-        else if (this.stateOfCharge > 0.2) {  // adjust charging power to current state of charge
+        } else if (this.stateOfCharge > 0.2) {  // adjust charging power to current state of charge
             this.chargingPower = this.batteryCapacity * (1 + (0.8 - stateOfCharge) / 0.3);
             if (this.chargingPower < 0) {
                 throw new NegativeChargingPowerException("Negative charging power for SoC in 0.2 .. 0.8!");
             }
-        }
-        else { // adjust charging power to current state of charge
+        } else { // adjust charging power to current state of charge
             this.chargingPower = this.batteryCapacity * (0.5 + 2.5 * stateOfCharge / 0.2);
             if (this.chargingPower < 0) {
                 throw new NegativeChargingPowerException("Negative charging power for SoC < 0.2!");

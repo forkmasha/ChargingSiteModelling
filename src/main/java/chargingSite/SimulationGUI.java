@@ -43,7 +43,7 @@ public class SimulationGUI {
 
         JSpinner numberOfClientTypes = createSpinner(1, 1, 3, 1);
 
-        JSpinner maxEvents = createSpinner(25000, 1, Integer.MAX_VALUE, 1);
+        JSpinner maxEvents = createSpinner(2500, 1, Integer.MAX_VALUE, 1);
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
@@ -74,7 +74,7 @@ public class SimulationGUI {
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
 
 
-        String[] distributionTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC", "LOMAX"};
+        String[] distributionTypes = {"DETERMINISTIC","GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA",  "LOMAX"};
         JComboBox<String> arrivalType = new JComboBox<>(distributionTypes);
         JComboBox<String> serviceType = new JComboBox<>(distributionTypes);
         JComboBox<String> demandType = new JComboBox<>(distributionTypes);
@@ -126,7 +126,7 @@ public class SimulationGUI {
             ;
             //simulation.setSIM_STEPS((int) Math.ceil((simulation.getMAX_ARRIVAL_RATE() - simulation.getMIN_ARRIVAL_RATE()) / simulation.getARRIVAL_RATE_STEP()));
             simulation.setSIM_STEPS(getSpinnerValueAsInt(numberOfSteps));
-            simulation.setNUMBER_OF_CLIENT_TYPES(getSpinnerValueAsInt(numberOfClientTypes));
+            simulation.setNUMBER_OF_CAR_TYPES(getSpinnerValueAsInt(numberOfClientTypes));
             simulation.setMAX_EVENTS(getSpinnerValueAsInt(maxEvents));
             simulation.setNUMBER_OF_SERVERS(getSpinnerValueAsInt(numberOfServers));
             simulation.setQUEUE_SIZE(getSpinnerValueAsInt(queueSize));
@@ -138,6 +138,24 @@ public class SimulationGUI {
 
             simulation.setBatteryCapacity(getSpinnerValueAsDouble(batteryCapacity));
 
+            double maxEVPowerValue2 = getSpinnerValueAsDouble(maxEVPower);
+            double meanChargingDemandValue2 = getSpinnerValueAsDouble(meanChargingDemand2);
+
+            double maxEVPowerValue3 = getSpinnerValueAsDouble(maxEVPower);
+            double meanChargingDemandValue3 = getSpinnerValueAsDouble(meanChargingDemand3);
+
+            simulation.setPercentageOfCars2(getSpinnerValueAsInt(percentageOfCars2));
+            simulation.setMaxEvPower2((int) maxEVPowerValue2);
+            simulation.setMeanChargingDemand2(meanChargingDemandValue2);
+            simulation.setBatteryCapacity2(getSpinnerValueAsDouble(batteryCapacity2));
+
+
+
+            simulation.setPercentageOfCars3(getSpinnerValueAsInt(percentageOfCars3));
+            simulation.setMaxEvPower3((int) maxEVPowerValue3);
+            simulation.setMeanChargingDemand3(meanChargingDemandValue3);
+            simulation.setBatteryCapacity3(getSpinnerValueAsDouble(batteryCapacity3));
+
 
             String queueingTypeString = (String) queueingType.getSelectedItem();
             switch (queueingTypeString) {
@@ -146,7 +164,9 @@ public class SimulationGUI {
                 case "RANDOM" -> simulation.setQUEUEING_TYPE(Queue.QueueingType.RAND);
             }
 
-            simulation.setAVERAGE_SERVICE_TIME(getSpinnerValueAsDouble(meanServiceTime));
+            simulation.setMEAN_SERVICE_TIME(getSpinnerValueAsDouble(meanServiceTime));
+            simulation.setMEAN_SERVICE_TIME2(getSpinnerValueAsDouble(meanServiceTime2));
+            simulation.setMEAN_SERVICE_TIME3(getSpinnerValueAsDouble(meanServiceTime3));
 
             String arrivalTypeString = (String) arrivalType.getSelectedItem();
 
@@ -163,37 +183,49 @@ public class SimulationGUI {
 
             String serviceTypeString = (String) serviceType.getSelectedItem();
             switch (serviceTypeString) {
-                case "GEOMETRIC" -> simulation.setSERVICE_TYPE(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> simulation.setSERVICE_TYPE(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> simulation.setSERVICE_TYPE(DistributionType.ERLANG);
-                case "ERLANGD" -> simulation.setSERVICE_TYPE(DistributionType.ERLANGD);
-                case "UNIFORM" -> simulation.setSERVICE_TYPE(DistributionType.UNIFORM);
-                case "BETA" -> simulation.setSERVICE_TYPE(DistributionType.BETA);
-                case "DETERMINISTIC" -> simulation.setSERVICE_TYPE(DistributionType.DETERMINISTIC);
-                case "LOMAX" -> simulation.setSERVICE_TYPE(DistributionType.LOMAX);
+                case "GEOMETRIC" -> Simulation.setSERVICE_TYPE(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> Simulation.setSERVICE_TYPE(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> Simulation.setSERVICE_TYPE(DistributionType.ERLANG);
+                case "ERLANGD" -> Simulation.setSERVICE_TYPE(DistributionType.ERLANGD);
+                case "UNIFORM" -> Simulation.setSERVICE_TYPE(DistributionType.UNIFORM);
+                case "BETA" -> Simulation.setSERVICE_TYPE(DistributionType.BETA);
+                case "DETERMINISTIC" -> Simulation.setSERVICE_TYPE(DistributionType.DETERMINISTIC);
+                case "LOMAX" -> Simulation.setSERVICE_TYPE(DistributionType.LOMAX);
             }
 
             String demandTypeString = (String) demandType.getSelectedItem();
             switch (demandTypeString) {
+                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
                 case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
                 case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
                 case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
                 case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
                 case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
                 case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
-                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
                 case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
             }
 
             String demandTypeString2 = (String) demandType2.getSelectedItem();
             switch (demandTypeString2) {
+                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
                 case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
                 case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
                 case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
                 case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
                 case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
                 case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
+                case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
+            }
+
+            String demandTypeString3 = (String) demandType3.getSelectedItem();
+            switch (demandTypeString3) {
                 case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
+                case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
+                case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
                 case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
             }
 
@@ -224,6 +256,20 @@ public class SimulationGUI {
         setSpinnerModel(batteryCapacity);
 
         setSpinnerModel(percentageOfCars);
+
+        setSpinnerModel(percentageOfCars2);
+        setSpinnerModel(meanServiceTime2);
+        setSpinnerModel(maxEVPower2);
+        setSpinnerModel(meanChargingDemand2);
+        setSpinnerModel(batteryCapacity2);
+
+
+        setSpinnerModel(percentageOfCars3);
+        setSpinnerModel(meanServiceTime3);
+        setSpinnerModel(maxEVPower3);
+        setSpinnerModel(meanChargingDemand3);
+        setSpinnerModel(batteryCapacity3);
+
 
 
         Box verticalBox = Box.createVerticalBox();
@@ -449,7 +495,7 @@ public class SimulationGUI {
     }
 
     private static JComboBox<String> createDemandTypeComboBox() {
-        String[] demandTypes = {"GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "DETERMINISTIC", "LOMAX"};
+        String[] demandTypes = {"DETERMINISTIC","GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "LOMAX"};
         return new JComboBox<>(demandTypes);
     }
 

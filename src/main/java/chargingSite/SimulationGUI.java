@@ -73,14 +73,15 @@ public class SimulationGUI {
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
 
+        String[] arrivalDistributionTypes = {"DETERMINISTIC","EXPONENTIAL","ERLANG","UNIFORM","LOMAX"};
+        String[] serviceDistributionTypes = {"DETERMINISTIC","EXPONENTIAL","ERLANG","ERLANGD", "UNIFORM","LOMAX"};
+        String[] demandDistributionTypes = {"DETERMINISTIC", "UNIFORM", "BETA"};
+        JComboBox<String> arrivalType = new JComboBox<>(arrivalDistributionTypes);
+        JComboBox<String> serviceType = new JComboBox<>(serviceDistributionTypes);
+        JComboBox<String> demandType = new JComboBox<>(demandDistributionTypes);
 
-        String[] distributionTypes = {"DETERMINISTIC","GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA",  "LOMAX"};
-        JComboBox<String> arrivalType = new JComboBox<>(distributionTypes);
-        JComboBox<String> serviceType = new JComboBox<>(distributionTypes);
-        JComboBox<String> demandType = new JComboBox<>(distributionTypes);
-
-        JComboBox<String> demandType2 = new JComboBox<>(distributionTypes);
-        JComboBox<String> demandType3 = new JComboBox<>(distributionTypes);
+        JComboBox<String> demandType2 = new JComboBox<>(demandDistributionTypes);
+        JComboBox<String> demandType3 = new JComboBox<>(demandDistributionTypes);
 
         arrivalType.setSelectedItem("EXPONENTIAL");
         serviceType.setSelectedItem("ERLANG");
@@ -356,16 +357,11 @@ public class SimulationGUI {
         addRowToPanel(procPanel, gbc, "Mean Charging Demand", meanChargingDemand);
         addRowToPanel(procPanel, gbc, "Battery Capacity", batteryCapacity);
 
-
-        procPanel.setBackground(LIGHT_BLUE);
-
-
         procPanel.setBackground(LIGHT_BLUE);
         verticalBox.add(jScrollPane);
 
         JPanel toPanel2 = createSpinnerPanel("Max Site Power", "Max Point Power", "Max EV Power", maxSitePower, maxPointPower, maxEVPower);
         verticalBox.add(toPanel2);
-
 
         JPanel bottomPanel = new JPanel();
 
@@ -381,7 +377,6 @@ public class SimulationGUI {
         frame.setResizable(false);
         return frame;
     }
-
 
     private static boolean isSecondCarPanelAdded(JPanel panel) {
         Component[] components = panel.getComponents();
@@ -417,13 +412,11 @@ public class SimulationGUI {
         // TitledBorder titledBorder = BorderFactory.createTitledBorder("Parameters for third car type");
         // thirdCarPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), titledBorder));
 
-
         addRowToPanel(thirdCarPanel, gbc, "Percentage of Cars 3", percentageOfCars3);
         addRowToPanel(thirdCarPanel, gbc, "Mean Service Time 3", meanServiceTime3);
         addRowToPanel(thirdCarPanel, gbc, "Max EV Power 3", maxEVPower3);
        // addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", createDemandTypeComboBox());
         addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", demandType3);
-
         addRowToPanel(thirdCarPanel, gbc, "Mean Charging Demand 3", meanChargingDemand3);
         addRowToPanel(thirdCarPanel, gbc, "Battery Capacity 3", batteryCapacity3);
 

@@ -1,30 +1,32 @@
 package chargingSite;
 
-
-import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jzy3d.chart.Chart;
 import results.Histogram;
+
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Random;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.*;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -34,13 +36,18 @@ public class ChargingSite {
     private ArrayList<Double> chargingPowers = new ArrayList<>();
     private double maxSitePower;
     private XYSeries sitePowerSeries = new XYSeries("Site Power");
+
     private JFreeChart sitePowerChart;
     private ChartPanel chartPanel;
     private JFrame chartFrame;
     private boolean isChartInitialized = false;
     private ArrayList<Color> seriesColors = new ArrayList<>();
     private int seriesCount = 0;
+    private ArrayList sitePower1 = new ArrayList<>();
 
+    public ArrayList getSitePower1() {
+        return sitePower1;
+    }
 
 
     public ChargingSite(int numberOfChargingPoints, double maxSitePower) {
@@ -92,8 +99,15 @@ public class ChargingSite {
                 throw new SitePowerExceededException("Site power " + sitePower + " is greater than the set maximum " + maxSitePower + " !");
             }
         }
-      sitePowerSeries.add(EventSimulation.getCurrentTime(),sitePower);
+        //sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
+
+        //  sitePower1.add(sitePower);
+        addSitePower(sitePower);
         return sitePower;
+    }
+
+    private void addSitePower(double power) {
+        sitePower1.add(power);
     }
 
     public double scaleChargingPower(double scale) {
@@ -115,9 +129,9 @@ public class ChargingSite {
         sitePowerSeries.clear();
         return;
     }
+
     private CombinedDomainXYPlot mainPlot;
     private int histogramCount = 0;
-
 
 
     public XYSeries getSitePowerSeries() {
@@ -212,6 +226,7 @@ public class ChargingSite {
         }
     }
 
+
     private int[] getSeriesOrder(HistogramDataset dataset) {
         int[] seriesOrder = new int[dataset.getSeriesCount()];
         double[] sums = new double[dataset.getSeriesCount()];
@@ -236,6 +251,7 @@ public class ChargingSite {
 
         return seriesOrder;
     }
+
     private Color generateTransparentColor() {
         Random rand = new Random();
         int r = rand.nextInt(256);
@@ -244,7 +260,6 @@ public class ChargingSite {
         int alpha = 100;
         return new Color(r, g, b, alpha);
     }
-
 
 
     private void initializeSitePowerGraph() {
@@ -294,6 +309,7 @@ public class ChargingSite {
         sitePowerSeries.clear();
 
     }
+
     private Color generateUniqueColor(int seriesIndex) {
         Random rand = new Random(seriesIndex);
         float r = rand.nextFloat();
@@ -301,5 +317,266 @@ public class ChargingSite {
         float b = rand.nextFloat();
         return new Color(r, g, b);
     }
+   /* public static void plotHistogram(ArrayList<Double> data, int numBins) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        double min = Collections.min(data);
+        double max = Collections.max(data);
+        double binWidth = (max - min) / numBins;
+
+        // Заповнення гістограми
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = (int) ((value - min) / binWidth);
+            if (binIndex == numBins) {
+                binIndex--;
+            }
+            bins[binIndex]++;
+        }
+
+        for (int i = 0; i < numBins; i++) {
+            dataset.addValue(bins[i], "Frequency", String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
+        }
+
+        // Створення графіку
+        JFreeChart chart = ChartFactory.createBarChart("Histogram", "Site Power", "Frequency", dataset,PlotOrientation.VERTICAL,false,false,false);
+
+        // Відображення графіку у вікні
+        JFrame frame = new JFrame("Histogram");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(new ChartPanel(chart));
+        frame.pack();
+        frame.setVisible(true);
+    }*/
+
+      /*public static void plotHistogram(ArrayList<Double> data, int numBins) {
+        // Створення гістограми
+        HashMap<Integer, Integer> histogram = new HashMap<>();
+        double min = Collections.min(data);
+        double max = Collections.max(data);
+        double binWidth = (max - min) / numBins;
+
+        // Заповнення гістограми
+        for (double value : data) {
+            int binIndex = (int) ((value - min) / binWidth);
+            histogram.put(binIndex, histogram.getOrDefault(binIndex, 0) + 1);
+        }
+
+        // Вивід гістограми
+        for (int binIndex = 0; binIndex < numBins; binIndex++) {
+            int count = histogram.getOrDefault(binIndex, 0);
+            double binStart = min + binIndex * binWidth;
+            double binEnd = binStart + binWidth;
+            System.out.printf("[%f - %f]: %d\n", binStart, binEnd, count);
+        }
+    }*/
+
+     /*public static void plotHistogram(ArrayList<Double> data, int numBins) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        double min = Collections.min(data);
+        double max = Collections.max(data);
+        double binWidth = (max - min) / numBins;
+
+        // Заповнення гістограми
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = (int) ((value - min) / binWidth);
+            if (binIndex == numBins) {
+                binIndex--;
+            }
+            bins[binIndex]++;
+        }
+
+        for (int i = 0; i < numBins; i++) {
+            dataset.addValue(bins[i], "Frequency", String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
+        }
+
+        // Створення графіку
+        JFreeChart chart = ChartFactory.createBarChart3D("Histogram", "Site Power", "Frequency", dataset, PlotOrientation.VERTICAL, false, false, false);
+
+        // Відображення графіку у вікні
+        ChartPanel chartPanel = new ChartPanel(chart);
+        JFrame frame = new JFrame("Histogram");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(chartPanel);
+        frame.pack();
+        frame.setVisible(true);
+    }*/
+
+  /*  private static DefaultCategoryDataset dataset;
+    private static JFreeChart chart;
+    private static JFrame frame;
+
+    public static void plotHistogram(ArrayList<Double> data, int numBins) {
+        if (dataset == null) {
+            dataset = new DefaultCategoryDataset();
+            chart = ChartFactory.createBarChart3D("Histogram", "Site Power", "Frequency", dataset, PlotOrientation.VERTICAL, false, false, false);
+            frame = new JFrame("Histogram");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            ChartPanel chartPanel = new ChartPanel(chart);
+            frame.getContentPane().add(chartPanel);
+            frame.pack();
+            frame.setVisible(true);
+        }
+
+        double min = Collections.min(data);
+        double max = Collections.max(data);
+        double binWidth = (max - min) / numBins;
+
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = (int) ((value - min) / binWidth);
+            if (binIndex == numBins) {
+                binIndex--;
+            }
+            bins[binIndex]++;
+        }
+
+        Color color = getRandomColor();
+
+        for (int i = 0; i < numBins; i++) {
+            dataset.addValue(bins[i], "Frequency", String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
+            chart.getCategoryPlot().getRenderer().setSeriesPaint(i, color);
+        }
+    }
+
+    private static Color getRandomColor() {
+        return new Color((int) (Math.random() * 0x1000000));
+    }*/
+
+
+ /*   private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    private static int seriesCounter = 0;
+
+    public static void plotHistogram(ArrayList<Double> data, int numBins) {
+        double min = Collections.min(data);
+        double max = Collections.max(data);
+        double binWidth = (max - min) / numBins;
+
+        // Заповнення гістограми
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = (int) ((value - min) / binWidth);
+            if (binIndex == numBins) {
+                binIndex--;
+            }
+            bins[binIndex]++;
+        }
+
+        for (int i = 0; i < numBins; i++) {
+            dataset.addValue((double) bins[i]/data.size(), "Probability" + seriesCounter, String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
+        }
+
+        // Створення графіку
+        JFreeChart chart = ChartFactory.createBarChart3D("Histogram", "Site Power", "Frequency", dataset, PlotOrientation.VERTICAL, true, true, false);
+
+        // Зміна кольору гістограми
+        CategoryPlot plot = chart.getCategoryPlot();
+        CategoryItemRenderer renderer = plot.getRenderer();
+        renderer.setSeriesPaint(seriesCounter, getRandomColor());
+
+        seriesCounter++;
+
+        // Оновлення графіку у вікні з можливістю масштабування, переміщення та повороту
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(800, 600));
+        chartPanel.setMouseWheelEnabled(true);
+        chartPanel.setDomainZoomable(true);
+        chartPanel.setRangeZoomable(true);
+        chartPanel.setPopupMenu(null);
+
+        JFrame frame = new JFrame("Histogram");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(chartPanel);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private static Color getRandomColor() {
+        Random random = new Random();
+        int r = random.nextInt(256);
+        int g = random.nextInt(256);
+        int b = random.nextInt(256);
+        return new Color(r, g, b);
+    }*/
+
+
+    private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    private static int seriesCounter = 0;
+    private static JFrame frame;
+
+    public static void plotHistogram(ArrayList<Double> data, int numBins) {
+        double min = 0; //Collections.min(data);
+        double max = Simulation.MAX_SITE_POWER; //Collections.max(data);
+        double binWidth = (max - min) / numBins;
+
+        // Заповнення гістограми
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = (int) ((value - min) / binWidth);
+            if (binIndex == numBins) {
+                binIndex--;
+            }
+            bins[binIndex]++;
+        }
+
+        for (int i = 0; i < numBins; i++) {
+            dataset.addValue((double) bins[i] / data.size(),
+                    "" + Simulation.getARRIVAL_RATE_STEP() * (1+seriesCounter) + " EV/h",
+                    String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
+        }
+
+        JFreeChart chart = ChartFactory.createBarChart3D("Site Power Distribution Histogram", "Site Power Intervals", "Probability", dataset, PlotOrientation.VERTICAL, true, true, false);
+
+        // Зміна кольору гістограми
+        CategoryPlot plot = chart.getCategoryPlot();
+        CategoryItemRenderer renderer = plot.getRenderer();
+        renderer.setSeriesPaint(seriesCounter, getRandomColor());
+
+        seriesCounter++;
+
+        // Оновлення графіку у вікні з можливістю масштабування, переміщення та повороту
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(800, 600)); // бажаний розмір панелі графіка
+        chartPanel.setMouseWheelEnabled(true); // масштабувати за допомогою колеса миші
+        chartPanel.setDomainZoomable(true); // Масштабує область по осі X
+        chartPanel.setRangeZoomable(true); // Масштабує область по осі Y
+        chartPanel.setPopupMenu(null); // Вимикає контекстне меню графіку (яке включає поворот)
+
+
+        CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
+
+        if (frame == null) {
+            frame = new JFrame("Site Power Distribution Histogram");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.getContentPane().add(chartPanel);
+            frame.pack();
+            frame.setVisible(true);
+        } else {
+            frame.getContentPane().removeAll();
+            frame.getContentPane().add(chartPanel);
+            frame.revalidate();
+            frame.repaint();
+        }
+    }
+
+    private static Color getRandomColor() {
+        Random random = new Random();
+        int r = random.nextInt(256);
+        int g = random.nextInt(256);
+        int b = random.nextInt(256);
+        return new Color(r, g, b);
+    }
+
+    static void resetData() {
+        dataset.clear();
+        seriesCounter = 0;
+    }
 }
+
+
+
+
 

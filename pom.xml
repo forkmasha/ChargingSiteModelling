@@ -7,7 +7,20 @@
     <name>Archetype - ChargingSiteModelling</name>
     <url>http://maven.apache.org</url>
 
+
+    <!-- Define the repository where Jzy3d dependencies can be found -->
     <repositories>
+        <repository>
+            <id>jzy3d-releases</id>
+            <name>Jzy3d Releases</name>
+            <url>https://maven.jzy3d.org/releases/</url>
+        </repository>
+
+        <repository>
+            <id>jzy3d-snapshots</id>
+            <name>Jzy3d Snapshots</name>
+            <url>https://maven.jzy3d.org/snapshots/</url>
+        </repository>
         <repository>
             <id>jzy3d-snapshots</id>
             <name>Jzy3d Snapshots</name>
@@ -27,6 +40,12 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jzy3d</groupId>
+            <artifactId>jzy3d-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>jfree</groupId>
             <artifactId>jfreechart</artifactId>
@@ -94,6 +113,12 @@
             <version>0.9.1</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/jfree/jfreechart -->
+        <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.13</version>
+        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->

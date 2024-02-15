@@ -5,7 +5,7 @@ import java.util.Random;
 public class DiscreteErlangDistribution extends Distribution {
 
     public int level = 2;
-    public double slice=0.25;// 15 minutes by default
+    public double slice = 0.25;// 15 minutes by default
 
     public DiscreteErlangDistribution(DistributionType type) {
         super(type);
@@ -14,17 +14,19 @@ public class DiscreteErlangDistribution extends Distribution {
     public void setErlangLevel(int newLevel) {
         level = newLevel;
     }
+
     public void setSliceLength(double newLength) {
         slice = newLength;
     }
+
     public double getSample(double mean) {
         //Random random = new Random();
         double sample = 0;
         for (int i = 0; i < level; i++) {
             //sample += exponentialDistribution(mean / slice - 1);
-            sample += ExponentialDistribution.createSample(mean/slice);
+            sample += ExponentialDistribution.createSample(mean / slice);
         }
-        sample = slice * (0.5 + Math.floor(sample/level));
+        sample = slice * (0.5 + Math.floor(sample / level));
         if (sample <= 0) System.out.println("Warning: generated ERLANGD sample is zero...");
         return sample;
     }
@@ -65,15 +67,15 @@ public class DiscreteErlangDistribution extends Distribution {
         //"discretize" the pdf
         double densitiesSum = 0;
         for (int i = 0; i < numBins; i++) {
-            int j = (int) (Math.floor(pdf[0][i]/slice));
+            int j = (int) (Math.floor(pdf[0][i] / slice));
             int oldi = i;
             double density = 0;
-            while( j - Math.floor(pdf[0][i]/slice) == 0) {
+            while (j - Math.floor(pdf[0][i] / slice) == 0) {
                 density += pdf[1][i];
                 i++;
-                if (i>=numBins) break;
+                if (i >= numBins) break;
             }
-            density /= (i-oldi);
+            density /= (i - oldi);
             densitiesSum += density;
             for (int l = oldi; l < i; l++) {
                 pdf[1][l] = density;

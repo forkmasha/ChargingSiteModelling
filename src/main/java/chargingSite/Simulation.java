@@ -33,10 +33,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import static chargingSite.ChargingSite.plotHistogram;
-import static chargingSite.ChargingSite.resetData;
+import static chargingSite.ChargingSite.*;
 import static org.jfree.chart.ChartFactory.createXYLineChart;
 import static results.Histogram.generateHistogram;
 
@@ -109,7 +109,7 @@ public class Simulation extends Graph {
         return SERVICE_TYPE;
     }
 
-    public int getSIM_STEPS() {
+    public static int getSIM_STEPS() {
         return SIM_STEPS;
     }
 
@@ -339,6 +339,18 @@ public class Simulation extends Graph {
         return percentageOfCars3;
     }
 
+    public static int getSimSteps() {
+        return SIM_STEPS;
+    }
+
+    public static double getMaxArrivalRate() {
+        return MAX_ARRIVAL_RATE;
+    }
+
+    public static int getMaxEvents() {
+        return MAX_EVENTS;
+    }
+
     public Simulation() {
         calcAvgServiceTime();
     }
@@ -484,6 +496,18 @@ public class Simulation extends Graph {
 
             // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
             plotHistogram(mySystem.getChargingSite().getSitePower1(), 20);
+
+
+            mySystem.getChargingSite().displayChart(dataList);
+
+
+           // mySystem.getChargingSite().visualizeSitePower();
+          //  mySystem.getChargingSite().displayChart();
+
+         //   ChartGenerator.initializeChart();
+          //  ChartGenerator.displayChart(dataList, ChartGenerator.frame);
+
+
 
 
             //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));

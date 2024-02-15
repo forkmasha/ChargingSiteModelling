@@ -13,6 +13,9 @@ import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class SimulationGUI {
     private static final Color LIGHT_PINK = new Color(255, 182, 193);
@@ -73,8 +76,8 @@ public class SimulationGUI {
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};
         JComboBox<String> queueingType = new JComboBox<>(queueingTypes);
 
-        String[] arrivalDistributionTypes = {"DETERMINISTIC","EXPONENTIAL","ERLANG","UNIFORM","LOMAX"};
-        String[] serviceDistributionTypes = {"DETERMINISTIC","EXPONENTIAL","ERLANG","ERLANGD", "UNIFORM","LOMAX"};
+        String[] arrivalDistributionTypes = {"DETERMINISTIC", "EXPONENTIAL", "ERLANG", "UNIFORM", "LOMAX"};
+        String[] serviceDistributionTypes = {"DETERMINISTIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "LOMAX"};
         String[] demandDistributionTypes = {"DETERMINISTIC", "UNIFORM", "BETA"};
         JComboBox<String> arrivalType = new JComboBox<>(arrivalDistributionTypes);
         JComboBox<String> serviceType = new JComboBox<>(serviceDistributionTypes);
@@ -151,7 +154,6 @@ public class SimulationGUI {
             simulation.setMaxEvPower2((int) maxEVPowerValue2);
             simulation.setMeanChargingDemand2(meanChargingDemandValue2);
             simulation.setBatteryCapacity2(getSpinnerValueAsDouble(batteryCapacity2));
-
 
 
             simulation.setPercentageOfCars3(getSpinnerValueAsInt(percentageOfCars3));
@@ -235,11 +237,86 @@ public class SimulationGUI {
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
             simulation.setConfLevel(selectedConfidenceLevel);
 
-            simulation.runSimulation();
 
             // frame.dispose(); //fix the bug=)
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Виберіть місце для збереження файлу параметрів симуляції");
+            // Налаштуйте, щоб вибрати файли та директорії
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            // Запропонуйте назву файлу за замовчуванням
+            fileChooser.setSelectedFile(new java.io.File("simulation_parameters.txt"));
+
+            int userSelection = fileChooser.showSaveDialog(frame);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                java.io.File fileToSave = fileChooser.getSelectedFile();
+                // Перевірка, чи користувач вказав розширення файлу, якщо ні - додайте .txt
+                if (!fileToSave.getPath().toLowerCase().endsWith(".txt")) {
+                    fileToSave = new java.io.File(fileToSave.getPath() + ".txt");
+                }
+
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+
+                    writer.write("General parameters"+ "\n");
+                    writer.write("Number of steps - " + getSpinnerValueAsDouble(numberOfSteps) + "\n");
+                    writer.write("Max Events per step - " + getSpinnerValueAsDouble(maxEvents) + "\n");
+                    writer.write("Confidence interval level - " + (String) confLevel.getSelectedItem() + "\n");
+                    writer.write("Arrival Distribution Type - " + arrivalTypeString + "\n");
+                    writer.write("Max Mean Arrival Rate - " + getSpinnerValueAsDouble(maxArrivalRate) + "\n");
+                    writer.write("Number of servers  - " + getSpinnerValueAsDouble(numberOfServers) + "\n");
+                    writer.write("Queue size - " + getSpinnerValueAsDouble(queueSize) + "\n");
+                    writer.write("Queueing Type - " + queueingTypeString + "\n");
+                    writer.write("Service Distribution Type - " + serviceTypeString + "\n");
+                    writer.write("Number of client types - " + getSpinnerValueAsDouble(numberOfClientTypes) + "\n");
+                    writer.write("Demand distribution type - " + demandTypeString + "\n");
+                    writer.write("Mean charging demand - " + getSpinnerValueAsDouble(meanChargingDemand) + "\n");
+                    writer.write("Battery capacity - " + getSpinnerValueAsDouble(batteryCapacity) + "\n");
+                    writer.write("Max site power - " + getSpinnerValueAsDouble(maxSitePower) + "\n");
+                    writer.write("Max point power - " + getSpinnerValueAsDouble(maxPointPower) + "\n");
+                    writer.write("Max EV power - " + getSpinnerValueAsDouble(maxEVPower) + "\n");
+
+                    int selectedClientTypes = getSpinnerValueAsInt(numberOfClientTypes);
+                    if (selectedClientTypes == 2) {
+
+                        writer.newLine();
+                        writer.write("Parameters for second car" + "\n");
+
+                        writer.write("Percentage of cars 2 - " + getSpinnerValueAsDouble(percentageOfCars2) + "\n");
+                        writer.write("Mean service time 2 - " + getSpinnerValueAsDouble(meanServiceTime2) + "\n");
+                        writer.write("Max EV power 2 - " + getSpinnerValueAsDouble(maxEVPower2) + "\n");
+                        writer.write("Demand distribution type 2 - " + demandTypeString2 + "\n");
+                        writer.write("Mean charging demand 2 - " + getSpinnerValueAsDouble(meanChargingDemand2) + "\n");
+                        writer.write("Battery capacity 2 - " + getSpinnerValueAsDouble(batteryCapacity2) + "\n");
+                    } else if (selectedClientTypes == 3) {
+                        writer.newLine();
+                        writer.write("Parameters for second car" + "\n");
+
+                        writer.write("Percentage of cars 2 - " + getSpinnerValueAsDouble(percentageOfCars2) + "\n");
+                        writer.write("Mean service time 2 - " + getSpinnerValueAsDouble(meanServiceTime2) + "\n");
+                        writer.write("Max EV power 2 - " + getSpinnerValueAsDouble(maxEVPower2) + "\n");
+                        writer.write("Demand distribution type 2 - " + demandTypeString2 + "\n");
+                        writer.write("Mean charging demand 2 - " + getSpinnerValueAsDouble(meanChargingDemand2) + "\n");
+                        writer.write("Battery capacity 2 - " + getSpinnerValueAsDouble(batteryCapacity2) + "\n");
+
+                        writer.newLine();
+                        writer.write("Parameters for third car" + "\n");
+
+                        writer.write("Percentage of cars 3 - " + getSpinnerValueAsDouble(percentageOfCars3) + "\n");
+                        writer.write("Mean service time 3 - " + getSpinnerValueAsDouble(meanServiceTime3) + "\n");
+                        writer.write("Max EV power 3 - " + getSpinnerValueAsDouble(maxEVPower3) + "\n");
+                        writer.write("Demand distribution type 3 - " + demandTypeString3 + "\n");
+                        writer.write("Mean charging demand 3 - " + getSpinnerValueAsDouble(meanChargingDemand3) + "\n");
+                        writer.write("Battery capacity 3 - " + getSpinnerValueAsDouble(batteryCapacity3) + "\n");
+                    }
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            simulation.runSimulation();
 
         });
+
 
         runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
@@ -266,14 +343,11 @@ public class SimulationGUI {
         setSpinnerModel(meanChargingDemand2);
         setSpinnerModel(batteryCapacity2);
 
-
         setSpinnerModel(percentageOfCars3);
         setSpinnerModel(meanServiceTime3);
         setSpinnerModel(maxEVPower3);
         setSpinnerModel(meanChargingDemand3);
         setSpinnerModel(batteryCapacity3);
-
-
 
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -306,7 +380,7 @@ public class SimulationGUI {
                     }
 
 
-                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2,meanChargingDemand2,demandType2, batteryCapacity2);
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2, meanChargingDemand2, demandType2, batteryCapacity2);
 
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
@@ -319,7 +393,7 @@ public class SimulationGUI {
 
                 } else if (selectedClientTypes == 3) {
 
-                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2,maxEVPower2, meanChargingDemand2, demandType2,batteryCapacity2);
+                    JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2, meanChargingDemand2, demandType2, batteryCapacity2);
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
                     secondCarGbc.insets = new Insets(5, 5, 5, 5);
@@ -327,7 +401,7 @@ public class SimulationGUI {
                     secondCarGbc.gridy = 28;
                     procPanel.add(secondCarPanel, secondCarGbc);
 
-                    JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3,maxEVPower3, meanChargingDemand3, demandType3,batteryCapacity3);
+                    JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3, maxEVPower3, meanChargingDemand3, demandType3, batteryCapacity3);
                     GridBagConstraints thirdCarGbc = new GridBagConstraints();
                     thirdCarGbc.anchor = GridBagConstraints.WEST;
                     thirdCarGbc.insets = new Insets(5, 5, 5, 5);
@@ -400,7 +474,7 @@ public class SimulationGUI {
         }
     }
 
-    private static JPanel createThirdCarPanel(JSpinner percentageOfCars3, JSpinner meanServiceTime3, JSpinner maxEVPower3,JSpinner meanChargingDemand3,  JComboBox<String> demandType3, JSpinner batteryCapacity3) {
+    private static JPanel createThirdCarPanel(JSpinner percentageOfCars3, JSpinner meanServiceTime3, JSpinner maxEVPower3, JSpinner meanChargingDemand3, JComboBox<String> demandType3, JSpinner batteryCapacity3) {
         JPanel thirdCarPanel = new JPanel();
         thirdCarPanel.setLayout(new GridBagLayout());
         thirdCarPanel.setBackground(LIGHT_PINK);
@@ -415,7 +489,7 @@ public class SimulationGUI {
         addRowToPanel(thirdCarPanel, gbc, "Percentage of Cars 3", percentageOfCars3);
         addRowToPanel(thirdCarPanel, gbc, "Mean Service Time 3", meanServiceTime3);
         addRowToPanel(thirdCarPanel, gbc, "Max EV Power 3", maxEVPower3);
-       // addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", createDemandTypeComboBox());
+        // addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", createDemandTypeComboBox());
         addRowToPanel(thirdCarPanel, gbc, "Demand Distribution Type 3", demandType3);
         addRowToPanel(thirdCarPanel, gbc, "Mean Charging Demand 3", meanChargingDemand3);
         addRowToPanel(thirdCarPanel, gbc, "Battery Capacity 3", batteryCapacity3);
@@ -489,7 +563,7 @@ public class SimulationGUI {
 
 
     private static JComboBox<String> createDemandTypeComboBox() {
-        String[] demandTypes = {"DETERMINISTIC","GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "LOMAX"};
+        String[] demandTypes = {"DETERMINISTIC", "GEOMETRIC", "EXPONENTIAL", "ERLANG", "ERLANGD", "UNIFORM", "BETA", "LOMAX"};
         return new JComboBox<>(demandTypes);
     }
 

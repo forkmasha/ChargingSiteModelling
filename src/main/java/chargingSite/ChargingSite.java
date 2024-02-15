@@ -1,5 +1,6 @@
 package chargingSite;
 
+import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -24,9 +25,8 @@ import results.Histogram;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.*;
+import java.util.List;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -35,8 +35,6 @@ public class ChargingSite {
     private int numberOfChargingPoints;
     private ArrayList<Double> chargingPowers = new ArrayList<>();
     private double maxSitePower;
-    private XYSeries sitePowerSeries = new XYSeries("Site Power");
-
     private JFreeChart sitePowerChart;
     private ChartPanel chartPanel;
     private JFrame chartFrame;
@@ -82,6 +80,11 @@ public class ChargingSite {
         getSitePower();
     }
 
+    public static List<TimePowerData> dataList = new ArrayList<>();
+    private double previousSitePower = -1;
+    private double previousTime = -1;
+    private boolean isFirstValue = true;
+
     public double getSitePower() {
         double sitePower = 0;
         int i = 0;
@@ -99,11 +102,25 @@ public class ChargingSite {
                 throw new SitePowerExceededException("Site power " + sitePower + " is greater than the set maximum " + maxSitePower + " !");
             }
         }
-        //sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
+        // sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
 
-        //  sitePower1.add(sitePower);
-        addSitePower(sitePower);
+        if (!isFirstValue && (EventSimulation.getCurrentTime() != previousTime || sitePower != previousSitePower)) {
+            dataList.add(new TimePowerData(EventSimulation.getCurrentTime(), sitePower));
+            addSitePower(sitePower);
+        }
+
+        previousTime = EventSimulation.getCurrentTime();
+        previousSitePower = sitePower;
+        isFirstValue = false;
+
         return sitePower;
+    }
+
+    private XYSeries sitePowerSeries = new XYSeries("Site Power");
+
+    public void addSitePower1(double sitePower) {
+        double currentTime = EventSimulation.getCurrentTime();
+        sitePowerSeries.add(currentTime, sitePower);
     }
 
     private void addSitePower(double power) {
@@ -307,7 +324,6 @@ public class ChargingSite {
         sitePowerChart.getXYPlot().setRenderer(renderer);
         sitePowerChart.fireChartChanged();
         sitePowerSeries.clear();
-
     }
 
     private Color generateUniqueColor(int seriesIndex) {
@@ -511,7 +527,6 @@ public class ChargingSite {
         double max = Simulation.MAX_SITE_POWER; //Collections.max(data);
         double binWidth = (max - min) / numBins;
 
-        // Заповнення гістограми
         int[] bins = new int[numBins];
         for (double value : data) {
             int binIndex = (int) ((value - min) / binWidth);
@@ -523,26 +538,24 @@ public class ChargingSite {
 
         for (int i = 0; i < numBins; i++) {
             dataset.addValue((double) bins[i] / data.size(),
-                    "" + Simulation.getARRIVAL_RATE_STEP() * (1+seriesCounter) + " EV/h",
+                    "" + Simulation.getARRIVAL_RATE_STEP() * (1 + seriesCounter) + " EV/h",
                     String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
         }
 
         JFreeChart chart = ChartFactory.createBarChart3D("Site Power Distribution Histogram", "Site Power Intervals", "Probability", dataset, PlotOrientation.VERTICAL, true, true, false);
 
-        // Зміна кольору гістограми
         CategoryPlot plot = chart.getCategoryPlot();
         CategoryItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(seriesCounter, getRandomColor());
 
         seriesCounter++;
 
-        // Оновлення графіку у вікні з можливістю масштабування, переміщення та повороту
         ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(800, 600)); // бажаний розмір панелі графіка
-        chartPanel.setMouseWheelEnabled(true); // масштабувати за допомогою колеса миші
-        chartPanel.setDomainZoomable(true); // Масштабує область по осі X
-        chartPanel.setRangeZoomable(true); // Масштабує область по осі Y
-        chartPanel.setPopupMenu(null); // Вимикає контекстне меню графіку (яке включає поворот)
+        chartPanel.setPreferredSize(new Dimension(800, 600));
+        chartPanel.setMouseWheelEnabled(true);
+        chartPanel.setDomainZoomable(true);
+        chartPanel.setRangeZoomable(true);
+        chartPanel.setPopupMenu(null);
 
 
         CategoryAxis domainAxis = plot.getDomainAxis();
@@ -574,7 +587,68 @@ public class ChargingSite {
         dataset.clear();
         seriesCounter = 0;
     }
+
+    private static JFrame frame1;
+    private static ChartPanel chartPanel1;
+    private static XYSeriesCollection dataset1;
+    private static Color[] colors = {Color.BLUE, Color.RED, Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.BLACK};
+
+    public static void initializeChart1() {
+        frame1 = new JFrame();
+        frame1.setSize(600, 400);
+        frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        dataset1 = new XYSeriesCollection();
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Power vs Time Chart",
+                "Time",
+                "Power",
+                dataset1,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+
+        chartPanel1 = new ChartPanel(chart);
+        frame1.add(chartPanel1);
+
+        frame1.setVisible(true);
+    }
+
+    public static void displayChart(List<TimePowerData> dataList) {
+        if (frame1 == null || chartPanel1 == null || dataset1 == null) {
+            initializeChart1();
+        }
+
+        double maxTime = Simulation.getMaxEvents() / Simulation.getMaxArrivalRate() / 100;
+
+        XYSeries series = new XYSeries(String.format("%.1f EV/h", (double) Simulation.getMaxArrivalRate() / (Simulation.getSimSteps() - dataset1.getSeriesCount())));
+        for (TimePowerData data : dataList) {
+            if (data.getTime() < maxTime) {
+                series.add(data.getTime(), data.getPower());
+            }
+        }
+        double progress = (double) dataset1.getSeriesCount() / Simulation.getSIM_STEPS();
+        int R = 0;
+        int G = (int) Math.round(255 * progress);
+        int B = 255;
+
+        dataset1.addSeries(series);
+        XYPlot plot = (XYPlot) chartPanel1.getChart().getPlot();
+
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        renderer.setSeriesLinesVisible(dataset1.getSeriesCount() - 1, false);
+        renderer.setSeriesShapesVisible(dataset1.getSeriesCount() - 1, true);
+
+        plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R, G, B));
+
+        plot.getRangeAxis().setRange(0, Simulation.MAX_SITE_POWER * 1.05);
+
+        frame.repaint();
+    }
 }
+
 
 
 

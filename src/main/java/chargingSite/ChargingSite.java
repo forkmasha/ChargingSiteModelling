@@ -36,6 +36,7 @@ public class ChargingSite {
     private int numberOfChargingPoints;
     private ArrayList<Double> chargingPowers = new ArrayList<>();
     private double maxSitePower;
+    private SimulationParameters simParameters;
     private JFreeChart sitePowerChart;
     private ChartPanel chartPanel;
     private JFrame chartFrame;
@@ -49,16 +50,17 @@ public class ChargingSite {
     }
 
 
-    public ChargingSite(int numberOfChargingPoints, double maxSitePower) {
-        this.numberOfChargingPoints = numberOfChargingPoints;
-        this.maxSitePower = maxSitePower;
+    public ChargingSite(SimulationParameters parameters) {
+        this.simParameters = parameters;
+        this.numberOfChargingPoints = parameters.getNUMBER_OF_SERVERS();
+        this.maxSitePower = parameters.getMaxSitePower();
         initializeChargingPoints();
     }
 
     private void initializeChargingPoints() {
         for (int i = 0; i < numberOfChargingPoints; i++) {
-            chargingPowers.add((double) Simulation.MAX_POINT_POWER);
-            chargingPoints.add(new ChargingPoint(Simulation.MAX_POINT_POWER));
+            chargingPowers.add((double) simParameters.MAX_POINT_POWER);
+            chargingPoints.add(new ChargingPoint(simParameters.MAX_POINT_POWER));
         }
     }
 
@@ -523,9 +525,9 @@ public class ChargingSite {
     private static int seriesCounter = 0;
     private static JFrame frame;
 
-    public static void plotHistogram(ArrayList<Double> data, int numBins) {
+    public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
         double min = 0; //Collections.min(data);
-        double max = Simulation.MAX_SITE_POWER; //Collections.max(data);
+        double max = parameters.MAX_SITE_POWER; //Collections.max(data);
         double binWidth = (max - min) / numBins;
 
         int[] bins = new int[numBins];
@@ -539,7 +541,7 @@ public class ChargingSite {
 
         for (int i = 0; i < numBins; i++) {
             dataset.addValue((double) bins[i] / data.size(),
-                    "" + Simulation.getARRIVAL_RATE_STEP() * (1 + seriesCounter) + " EV/h",
+                    "" + parameters.getARRIVAL_RATE_STEP() * (1 + seriesCounter) + " EV/h",
                     String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
         }
 
@@ -617,13 +619,13 @@ public class ChargingSite {
         frame1.setVisible(true);
     }
 
-    public static void displayChart(List<TimePowerData> dataList) {
+    public static void displayChart(List<TimePowerData> dataList, SimulationParameters parameters) {
         if (frame1 == null || chartPanel1 == null || dataset1 == null) {
             initializeChart1();
         }
 
-        double maxTime = Simulation.getMaxEvents() / Simulation.getMaxArrivalRate() / 100;
-        double arrivalRate = ( dataset1.getSeriesCount() + 1 ) * Simulation.getMaxArrivalRate() / Simulation.getSimSteps();
+        double maxTime = parameters.getMaxEvents() / parameters.getMaxArrivalRate() / 100;
+        double arrivalRate = ( dataset1.getSeriesCount() + 1 ) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
 
         XYSeries series = new XYSeries(String.format("%.1f EV/h", arrivalRate));
         for (TimePowerData data : dataList) {
@@ -631,7 +633,7 @@ public class ChargingSite {
                 series.add(data.getTime(), data.getPower());
             }
         }
-        double progress = (double) dataset1.getSeriesCount() / Simulation.getSIM_STEPS();
+        double progress = (double) dataset1.getSeriesCount() / parameters.getSIM_STEPS();
         int R = 0;
         int G = (int) Math.round(255 * progress);
         int B = 255;
@@ -647,7 +649,7 @@ public class ChargingSite {
         renderer.setSeriesShape(dataset1.getSeriesCount() - 1, cross);
         plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R, G, B));
 
-        plot.getRangeAxis().setRange(0, Simulation.MAX_SITE_POWER * 1.05);
+        plot.getRangeAxis().setRange(0, parameters.MAX_SITE_POWER * 1.05);
 
         frame.repaint();
     }

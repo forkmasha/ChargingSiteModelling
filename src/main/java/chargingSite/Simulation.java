@@ -57,45 +57,7 @@ public class Simulation extends Graph {
     private static final Logger LOGGER = Logger.getLogger(Simulation.class.getName());
     private JFreeChart MyChart;
     private JFreeChart SitePowerGraph;
-    private static double MIN_ARRIVAL_RATE;
-    private static double MAX_ARRIVAL_RATE;
-    private static double ARRIVAL_RATE_STEP;
-    private static int SIM_STEPS;
-    private static int NUMBER_OF_CAR_TYPES;
-    private static int MAX_EVENTS;
-    private int NUMBER_OF_SERVERS;
-
-    public static int MAX_SITE_POWER;  // Maximum Charging Site Power (50.000)
-    public static int MAX_POINT_POWER; // Maximum Charging Point Power (750)
-    public static int MAX_EV_POWER; // Maximum EV Charging Power (750)
-    public static int MAX_EV_POWER2;
-    public static int MAX_EV_POWER3;
-
-    public static double MEAN_CHARGING_DEMAND;
-    public static double MEAN_CHARGING_DEMAND2;
-    public static double MEAN_CHARGING_DEMAND3;
-
-    private int QUEUE_SIZE;
-    private QueueingType QUEUEING_TYPE;
-    private double MEAN_SERVICE_TIME;
-    private double MEAN_SERVICE_TIME2;
-    private double MEAN_SERVICE_TIME3;
-    public static DistributionType SERVICE_TYPE;
-    private double AVERAGE_SERVICE_TIME;
-    private DistributionType ARRIVAL_TYPE;
-    private DistributionType DEMAND_TYPE;
-    private DistributionType DEMAND_TYPE2;
-    private DistributionType DEMAND_TYPE3;
-    private int confLevel;
-    public static double batteryCapacity;
-    public static double batteryCapacity2;
-    public static double batteryCapacity3;
-
-    private double percentageOfCars = 1;
-    private double percentageOfCars2;
-    private double percentageOfCars3;
     public Monitor chargingMonitor;
-
 
     private final Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private final Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
@@ -104,251 +66,15 @@ public class Simulation extends Graph {
 
     //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
 
+    private SimulationParameters parameters = new SimulationParameters();
 
-    public DistributionType getSERVICE_TYPE() {
-        return SERVICE_TYPE;
-    }
-
-    public static int getSIM_STEPS() {
-        return SIM_STEPS;
-    }
-
-
-    public void setMIN_ARRIVAL_RATE(double MIN_ARRIVAL_RATE) {
-        Simulation.MIN_ARRIVAL_RATE = MIN_ARRIVAL_RATE;
-    }
-
-    public static void setMAX_ARRIVAL_RATE(double MAX_ARRIVAL_RATE) {
-        Simulation.MAX_ARRIVAL_RATE = MAX_ARRIVAL_RATE;
-    }
-
-    public static double getARRIVAL_RATE_STEP() {
-        return ARRIVAL_RATE_STEP;
-    }
-
-    public static void setARRIVAL_RATE_STEP(double ARRIVAL_RATE_STEP) {
-        Simulation.ARRIVAL_RATE_STEP = ARRIVAL_RATE_STEP;
-    }
-
-
-    public static void setSIM_STEPS(int SIM_STEPS) {
-        Simulation.SIM_STEPS = SIM_STEPS;
-    }
-
-    public static void setBatteryCapacity(double batteryCapacity) {
-        Simulation.batteryCapacity = batteryCapacity;
-    }
-
-    public static void setNUMBER_OF_CAR_TYPES(int NUMBER_OF_CAR_TYPES) {
-        Simulation.NUMBER_OF_CAR_TYPES = NUMBER_OF_CAR_TYPES;
-    }
-
-    public void setMAX_EVENTS(int MAX_EVENTS) {
-        Simulation.MAX_EVENTS = MAX_EVENTS;
-    }
-
-    public void setNUMBER_OF_SERVERS(int NUMBER_OF_SERVERS) {
-        this.NUMBER_OF_SERVERS = NUMBER_OF_SERVERS;
-    }
-
-    public void setQUEUE_SIZE(int QUEUE_SIZE) {
-        this.QUEUE_SIZE = QUEUE_SIZE;
-    }
-
-    public void setQUEUEING_TYPE(QueueingType QUEUEING_TYPE) {
-        this.QUEUEING_TYPE = QUEUEING_TYPE;
-    }
-
-    public void setAVERAGE_SERVICE_TIME(double AVERAGE_SERVICE_TIME) {
-        this.AVERAGE_SERVICE_TIME = AVERAGE_SERVICE_TIME;
-    }
-
-    public void setARRIVAL_TYPE(DistributionType ARRIVAL_TYPE) {
-        this.ARRIVAL_TYPE = ARRIVAL_TYPE;
-    }
-
-    public void setDEMAND_TYPE(DistributionType DEMAND_TYPE) {
-        this.DEMAND_TYPE = DEMAND_TYPE;
-    }
-
-    public static void setSERVICE_TYPE(DistributionType type) {
-        SERVICE_TYPE = type;
+    public SimulationParameters getParameters() {
+        return parameters;
     }
 
     public void setConfLevel(int confLevel) {
-        this.confLevel = confLevel;
+        parameters.setConfLevel(confLevel);
         this.chargingMonitor = new Monitor(confLevel);
-    }
-
-    public static void setMaxSitePower(int maxSitePower) {
-        MAX_SITE_POWER = maxSitePower;
-    }
-
-    public static void setMeanChargingDemand(double meanChargingDemand) {
-        MEAN_CHARGING_DEMAND = meanChargingDemand;
-    }
-
-    public static void setMaxPointPower(int maxPointPower) {
-        MAX_POINT_POWER = maxPointPower;
-    }
-
-    public static void setMaxEvPower(int maxEvPower) {
-        MAX_EV_POWER = maxEvPower;
-    }
-
-
-    public static void setMaxEvPower2(int maxEvPower2) {
-        MAX_EV_POWER2 = maxEvPower2;
-    }
-
-    public static void setMaxEvPower3(int maxEvPower3) {
-        MAX_EV_POWER3 = maxEvPower3;
-    }
-
-    public static void setMeanChargingDemand2(double meanChargingDemand2) {
-        MEAN_CHARGING_DEMAND2 = meanChargingDemand2;
-    }
-
-    public static void setMeanChargingDemand3(double meanChargingDemand3) {
-        MEAN_CHARGING_DEMAND3 = meanChargingDemand3;
-    }
-
-    public void setDEMAND_TYPE2(DistributionType DEMAND_TYPE2) {
-        this.DEMAND_TYPE2 = DEMAND_TYPE2;
-    }
-
-    public void setDEMAND_TYPE3(DistributionType DEMAND_TYPE3) {
-        this.DEMAND_TYPE3 = DEMAND_TYPE3;
-    }
-
-    public static void setBatteryCapacity2(double batteryCapacity2) {
-        Simulation.batteryCapacity2 = batteryCapacity2;
-    }
-
-    public static void setBatteryCapacity3(double batteryCapacity3) {
-        Simulation.batteryCapacity3 = batteryCapacity3;
-    }
-
-    public void setPercentageOfCars(double percentageOfCars) {
-        if (percentageOfCars > 1) percentageOfCars /= 100;
-        if (percentageOfCars < 0)
-            System.out.println("ERROR: percentage of type 1 cars " + percentageOfCars + "is smaller than 0!");
-        this.percentageOfCars = percentageOfCars;
-    }
-
-    public void setPercentageOfCars2(double percentageOfCars) {
-        if (percentageOfCars > 1) percentageOfCars /= 100;
-        if (percentageOfCars < 0)
-            System.out.println("ERROR: percentage of type 1 cars " + percentageOfCars + "is smaller than 0!");
-        this.percentageOfCars2 = percentageOfCars;
-    }
-
-    public void setPercentageOfCars3(double percentageOfCars) {
-        if (percentageOfCars > 1) percentageOfCars /= 100;
-        if (percentageOfCars < 0)
-            System.out.println("ERROR: percentage of type 1 cars " + percentageOfCars + "is smaller than 0!");
-        this.percentageOfCars3 = percentageOfCars;
-    }
-
-    public void setMEAN_SERVICE_TIME(double time) {
-        if (time == 0) System.out.println("Warning: charging till 80% is yet not implemented correctly!");
-        this.MEAN_SERVICE_TIME = time;
-    }
-
-    public void setMEAN_SERVICE_TIME2(double time) {
-        this.MEAN_SERVICE_TIME2 = time;
-    }
-
-    public void setMEAN_SERVICE_TIME3(double time) {
-        this.MEAN_SERVICE_TIME3 = time;
-    }
-
-    public int getNUMBER_OF_CAR_TYPES() {
-        return NUMBER_OF_CAR_TYPES;
-    }
-
-    public int getMaxEvPower() {
-        return MAX_EV_POWER;
-    }
-
-    public int getMaxEvPower2() {
-        return MAX_EV_POWER2;
-    }
-
-    public int getMaxEvPower3() {
-        return MAX_EV_POWER3;
-    }
-
-    public double getMeanChargingDemand() {
-        return MEAN_CHARGING_DEMAND;
-    }
-
-    public double getMeanChargingDemand2() {
-        return MEAN_CHARGING_DEMAND2;
-    }
-
-    public double getMeanChargingDemand3() {
-        return MEAN_CHARGING_DEMAND3;
-    }
-
-    public double getMEAN_SERVICE_TIME() {
-        return MEAN_SERVICE_TIME;
-    }
-
-    public double getMEAN_SERVICE_TIME2() {
-        return MEAN_SERVICE_TIME2;
-    }
-
-    public double getMEAN_SERVICE_TIME3() {
-        return MEAN_SERVICE_TIME3;
-    }
-
-    public DistributionType getDEMAND_TYPE() {
-        return DEMAND_TYPE;
-    }
-
-    public DistributionType getDEMAND_TYPE2() {
-        return DEMAND_TYPE2;
-    }
-
-    public DistributionType getDEMAND_TYPE3() {
-        return DEMAND_TYPE3;
-    }
-
-    public double getBatteryCapacity() {
-        return batteryCapacity;
-    }
-
-    public double getBatteryCapacity2() {
-        return batteryCapacity2;
-    }
-
-    public double getBatteryCapacity3() {
-        return batteryCapacity3;
-    }
-
-    public double getPercentageOfCars() {
-        return percentageOfCars;
-    }
-
-    public double getPercentageOfCars2() {
-        return percentageOfCars2;
-    }
-
-    public double getPercentageOfCars3() {
-        return percentageOfCars3;
-    }
-
-    public static int getSimSteps() {
-        return SIM_STEPS;
-    }
-
-    public static double getMaxArrivalRate() {
-        return MAX_ARRIVAL_RATE;
-    }
-
-    public static int getMaxEvents() {
-        return MAX_EVENTS;
     }
 
     public Simulation() {
@@ -356,68 +82,14 @@ public class Simulation extends Graph {
     }
 
     private double calcAvgServiceTime() {
-        double p1, p2, p3;
-        if (getNUMBER_OF_CAR_TYPES() < 2) AVERAGE_SERVICE_TIME = MEAN_SERVICE_TIME;
-        else if (getNUMBER_OF_CAR_TYPES() < 3) {
-            if (getPercentageOfCars2() > 1) p2 = getPercentageOfCars2() / 100;
-            else p2 = getPercentageOfCars2();
-            p1 = 1 - p2;
-            AVERAGE_SERVICE_TIME = p1 * MEAN_SERVICE_TIME + p2 * MEAN_SERVICE_TIME2;
-        } else {
-            if (getPercentageOfCars2() > 1) p2 = getPercentageOfCars2() / 100;
-            else p2 = getPercentageOfCars2();
-            if (getPercentageOfCars3() > 1) p3 = getPercentageOfCars3() / 100;
-            else p3 = getPercentageOfCars3();
-            p1 = 1 - p2 - p3;
-            AVERAGE_SERVICE_TIME = p1 * MEAN_SERVICE_TIME + p2 * MEAN_SERVICE_TIME2 + p3 * MEAN_SERVICE_TIME3;
-        }
-        return AVERAGE_SERVICE_TIME;
+        return parameters.getAvgServiceTime();
     }
-
 
     public double calcMMnNwaitingTime(double rho) {
-        double meanWaitingTime;
-        double arrivalRate = rho * this.NUMBER_OF_SERVERS / this.AVERAGE_SERVICE_TIME;
-        double[] pdi = new double[1 + this.NUMBER_OF_SERVERS + this.QUEUE_SIZE];
-        double meanQueueLength = 0;
-        double sFac = Distribution.factorial(this.NUMBER_OF_SERVERS);
-        rho *= this.NUMBER_OF_SERVERS;
-        pdi[0] = 0;
-        for (int i = 1; i <= this.QUEUE_SIZE; i++) {
-            pdi[0] += Math.pow(rho / this.NUMBER_OF_SERVERS, i);
-        }
-        pdi[0] *= Math.pow(rho, this.NUMBER_OF_SERVERS) / sFac;
-        for (int i = 1; i <= this.NUMBER_OF_SERVERS; i++) {
-            pdi[0] += Math.pow(rho, i) / Distribution.factorial(i);
-        }
-        pdi[0] = Math.pow(1 + pdi[0], -1);
-
-        for (int i = 1; i <= this.NUMBER_OF_SERVERS; i++) {
-            pdi[i] = Math.pow(rho, i) / Distribution.factorial(i) * pdi[0];
-        }
-        for (int i = this.NUMBER_OF_SERVERS + 1; i <= this.NUMBER_OF_SERVERS + this.QUEUE_SIZE; i++) {
-            pdi[i] = Math.pow(rho, i) / (sFac * Math.pow(this.NUMBER_OF_SERVERS, i - this.NUMBER_OF_SERVERS)) * pdi[0];
-        }
-
-        for (int i = 1; i <= this.QUEUE_SIZE; i++) {
-            meanQueueLength += i * pdi[this.NUMBER_OF_SERVERS + i];
-        }
-
-        meanWaitingTime = meanQueueLength / (arrivalRate * (1 - pdi[this.NUMBER_OF_SERVERS + this.QUEUE_SIZE]));
-        if (Math.abs(1 - Arrays.stream(pdi).sum()) > 0.000001) {
-            System.out.println("ERROR: sum over all state-probabilities !=1");
-            StringBuilder output = new StringBuilder("M/M/n/S state probabilities: ");
-            for (int i = 0; i < pdi.length; i++) {
-                output.append(pdi[i]).append(" / ");
-            }
-            System.out.println("M/M/n/S state probabilities: " + output);
-        }
-        System.out.println("M/M/n/S: " + arrivalRate + " " + meanQueueLength + " " + meanWaitingTime);
-        return meanWaitingTime;
+       return parameters.getMMnNwaitingTime(rho);
     }
 
-
-    public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
+        public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -435,37 +107,34 @@ public class Simulation extends Graph {
     }
 
     public String getKendallName() {
-        return Distribution.getTitleAbbreviation(String.valueOf(ARRIVAL_TYPE)) + "/"
-                + Distribution.getTitleAbbreviation(String.valueOf(SERVICE_TYPE)) + "/"
-                + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
+        return parameters.getKendallName();
     }
-
 
     public void runSimulation() {
         resetData();
-        EventSimulation.setMaxEvents(MAX_EVENTS);
+        EventSimulation.setMaxEvents(parameters.getMAX_EVENTS());
         Client[] myFirstClients = new Client[1];
         Client myFirstClient;
-        QueueingSystem mySystem = new QueueingSystem(NUMBER_OF_SERVERS, QUEUE_SIZE, QUEUEING_TYPE);
+        QueueingSystem mySystem = new QueueingSystem(parameters);
         chargingMonitor.setSource(mySystem);
-        if (NUMBER_OF_CAR_TYPES > 1) {
-            mySystem.setName(Distribution.getTitleAbbreviation(ARRIVAL_TYPE.toString())
+        if (parameters.getNUMBER_OF_CAR_TYPES() > 1) {
+            mySystem.setName(Distribution.getTitleAbbreviation(parameters.getARRIVAL_TYPE().toString())
                     + "/MIXED/"
-                    + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
+                    + parameters.getNUMBER_OF_SERVERS() + "/" + (parameters.getNUMBER_OF_SERVERS() + parameters.getQUEUE_SIZE()));
         } else {
-            mySystem.setName(Distribution.getTitleAbbreviation(ARRIVAL_TYPE.toString())
-                    + "/" + Distribution.getTitleAbbreviation(SERVICE_TYPE.toString())
-                    + "/" + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE));
+            mySystem.setName(Distribution.getTitleAbbreviation(parameters.getARRIVAL_TYPE().toString())
+                    + "/" + Distribution.getTitleAbbreviation(parameters.getSERVICE_TYPE().toString())
+                    + "/" + parameters.getNUMBER_OF_SERVERS() + "/" + (parameters.getNUMBER_OF_SERVERS() + parameters.getQUEUE_SIZE()));
         }
-        mySystem.setDistributionType(ARRIVAL_TYPE);
+        mySystem.setDistributionType(parameters.getARRIVAL_TYPE());
         int stepCounter = 0;
-        double arrivalRate = MIN_ARRIVAL_RATE;
+        double arrivalRate = parameters.getMIN_ARRIVAL_RATE();
         List<Double> dummy = new ArrayList<>();
 
         //for (double arrivalRate = MIN_ARRIVAL_RATE; arrivalRate <= MAX_ARRIVAL_RATE; arrivalRate += ARRIVAL_RATE_STEP) {
-        while (stepCounter < SIM_STEPS) {
-            if (arrivalRate > MAX_ARRIVAL_RATE + 0.001)
-                System.out.println("WARNING: Arrival rate " + arrivalRate + " beyond maximum " + MAX_ARRIVAL_RATE + " occurred!");
+        while (stepCounter < parameters.getSIM_STEPS()) {
+            if (arrivalRate > parameters.getMAX_ARRIVAL_RATE() + 0.001)
+                System.out.println("WARNING: Arrival rate " + arrivalRate + " beyond maximum " + parameters.getMAX_ARRIVAL_RATE() + " occurred!");
             stepCounter++;
             mySystem.resetQueueingSystem();
             mySystem.setMeanInterArrivalTime(myFirstClients.length / arrivalRate); //mean inter-arrival time per client
@@ -479,7 +148,7 @@ public class Simulation extends Graph {
             }
         */
             //for (int i=0; i < myFirstClients.length; i++) {
-            myFirstClients[0] = new Client(0.0, ElectricVehicle.createRandomCar(this), mySystem);
+            myFirstClients[0] = new Client(0.0, ElectricVehicle.createRandomCar(parameters), mySystem);
             //myFirstClients[i] = new Client(0.0, AVERAGE_SERVICE_TIME, SERVICE_TYPE[i], mySystem);  // set service time per client
             //}
             EventSimulation.run(myFirstClients);
@@ -495,10 +164,10 @@ public class Simulation extends Graph {
 
 
             // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
-            plotHistogram(mySystem.getChargingSite().getSitePower1(), 20);
+            plotHistogram(mySystem.getChargingSite().getSitePower1(), 20,parameters);
 
 
-            mySystem.getChargingSite().displayChart(dataList);
+            mySystem.getChargingSite().displayChart(dataList,parameters);
 
 
            // mySystem.getChargingSite().visualizeSitePower();
@@ -511,22 +180,23 @@ public class Simulation extends Graph {
 
 
             //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
-            analyticWaitingTimes.add(arrivalRate, this.calcMMnNwaitingTime(arrivalRate * calcAvgServiceTime() / this.NUMBER_OF_SERVERS));
+            analyticWaitingTimes.add(arrivalRate,
+                    this.calcMMnNwaitingTime(arrivalRate * calcAvgServiceTime() / parameters.getNUMBER_OF_SERVERS()));
 
             meanServiceTimes.addStep(arrivalRate);
             meanServiceTimes.addMean(mySystem.getTimesInService());
             meanServiceTimes.addStds(mySystem.getTimesInService());
-            meanServiceTimes.addConfidence(mySystem.getTimesInService(), confLevel);
+            meanServiceTimes.addConfidence(mySystem.getTimesInService(), parameters.getConfLevel());
 
             meanQueueingTimes.addStep(arrivalRate);
             meanQueueingTimes.addMean(mySystem.getTimesInQueue());
             meanQueueingTimes.addStds(mySystem.getTimesInQueue());
-            meanQueueingTimes.addConfidence(mySystem.getTimesInQueue(), confLevel);
+            meanQueueingTimes.addConfidence(mySystem.getTimesInQueue(), parameters.getConfLevel());
 
             meanSystemTimes.addStep(arrivalRate);
             meanSystemTimes.addMean(mySystem.getTimesInSystem());
             meanSystemTimes.addStds(mySystem.getTimesInSystem());
-            meanSystemTimes.addConfidence(mySystem.getTimesInSystem(), confLevel);
+            meanSystemTimes.addConfidence(mySystem.getTimesInSystem(), parameters.getConfLevel());
 
             chargingMonitor.storeStep(arrivalRate);
             chargingMonitor.storeMean();
@@ -553,29 +223,29 @@ public class Simulation extends Graph {
                     + "\n Service Time (" + mySystem.getTimesInService().size() + "): "
                     + calc.getMean(mySystem.getTimesInService()) + "/"
                     + calc.getStd(mySystem.getTimesInService()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInService(), this.confLevel)
+                    + calc.getConfidenceInterval(mySystem.getTimesInService(), parameters.getConfLevel())
                     + "\n Queueing Time (" + mySystem.getTimesInQueue().size() + "): "
                     + calc.getMean(mySystem.getTimesInQueue()) + "/"
                     + calc.getStd(mySystem.getTimesInQueue()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), this.confLevel)
+                    + calc.getConfidenceInterval(mySystem.getTimesInQueue(), parameters.getConfLevel())
                     + "\n System Time (" + mySystem.getTimesInSystem().size() + "): "
                     + calc.getMean(mySystem.getTimesInSystem()) + "/"
                     + calc.getStd(mySystem.getTimesInSystem()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), this.confLevel)
+                    + calc.getConfidenceInterval(mySystem.getTimesInSystem(), parameters.getConfLevel())
                     + "\n Charged Energy (" + mySystem.getAmountsCharged().size() + "): "
                     + calc.getMean(mySystem.getAmountsCharged()) + "/"
                     + calc.getStd(mySystem.getAmountsCharged()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), this.confLevel)
+                    + calc.getConfidenceInterval(mySystem.getAmountsCharged(), parameters.getConfLevel())
                     + "\n Site Power Demand (" + mySystem.getSitePowers().size() + "): "
                     + calc.getMean(mySystem.getSitePowers()) + "/"
                     + calc.getStd(mySystem.getSitePowers()) + "/"
-                    + calc.getConfidenceInterval(mySystem.getSitePowers(), this.confLevel)
+                    + calc.getConfidenceInterval(mySystem.getSitePowers(), parameters.getConfLevel())
                     + "\n Queue state: " + mySystem.getMyQueue().getOccupation()
                     + " Server state: " + mySystem.getNumberOfServersInUse()
                     + " Clients done: " + Client.getClientCounter()
             );
 
-            arrivalRate += ARRIVAL_RATE_STEP;
+            arrivalRate += parameters.getARRIVAL_RATE_STEP();
         }
         drawGraph();
 
@@ -588,7 +258,7 @@ public class Simulation extends Graph {
 
         String title = "Charging Site Queueing Characteristics \n"
                 + this.getKendallName() + " Queueing System"
-                + " (" + MAX_EVENTS + " samples per evaluation point)";
+                + " (" + parameters.getMAX_EVENTS() + " samples per evaluation point)";
 
         String[] titleParts = title.split("\n");
 
@@ -625,14 +295,14 @@ public class Simulation extends Graph {
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
         NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-        if (AVERAGE_SERVICE_TIME > 0) {
-            yAxis.setRange(0, Math.ceil(1.1 * AVERAGE_SERVICE_TIME * (1 + QUEUE_SIZE / NUMBER_OF_SERVERS)));
+        if (parameters.getAVERAGE_SERVICE_TIME() > 0) {
+            yAxis.setRange(0, Math.ceil(1.1 * parameters.getAVERAGE_SERVICE_TIME() * (1 + parameters.getQUEUE_SIZE() / parameters.getNUMBER_OF_SERVERS())));
         } else {
             yAxis.setRange(0, 3);
         }
 
         int i = 0;
-        while (i < SIM_STEPS) {
+        while (i < parameters.getSIM_STEPS()) {
             renderer.setSeriesPaint(i, Color.MAGENTA);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
@@ -643,7 +313,7 @@ public class Simulation extends Graph {
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
 
-        while (i < 2 * SIM_STEPS + 2) {
+        while (i < 2 * parameters.getSIM_STEPS() + 2) {
             renderer.setSeriesPaint(i, Color.blue);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
@@ -654,7 +324,7 @@ public class Simulation extends Graph {
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
 
-        while (i < 3 * SIM_STEPS + 4) {
+        while (i < 3 * parameters.getSIM_STEPS() + 4) {
             renderer.setSeriesPaint(i, Color.red);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;

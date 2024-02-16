@@ -3,6 +3,7 @@ package queueingSystem;
 import chargingSite.ChargingSite;
 import chargingSite.ElectricVehicle;
 import chargingSite.Simulation;
+import chargingSite.SimulationParameters;
 import distributions.Distribution;
 import distributions.DistributionType;
 import eventSimulation.Event;
@@ -63,10 +64,10 @@ public class QueueingSystem {
         return amountsCharged;
     }
 
-    public QueueingSystem(int numberOfServers, int queueSize, Queue.QueueingType queueingType) {
-        this.myQueue = new Queue(queueSize, queueingType);
-        this.numberOfServers = numberOfServers;
-        this.site = new ChargingSite(numberOfServers, Simulation.MAX_SITE_POWER); // TO BE SET via GUI
+    public QueueingSystem(SimulationParameters parameters) {
+        this.myQueue = new Queue(parameters.getQUEUE_SIZE(), parameters.getQUEUEING_TYPE());
+        this.numberOfServers = parameters.getNUMBER_OF_SERVERS();
+        this.site = new ChargingSite(parameters); // TO BE SET via GUI
         this.resetQueueingSystem();
     }
 
@@ -129,7 +130,7 @@ public class QueueingSystem {
 
     public String getKendallName(Simulation mySim) {
         return Distribution.getTitleAbbreviation(String.valueOf(this.arrivalTimeDistribution.getType())) + "/"
-                + Distribution.getTitleAbbreviation(String.valueOf(mySim.getSERVICE_TYPE())) + "/"
+                + Distribution.getTitleAbbreviation(String.valueOf(mySim.getParameters().getSERVICE_TYPE())) + "/"
                 + numberOfServers + "/" + numberOfServers + queueSize;
     }
 
@@ -197,7 +198,7 @@ public class QueueingSystem {
             double newExecTime = currentTime + this.getArrivalTimeDistribution().getSample(this.getMeanInterArrivalTime());
             nextClient = new Client(  // create next client with the same properties the currently arriving client has
                     newExecTime,
-                    ElectricVehicle.createRandomCar(currentClient.getCar().getSim()),
+                    ElectricVehicle.createRandomCar(currentClient.getCar().getSimParameters()),
                     //currentClient.getCar(),
                     currentClient.getSystem()
             );

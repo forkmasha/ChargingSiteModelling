@@ -16,11 +16,11 @@ public class ElectricVehicle {
 
     private String id; // Unique identifier for the EV
     private String model;
-    Simulation sim;
+    SimulationParameters parameters;
     private double reservationTime; // How long it occupies the ChargingPoint (reservation based) h
     private double chargeDemand; // How much energy it wishes to charge (time is determined by charge demand) kWh
     private double meanServiceTime;
-    private DistributionType serviceType = Simulation.SERVICE_TYPE;
+    private DistributionType serviceType;
     private final Distribution demandDistribution; // How is the ChargingDemand distributed
     private double maxPower; // Power at which it can be charged (declines with increasing SoC) kW
     private PlugType plugType = PlugType.CCStype2; // Plug type required to connect to a ChargingPoint
@@ -37,8 +37,8 @@ public class ElectricVehicle {
 
     private static final Logger logger = Logger.getLogger(ElectricVehicle.class.getName());
 
-    public ElectricVehicle(Simulation sim, String model, double meanServiceTime, double maxPower,DistributionType demandDistributionType, double batteryCapacity) {
-        this.sim = sim;
+    public ElectricVehicle(SimulationParameters simParameters, String model, double meanServiceTime, double maxPower, DistributionType demandDistributionType, double batteryCapacity) {
+        this.parameters = simParameters;
         this.id = model + "_" + (int) UniformDistribution.createSample(500); // + "_" + System.currentTimeMillis();
         // this.id = model + "_" + UUID.randomUUID();
         this.model = model;
@@ -49,7 +49,7 @@ public class ElectricVehicle {
         if (batteryCapacity > ElectricVehicle.MAX_BATTERY_CAPACITY)
             ElectricVehicle.MAX_BATTERY_CAPACITY = batteryCapacity;
         this.demandDistribution = Distribution.create(demandDistributionType);
-        double demand = demandDistribution.getSample(Simulation.MEAN_CHARGING_DEMAND);
+        double demand = demandDistribution.getSample(simParameters.MEAN_CHARGING_DEMAND);
         //bad patch !!! TO BE DONE better, i.e., BETA distribution sometimes returns values slightly above 1 for mean > 0.7 ...
         if (demand < 0) {
             logger.warning("Warning: negative demand  " + demand + " was converted to positive.");
@@ -64,32 +64,33 @@ public class ElectricVehicle {
         this.energyCharged = 0;
     }
 
-    public static ElectricVehicle createRandomCar(Simulation sim) {
+    public static ElectricVehicle createRandomCar(SimulationParameters simParameters) {
+
         double chooser = Math.random();
         double th1, th2 = 1;
         String model = "testCar";
 
-        if (sim.getNUMBER_OF_CAR_TYPES() <= 1) {
-            sim.setPercentageOfCars(1);
-            return new ElectricVehicle(sim, model, sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(),sim.getDEMAND_TYPE(), sim.getBatteryCapacity());
-        } else if (sim.getNUMBER_OF_CAR_TYPES() <= 2) {
-            if (sim.getPercentageOfCars2() >= 1) sim.setPercentageOfCars(1 - sim.getPercentageOfCars2()/100);
-            else sim.setPercentageOfCars(1 - sim.getPercentageOfCars2());
+        if (simParameters.getNUMBER_OF_CAR_TYPES() <= 1) {
+            simParameters.setPercentageOfCars(1);
+            return new ElectricVehicle(simParameters, model, simParameters.getMEAN_SERVICE_TIME(), simParameters.getMaxEvPower(),simParameters.getDEMAND_TYPE(), simParameters.getBatteryCapacity());
+        } else if (simParameters.getNUMBER_OF_CAR_TYPES() <= 2) {
+            if (simParameters.getPercentageOfCars2() >= 1) simParameters.setPercentageOfCars(1 - simParameters.getPercentageOfCars2()/100);
+            else simParameters.setPercentageOfCars(1 - simParameters.getPercentageOfCars2());
         } else {
-            if (sim.getPercentageOfCars2() >= 1)
-                sim.setPercentageOfCars(1 - (sim.getPercentageOfCars2() + sim.getPercentageOfCars3())/100);
-            else sim.setPercentageOfCars(1 - sim.getPercentageOfCars2() - sim.getPercentageOfCars3());
+            if (simParameters.getPercentageOfCars2() >= 1)
+                simParameters.setPercentageOfCars(1 - (simParameters.getPercentageOfCars2() + simParameters.getPercentageOfCars3())/100);
+            else simParameters.setPercentageOfCars(1 - simParameters.getPercentageOfCars2() - simParameters.getPercentageOfCars3());
         }
-        if (sim.getNUMBER_OF_CAR_TYPES() > 2) {
-            th2 = sim.getPercentageOfCars() + sim.getPercentageOfCars2();
+        if (simParameters.getNUMBER_OF_CAR_TYPES() > 2) {
+            th2 = simParameters.getPercentageOfCars() + simParameters.getPercentageOfCars2();
         }
-        th1 = sim.getPercentageOfCars();
+        th1 = simParameters.getPercentageOfCars();
         if (chooser > th2) {
-            return new ElectricVehicle(sim, model+'3', sim.getMEAN_SERVICE_TIME3(), sim.getMaxEvPower3(),sim.getDEMAND_TYPE3(), sim.getBatteryCapacity3());
+            return new ElectricVehicle(simParameters, model+'3', simParameters.getMEAN_SERVICE_TIME3(), simParameters.getMaxEvPower3(),simParameters.getDEMAND_TYPE3(), simParameters.getBatteryCapacity3());
         } else if (chooser > th1) {
-            return new ElectricVehicle(sim, model+'2', sim.getMEAN_SERVICE_TIME2(), sim.getMaxEvPower2(), sim.getDEMAND_TYPE2(), sim.getBatteryCapacity2());
+            return new ElectricVehicle(simParameters, model+'2', simParameters.getMEAN_SERVICE_TIME2(), simParameters.getMaxEvPower2(), simParameters.getDEMAND_TYPE2(), simParameters.getBatteryCapacity2());
         } else {
-            return new ElectricVehicle(sim, model+'1', sim.getMEAN_SERVICE_TIME(), sim.getMaxEvPower(), sim.getDEMAND_TYPE(),sim.getBatteryCapacity());
+            return new ElectricVehicle(simParameters, model+'1', simParameters.getMEAN_SERVICE_TIME(), simParameters.getMaxEvPower(), simParameters.getDEMAND_TYPE(),simParameters.getBatteryCapacity());
         }
     }
 
@@ -109,8 +110,8 @@ public class ElectricVehicle {
         this.myServer = myServer;
     }
 
-    public Simulation getSim() {
-        return this.sim;
+    public SimulationParameters getSimParameters() {
+        return this.parameters;
     }
 
     public double getMeanServiceTime() {

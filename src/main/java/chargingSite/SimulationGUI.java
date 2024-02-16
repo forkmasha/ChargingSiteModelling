@@ -27,6 +27,7 @@ public class SimulationGUI {
     private static final Color ORANGE = new Color(255, 175, 128);
     private static final Color RED = new Color(255, 102, 102);
 
+
     public static void runSimulationGUI() {
         JFrame frame = createSimulationFrame();
         addWindowCloseListener(frame);
@@ -124,25 +125,27 @@ public class SimulationGUI {
             double meanChargingDemandValue = getSpinnerValueAsDouble(meanChargingDemand);
 
             Simulation simulation = new Simulation();
+            SimulationParameters parameters = simulation.getParameters();
+
             //simulation.setMIN_ARRIVAL_RATE(getSpinnerValueAsDouble(minArrivalRate));
             //simulation.setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate)-getSpinnerValueAsDouble(minArrivalRate))/(getSpinnerValueAsInt(numberOfSteps)-1));
-            simulation.setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate) / getSpinnerValueAsInt(numberOfSteps)));
-            simulation.setMIN_ARRIVAL_RATE(simulation.getARRIVAL_RATE_STEP());
-            simulation.setMAX_ARRIVAL_RATE(getSpinnerValueAsDouble(maxArrivalRate));
+            simulation.getParameters().setARRIVAL_RATE_STEP((getSpinnerValueAsDouble(maxArrivalRate) / getSpinnerValueAsInt(numberOfSteps)));
+            simulation.getParameters().setMIN_ARRIVAL_RATE(simulation.getParameters().getARRIVAL_RATE_STEP());
+            simulation.getParameters().setMAX_ARRIVAL_RATE(getSpinnerValueAsDouble(maxArrivalRate));
             ;
             //simulation.setSIM_STEPS((int) Math.ceil((simulation.getMAX_ARRIVAL_RATE() - simulation.getMIN_ARRIVAL_RATE()) / simulation.getARRIVAL_RATE_STEP()));
-            simulation.setSIM_STEPS(getSpinnerValueAsInt(numberOfSteps));
-            simulation.setNUMBER_OF_CAR_TYPES(getSpinnerValueAsInt(numberOfClientTypes));
-            simulation.setMAX_EVENTS(getSpinnerValueAsInt(maxEvents));
-            simulation.setNUMBER_OF_SERVERS(getSpinnerValueAsInt(numberOfServers));
-            simulation.setQUEUE_SIZE(getSpinnerValueAsInt(queueSize));
+            simulation.getParameters().setSIM_STEPS(getSpinnerValueAsInt(numberOfSteps));
+            simulation.getParameters().setNUMBER_OF_CAR_TYPES(getSpinnerValueAsInt(numberOfClientTypes));
+            simulation.getParameters().setMAX_EVENTS(getSpinnerValueAsInt(maxEvents));
+            simulation.getParameters().setNUMBER_OF_SERVERS(getSpinnerValueAsInt(numberOfServers));
+            simulation.getParameters().setQUEUE_SIZE(getSpinnerValueAsInt(queueSize));
 
-            simulation.setMaxSitePower((int) maxSitePowerValue);     //REDO
-            simulation.setMaxPointPower((int) maxPointPowerValue);
-            simulation.setMaxEvPower((int) maxEVPowerValue);
-            simulation.setMeanChargingDemand(meanChargingDemandValue);
+            simulation.getParameters().setMaxSitePower((int) maxSitePowerValue);     //REDO
+            simulation.getParameters().setMaxPointPower((int) maxPointPowerValue);
+            simulation.getParameters().setMaxEvPower((int) maxEVPowerValue);
+            simulation.getParameters().setMeanChargingDemand(meanChargingDemandValue);
 
-            simulation.setBatteryCapacity(getSpinnerValueAsDouble(batteryCapacity));
+            simulation.getParameters().setBatteryCapacity(getSpinnerValueAsDouble(batteryCapacity));
 
             double maxEVPowerValue2 = getSpinnerValueAsDouble(maxEVPower);
             double meanChargingDemandValue2 = getSpinnerValueAsDouble(meanChargingDemand2);
@@ -150,95 +153,95 @@ public class SimulationGUI {
             double maxEVPowerValue3 = getSpinnerValueAsDouble(maxEVPower);
             double meanChargingDemandValue3 = getSpinnerValueAsDouble(meanChargingDemand3);
 
-            simulation.setPercentageOfCars2(getSpinnerValueAsInt(percentageOfCars2));
-            simulation.setMaxEvPower2((int) maxEVPowerValue2);
-            simulation.setMeanChargingDemand2(meanChargingDemandValue2);
-            simulation.setBatteryCapacity2(getSpinnerValueAsDouble(batteryCapacity2));
+            simulation.getParameters().setPercentageOfCars2(getSpinnerValueAsInt(percentageOfCars2));
+            simulation.getParameters().setMaxEvPower2((int) maxEVPowerValue2);
+            simulation.getParameters().setMeanChargingDemand2(meanChargingDemandValue2);
+            simulation.getParameters().setBatteryCapacity2(getSpinnerValueAsDouble(batteryCapacity2));
 
 
-            simulation.setPercentageOfCars3(getSpinnerValueAsInt(percentageOfCars3));
-            simulation.setMaxEvPower3((int) maxEVPowerValue3);
-            simulation.setMeanChargingDemand3(meanChargingDemandValue3);
-            simulation.setBatteryCapacity3(getSpinnerValueAsDouble(batteryCapacity3));
+            simulation.getParameters().setPercentageOfCars3(getSpinnerValueAsInt(percentageOfCars3));
+            simulation.getParameters().setMaxEvPower3((int) maxEVPowerValue3);
+            simulation.getParameters().setMeanChargingDemand3(meanChargingDemandValue3);
+            simulation.getParameters().setBatteryCapacity3(getSpinnerValueAsDouble(batteryCapacity3));
 
 
             String queueingTypeString = (String) queueingType.getSelectedItem();
             switch (queueingTypeString) {
-                case "FIFO" -> simulation.setQUEUEING_TYPE(Queue.QueueingType.FIFO);
-                case "LIFO" -> simulation.setQUEUEING_TYPE(Queue.QueueingType.LIFO);
-                case "RANDOM" -> simulation.setQUEUEING_TYPE(Queue.QueueingType.RAND);
+                case "FIFO" -> simulation.getParameters().setQUEUEING_TYPE(Queue.QueueingType.FIFO);
+                case "LIFO" -> simulation.getParameters().setQUEUEING_TYPE(Queue.QueueingType.LIFO);
+                case "RANDOM" -> simulation.getParameters().setQUEUEING_TYPE(Queue.QueueingType.RAND);
             }
 
-            simulation.setMEAN_SERVICE_TIME(getSpinnerValueAsDouble(meanServiceTime));
-            simulation.setMEAN_SERVICE_TIME2(getSpinnerValueAsDouble(meanServiceTime2));
-            simulation.setMEAN_SERVICE_TIME3(getSpinnerValueAsDouble(meanServiceTime3));
+            simulation.getParameters().setMEAN_SERVICE_TIME(getSpinnerValueAsDouble(meanServiceTime));
+            simulation.getParameters().setMEAN_SERVICE_TIME2(getSpinnerValueAsDouble(meanServiceTime2));
+            simulation.getParameters().setMEAN_SERVICE_TIME3(getSpinnerValueAsDouble(meanServiceTime3));
 
             String arrivalTypeString = (String) arrivalType.getSelectedItem();
 
             switch (arrivalTypeString) {
-                case "GEOMETRIC" -> simulation.setARRIVAL_TYPE(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> simulation.setARRIVAL_TYPE(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> simulation.setARRIVAL_TYPE(DistributionType.ERLANG);
-                case "ERLANGD" -> simulation.setARRIVAL_TYPE(DistributionType.ERLANGD);
-                case "UNIFORM" -> simulation.setARRIVAL_TYPE(DistributionType.UNIFORM);
-                case "BETA" -> simulation.setARRIVAL_TYPE(DistributionType.BETA);
-                case "DETERMINISTIC" -> simulation.setARRIVAL_TYPE(DistributionType.DETERMINISTIC);
-                case "LOMAX" -> simulation.setARRIVAL_TYPE(DistributionType.LOMAX);
+                case "GEOMETRIC" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.UNIFORM);
+                case "BETA" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.BETA);
+                case "DETERMINISTIC" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.DETERMINISTIC);
+                case "LOMAX" -> simulation.getParameters().setARRIVAL_TYPE(DistributionType.LOMAX);
             }
 
             String serviceTypeString = (String) serviceType.getSelectedItem();
             switch (serviceTypeString) {
-                case "GEOMETRIC" -> Simulation.setSERVICE_TYPE(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> Simulation.setSERVICE_TYPE(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> Simulation.setSERVICE_TYPE(DistributionType.ERLANG);
-                case "ERLANGD" -> Simulation.setSERVICE_TYPE(DistributionType.ERLANGD);
-                case "UNIFORM" -> Simulation.setSERVICE_TYPE(DistributionType.UNIFORM);
-                case "BETA" -> Simulation.setSERVICE_TYPE(DistributionType.BETA);
-                case "DETERMINISTIC" -> Simulation.setSERVICE_TYPE(DistributionType.DETERMINISTIC);
-                case "LOMAX" -> Simulation.setSERVICE_TYPE(DistributionType.LOMAX);
+                case "GEOMETRIC" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.UNIFORM);
+                case "BETA" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.BETA);
+                case "DETERMINISTIC" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.DETERMINISTIC);
+                case "LOMAX" -> simulation.getParameters().setSERVICE_TYPE(DistributionType.LOMAX);
             }
 
             String demandTypeString = (String) demandType.getSelectedItem();
             switch (demandTypeString) {
-                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE(DistributionType.DETERMINISTIC);
-                case "GEOMETRIC" -> simulation.setDEMAND_TYPE(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> simulation.setDEMAND_TYPE(DistributionType.ERLANG);
-                case "ERLANGD" -> simulation.setDEMAND_TYPE(DistributionType.ERLANGD);
-                case "UNIFORM" -> simulation.setDEMAND_TYPE(DistributionType.UNIFORM);
-                case "BETA" -> simulation.setDEMAND_TYPE(DistributionType.BETA);
-                case "LOMAX" -> simulation.setDEMAND_TYPE(DistributionType.LOMAX);
+                case "DETERMINISTIC" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.DETERMINISTIC);
+                case "GEOMETRIC" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.UNIFORM);
+                case "BETA" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.BETA);
+                case "LOMAX" -> simulation.getParameters().setDEMAND_TYPE(DistributionType.LOMAX);
             }
 
             String demandTypeString2 = (String) demandType2.getSelectedItem();
             switch (demandTypeString2) {
-                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE2(DistributionType.DETERMINISTIC);
-                case "GEOMETRIC" -> simulation.setDEMAND_TYPE2(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE2(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> simulation.setDEMAND_TYPE2(DistributionType.ERLANG);
-                case "ERLANGD" -> simulation.setDEMAND_TYPE2(DistributionType.ERLANGD);
-                case "UNIFORM" -> simulation.setDEMAND_TYPE2(DistributionType.UNIFORM);
-                case "BETA" -> simulation.setDEMAND_TYPE2(DistributionType.BETA);
-                case "LOMAX" -> simulation.setDEMAND_TYPE2(DistributionType.LOMAX);
+                case "DETERMINISTIC" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.DETERMINISTIC);
+                case "GEOMETRIC" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.UNIFORM);
+                case "BETA" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.BETA);
+                case "LOMAX" -> simulation.getParameters().setDEMAND_TYPE2(DistributionType.LOMAX);
             }
 
             String demandTypeString3 = (String) demandType3.getSelectedItem();
             switch (demandTypeString3) {
-                case "DETERMINISTIC" -> simulation.setDEMAND_TYPE3(DistributionType.DETERMINISTIC);
-                case "GEOMETRIC" -> simulation.setDEMAND_TYPE3(DistributionType.GEOMETRIC);
-                case "EXPONENTIAL" -> simulation.setDEMAND_TYPE3(DistributionType.EXPONENTIAL);
-                case "ERLANG" -> simulation.setDEMAND_TYPE3(DistributionType.ERLANG);
-                case "ERLANGD" -> simulation.setDEMAND_TYPE3(DistributionType.ERLANGD);
-                case "UNIFORM" -> simulation.setDEMAND_TYPE3(DistributionType.UNIFORM);
-                case "BETA" -> simulation.setDEMAND_TYPE3(DistributionType.BETA);
-                case "LOMAX" -> simulation.setDEMAND_TYPE3(DistributionType.LOMAX);
+                case "DETERMINISTIC" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.DETERMINISTIC);
+                case "GEOMETRIC" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.GEOMETRIC);
+                case "EXPONENTIAL" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.EXPONENTIAL);
+                case "ERLANG" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.ERLANG);
+                case "ERLANGD" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.ERLANGD);
+                case "UNIFORM" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.UNIFORM);
+                case "BETA" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.BETA);
+                case "LOMAX" -> simulation.getParameters().setDEMAND_TYPE3(DistributionType.LOMAX);
             }
 
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
             simulation.setConfLevel(selectedConfidenceLevel);
 
 
-            // frame.dispose(); //fix the bug=)
+        /*    // frame.dispose(); //fix the bug=)
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Виберіть місце для збереження файлу параметрів симуляції");
             // Налаштуйте, щоб вибрати файли та директорії
@@ -312,8 +315,9 @@ public class SimulationGUI {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-            }
-            simulation.runSimulation();
+    */
+           parameters.writeParameters2txt(frame);
+                simulation.runSimulation();
 
         });
 

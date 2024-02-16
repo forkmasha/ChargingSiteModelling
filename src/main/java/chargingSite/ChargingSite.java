@@ -20,6 +20,7 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.util.ShapeUtilities;
 import results.Histogram;
 
 
@@ -622,10 +623,11 @@ public class ChargingSite {
         }
 
         double maxTime = Simulation.getMaxEvents() / Simulation.getMaxArrivalRate() / 100;
+        double arrivalRate = ( dataset1.getSeriesCount() + 1 ) * Simulation.getMaxArrivalRate() / Simulation.getSimSteps();
 
-        XYSeries series = new XYSeries(String.format("%.1f EV/h", (double) Simulation.getMaxArrivalRate() / (Simulation.getSimSteps() - dataset1.getSeriesCount())));
+        XYSeries series = new XYSeries(String.format("%.1f EV/h", arrivalRate));
         for (TimePowerData data : dataList) {
-            if (data.getTime() < maxTime) {
+            if (data.getTime() > maxTime && data.getTime() <= 2 * maxTime) {
                 series.add(data.getTime(), data.getPower());
             }
         }
@@ -634,13 +636,15 @@ public class ChargingSite {
         int G = (int) Math.round(255 * progress);
         int B = 255;
 
+        Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); //.createRegularCross(1, 1);.createDiamond(2.1f);
+
         dataset1.addSeries(series);
         XYPlot plot = (XYPlot) chartPanel1.getChart().getPlot();
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
         renderer.setSeriesLinesVisible(dataset1.getSeriesCount() - 1, false);
         renderer.setSeriesShapesVisible(dataset1.getSeriesCount() - 1, true);
-
+        renderer.setSeriesShape(dataset1.getSeriesCount() - 1, cross);
         plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R, G, B));
 
         plot.getRangeAxis().setRange(0, Simulation.MAX_SITE_POWER * 1.05);

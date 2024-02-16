@@ -112,6 +112,7 @@ public class Simulation extends Graph {
 
     public void runSimulation() {
         resetData();
+        ChargingSite.clearDataset1();
         EventSimulation.setMaxEvents(parameters.getMAX_EVENTS());
         Client[] myFirstClients = new Client[1];
         Client myFirstClient;

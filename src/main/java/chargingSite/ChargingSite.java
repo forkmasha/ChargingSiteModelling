@@ -18,6 +18,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
@@ -586,10 +587,6 @@ public class ChargingSite {
         return new Color(r, g, b);
     }
 
-    static void resetData() {
-        dataset.clear();
-        seriesCounter = 0;
-    }
 
     private static JFrame frame1;
     private static ChartPanel chartPanel1;
@@ -618,6 +615,17 @@ public class ChargingSite {
 
         frame1.setVisible(true);
     }
+    static void resetData() {
+        dataset.clear();
+        seriesCounter = 0;
+    }
+
+    public static void clearDataset1() {
+        if (dataset1 != null) {
+            dataset1.removeAllSeries();
+            dataList.clear();
+        }
+    }
 
     public static void displayChart(List<TimePowerData> dataList, SimulationParameters parameters) {
         if (frame1 == null || chartPanel1 == null || dataset1 == null) {
@@ -635,8 +643,14 @@ public class ChargingSite {
         }
         double progress = (double) dataset1.getSeriesCount() / parameters.getSIM_STEPS();
         int R = 0;
-        int G = (int) Math.round(255 * progress);
+        int G = (int) Math.floor(255 * progress);
         int B = 255;
+
+        /*if (G>255) { System.out.println("WARNING: " +
+                "Why is in CS.displayChart the dataset1 larger ( "+ dataset1.getSeriesCount() +" ) " +
+                "than the number of simulation steps ( "+ parameters.getSIM_STEPS() +" )?");
+            G = 255;
+        }*/
 
         Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); //.createRegularCross(1, 1);.createDiamond(2.1f);
 
@@ -651,7 +665,7 @@ public class ChargingSite {
 
         plot.getRangeAxis().setRange(0, parameters.MAX_SITE_POWER * 1.05);
 
-        frame.repaint();
+        frame1.repaint();
     }
 }
 

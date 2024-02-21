@@ -1,7 +1,6 @@
 package chargingSite;
 
 import distributions.Distribution;
-import distributions.DistributionType;
 import eventSimulation.*;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -17,7 +16,6 @@ import org.jfree.util.ShapeUtilities;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import queueingSystem.Client;
-import queueingSystem.Queue.QueueingType;
 import queueingSystem.QueueingSystem;
 import results.*;
 
@@ -361,7 +359,7 @@ public class Simulation extends Graph {
         plot.setFixedLegendItems(legendItemSource.getLegendItems());
 
         ChartPanel chartPanel = new ChartPanel(MyChart);
-        chartPanel.setPreferredSize(new Dimension(800, 630));
+        chartPanel.setPreferredSize(new Dimension(800,  550));
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
@@ -384,9 +382,27 @@ public class Simulation extends Graph {
         frame.setContentPane(chartPanel);
         frame.pack();
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int screenWidth = (int) screenSize.getWidth();
-        frame.setLocation(screenWidth - frame.getWidth(), 0);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs = ge.getScreenDevices();
+        Rectangle largestBounds = null;
+        long maxArea = 0;
+
+        for (GraphicsDevice gd : gs) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+            long area = bounds.width * bounds.height;
+            if (area > maxArea) {
+                maxArea = area;
+                largestBounds = bounds;
+            }
+        }
+
+        if (largestBounds != null) {
+            // Відступ від лівого краю найбільшого монітора + ширина попереднього вікна + додатковий відступ
+            int xPosition = largestBounds.x + 2 + 465; // 2 пікселі відступу зліва + ширина попереднього вікна 450 пікселів
+            int yPosition = largestBounds.y + 1; // 1 мм відступу зверху, приблизно 3.78 пікселів, заокруглено до 1 для спрощення
+
+            frame.setLocation(xPosition, yPosition);
+        }
 
         frame.setVisible(true);
         chartPanel.repaint();
@@ -433,6 +449,7 @@ public class Simulation extends Graph {
             }
         }
     }
+
 
     public void saveGraphDataToCSV(String filePath) {
         try (FileWriter writer = new FileWriter(filePath)) {

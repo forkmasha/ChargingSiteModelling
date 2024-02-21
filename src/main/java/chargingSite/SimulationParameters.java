@@ -10,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+
 public class SimulationParameters {
 
     private double MIN_ARRIVAL_RATE;
@@ -49,6 +50,9 @@ public class SimulationParameters {
     private double percentageOfCars = 1;
     private double percentageOfCars2;
     private double percentageOfCars3;
+    SimulationParameters(){
+
+    }
 
     public int getConfLevel() {
         return confLevel;
@@ -290,6 +294,7 @@ public class SimulationParameters {
     public int getSimSteps() {
         return SIM_STEPS;
     }
+
     public int getMAX_EVENTS() {
         return MAX_EVENTS;
     }
@@ -338,7 +343,6 @@ public class SimulationParameters {
         return MAX_SITE_POWER;
     }
 
-
     public double getAvgServiceTime() {
         double p1, p2, p3;
         if (this.getNUMBER_OF_CAR_TYPES() < 2) this.setAVERAGE_SERVICE_TIME(this.getMEAN_SERVICE_TIME());
@@ -362,6 +366,7 @@ public class SimulationParameters {
         }
         return AVERAGE_SERVICE_TIME;
     }
+
     public String getKendallName() {
         return Distribution.getTitleAbbreviation(String.valueOf(ARRIVAL_TYPE)) + "/"
                 + Distribution.getTitleAbbreviation(String.valueOf(SERVICE_TYPE)) + "/"
@@ -411,77 +416,186 @@ public class SimulationParameters {
     }
 
     public void writeParameters2txt(JFrame frame) {
-    JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Виберіть місце для збереження файлу параметрів симуляції");
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            fileChooser.setSelectedFile(new java.io.File("simulation_parameters.txt"));
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Виберіть місце для збереження файлу параметрів симуляції");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setSelectedFile(new java.io.File("simulation_parameters.txt"));
 
-    int userSelection = fileChooser.showSaveDialog(frame);
+        int userSelection = fileChooser.showSaveDialog(frame);
 
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-        java.io.File fileToSave = fileChooser.getSelectedFile();
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
 
-        if (!fileToSave.getPath().toLowerCase().endsWith(".txt")) {
-            fileToSave = new java.io.File(fileToSave.getPath() + ".txt");
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
-
-            writer.write("General parameters"+ "\n");
-            writer.write("Number of steps - " +  SIM_STEPS + "\n");
-            writer.write("Max Events per step - " + MAX_EVENTS + "\n");
-            writer.write("Confidence interval level - " + confLevel + "\n");
-            writer.write("Arrival Distribution Type - " + ARRIVAL_TYPE.toString() + "\n");
-            writer.write("Max Mean Arrival Rate - " + MAX_ARRIVAL_RATE + "\n");
-            writer.write("Number of servers  - " + NUMBER_OF_SERVERS + "\n");
-            writer.write("Queue size - " + QUEUE_SIZE + "\n");
-            writer.write("Queueing Type - " + QUEUEING_TYPE.toString() + "\n");
-            writer.write("Service Distribution Type - " + SERVICE_TYPE.toString() + "\n");
-            writer.write("Number of client types - " + NUMBER_OF_CAR_TYPES + "\n");
-            writer.write("Demand distribution type - " + DEMAND_TYPE.toString() + "\n");
-            writer.write("Mean charging demand - " + MEAN_CHARGING_DEMAND + "\n");
-            writer.write("Battery capacity - " + batteryCapacity + "\n");
-            writer.write("Max site power - " + MAX_SITE_POWER + "\n");
-            writer.write("Max point power - " + MAX_POINT_POWER + "\n");
-            writer.write("Max EV power - " + MAX_EV_POWER + "\n");
-
-            int selectedClientTypes = NUMBER_OF_CAR_TYPES;
-            if (selectedClientTypes == 2) {
-
-                writer.newLine();
-                writer.write("Parameters for second car" + "\n");
-
-                writer.write("Percentage of cars 2 - " + percentageOfCars2 + "\n");
-                writer.write("Mean service time 2 - " + MEAN_SERVICE_TIME2 + "\n");
-                writer.write("Max EV power 2 - " + MAX_EV_POWER2+ "\n");
-                writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
-                writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
-                writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
-            } else if (selectedClientTypes == 3) {
-                writer.newLine();
-                writer.write("Parameters for second car" + "\n");
-
-                writer.write("Percentage of cars 2 - " + percentageOfCars2 + "\n");
-                writer.write("Mean service time 2 - " + MEAN_SERVICE_TIME2 + "\n");
-                writer.write("Max EV power 2 - " + MAX_EV_POWER2+ "\n");
-                writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
-                writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
-                writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
-
-                writer.newLine();
-                writer.write("Parameters for third car" + "\n");
-
-                writer.write("Percentage of cars 3 - " + percentageOfCars3+ "\n");
-                writer.write("Mean service time 3 - " + MEAN_SERVICE_TIME3 + "\n");
-                writer.write("Max EV power 3 - " + MAX_EV_POWER3+ "\n");
-                writer.write("Demand distribution type 3 - " + DEMAND_TYPE3.toString()+ "\n");
-                writer.write("Mean charging demand 3 - " + MEAN_CHARGING_DEMAND3 + "\n");
-                writer.write("Battery capacity 3 - " + batteryCapacity3 + "\n");
+            if (!fileToSave.getPath().toLowerCase().endsWith(".txt")) {
+                fileToSave = new java.io.File(fileToSave.getPath() + ".txt");
             }
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+
+                writer.write("General parameters" + "\n");
+                writer.write("Number of steps - " + SIM_STEPS + "\n");
+                writer.write("Max Events per step - " + MAX_EVENTS + "\n");
+                writer.write("Confidence interval level - " + confLevel + "\n");
+                writer.write("Arrival Distribution Type - " + ARRIVAL_TYPE.toString() + "\n");
+                writer.write("Max Mean Arrival Rate - " + MAX_ARRIVAL_RATE + "\n");
+                writer.write("Number of servers  - " + NUMBER_OF_SERVERS + "\n");
+                writer.write("Queue size - " + QUEUE_SIZE + "\n");
+                writer.write("Queueing Type - " + QUEUEING_TYPE.toString() + "\n");
+                writer.write("Service Distribution Type - " + SERVICE_TYPE.toString() + "\n");
+                writer.write("Number of client types - " + NUMBER_OF_CAR_TYPES + "\n");
+                writer.write("Demand distribution type - " + DEMAND_TYPE.toString() + "\n");
+                writer.write("Mean charging demand - " + MEAN_CHARGING_DEMAND + "\n");
+                writer.write("Battery capacity - " + batteryCapacity + "\n");
+                writer.write("Max site power - " + MAX_SITE_POWER + "\n");
+                writer.write("Max point power - " + MAX_POINT_POWER + "\n");
+                writer.write("Max EV power - " + MAX_EV_POWER + "\n");
+
+                int selectedClientTypes = NUMBER_OF_CAR_TYPES;
+                if (selectedClientTypes == 2) {
+
+                    writer.newLine();
+                    writer.write("Parameters for second car" + "\n");
+
+                    writer.write("Percentage of cars 2 - " + percentageOfCars2 + "\n");
+                    writer.write("Mean service time 2 - " + MEAN_SERVICE_TIME2 + "\n");
+                    writer.write("Max EV power 2 - " + MAX_EV_POWER2 + "\n");
+                    writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
+                    writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
+                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
+                } else if (selectedClientTypes == 3) {
+                    writer.newLine();
+                    writer.write("Parameters for second car" + "\n");
+
+                    writer.write("Percentage of cars 2 - " + percentageOfCars2 + "\n");
+                    writer.write("Mean service time 2 - " + MEAN_SERVICE_TIME2 + "\n");
+                    writer.write("Max EV power 2 - " + MAX_EV_POWER2 + "\n");
+                    writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
+                    writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
+                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
+
+                    writer.newLine();
+                    writer.write("Parameters for third car" + "\n");
+
+                    writer.write("Percentage of cars 3 - " + percentageOfCars3 + "\n");
+                    writer.write("Mean service time 3 - " + MEAN_SERVICE_TIME3 + "\n");
+                    writer.write("Max EV power 3 - " + MAX_EV_POWER3 + "\n");
+                    writer.write("Demand distribution type 3 - " + DEMAND_TYPE3.toString() + "\n");
+                    writer.write("Mean charging demand 3 - " + MEAN_CHARGING_DEMAND3 + "\n");
+                    writer.write("Battery capacity 3 - " + batteryCapacity3 + "\n");
+                }
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
+        }
+    }
+
+
+    public void writeParameters2xml(JFrame frame) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Виберіть місце для збереження файлу параметрів симуляції в форматі XML");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setSelectedFile(new java.io.File("simulation_parameters.xml"));
+
+        int userSelection = fileChooser.showSaveDialog(frame);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
+
+            if (!fileToSave.getPath().toLowerCase().endsWith(".xml")) {
+                fileToSave = new java.io.File(fileToSave.getPath() + ".xml");
+            }
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                writer.write("<SimulationParameters>\n");
+
+                // General parameters
+                writer.write("        <GeneralParameters>\n");
+                writer.write("        <NumberOfSteps>" + SIM_STEPS + "</NumberOfSteps>\n");
+                writer.write("        <MaxEventsPerStep>" + MAX_EVENTS + "</MaxEventsPerStep>\n");
+                writer.write("        <ConfidenceIntervalLevel>" + confLevel + "</ConfidenceIntervalLevel>\n");
+                writer.write("        <ArrivalDistributionType>" + ARRIVAL_TYPE.toString() + "</ArrivalDistributionType>\n");
+                writer.write("        <MaxMeanArrivalRate>" + MAX_ARRIVAL_RATE + "</MaxMeanArrivalRate>\n");
+                writer.write("        <NumberOfServers>" + NUMBER_OF_SERVERS + "</NumberOfServers>\n");
+                writer.write("        <QueueSize>" + QUEUE_SIZE + "</QueueSize>\n");
+                writer.write("        <QueueingType>" + QUEUEING_TYPE.toString() + "</QueueingType>\n");
+                writer.write("        <ServiceDistributionType>" + SERVICE_TYPE.toString() + "</ServiceDistributionType>\n");
+                writer.write("        <NumberOfClientTypes>" + NUMBER_OF_CAR_TYPES + "</NumberOfClientTypes>\n");
+                writer.write("        <DemandDistributionType>" + DEMAND_TYPE.toString() + "</DemandDistributionType>\n");
+                writer.write("        <MeanChargingDemand>" + MEAN_CHARGING_DEMAND + "</MeanChargingDemand>\n");
+                writer.write("        <BatteryCapacity>" + batteryCapacity + "</BatteryCapacity>\n");
+                writer.write("        <MaxSitePower>" + MAX_SITE_POWER + "</MaxSitePower>\n");
+                writer.write("        <MaxPointPower>" + MAX_POINT_POWER + "</MaxPointPower>\n");
+                writer.write("        <MaxEVPower>" + MAX_EV_POWER + "</MaxEVPower>\n");
+                writer.write("    </GeneralParameters>\n");
+
+                // Handling additional car types if applicable
+                for (int i = 2; i <= NUMBER_OF_CAR_TYPES; i++) {
+                    writer.write("    <CarType" + i + "Parameters>\n");
+                    writer.write("        <PercentageOfCars>" + getClass().getField("percentageOfCars" + i).get(this) + "</PercentageOfCars>\n");
+                    writer.write("        <MeanServiceTime>" + getClass().getField("MEAN_SERVICE_TIME" + i).get(this) + "</MeanServiceTime>\n");
+                    writer.write("        <MaxEVPower>" + getClass().getField("MAX_EV_POWER" + i).get(this) + "</MaxEVPower>\n");
+                    writer.write("        <DemandDistributionType>" + getClass().getField("DEMAND_TYPE" + i).toString() + "</DemandDistributionType>\n");
+                    writer.write("        <MeanChargingDemand>" + getClass().getField("MEAN_CHARGING_DEMAND" + i).get(this) + "</MeanChargingDemand>\n");
+                    writer.write("        <BatteryCapacity>" + getClass().getField("batteryCapacity" + i).get(this) + "</BatteryCapacity>\n");
+                    writer.write("    </CarType" + i + "Parameters>\n");
+                }
+
+                writer.write("</SimulationParameters>\n");
+            } catch (IOException | NoSuchFieldException | IllegalAccessException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public enum Format {
+        TXT, XML
+    }
+
+    // Method to save parameters in either TXT or XML format
+    public static void writeParameters(JFrame frame, Format format) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Choose location to save simulation parameters");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+
+        // Set default file name based on format
+        String defaultFileName = "simulation_parameters" + (format == Format.XML ? ".xml" : ".txt");
+        fileChooser.setSelectedFile(new java.io.File(defaultFileName));
+
+        int userSelection = fileChooser.showSaveDialog(frame);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getPath();
+
+            // Ensure the file has the correct extension
+            if (!filePath.toLowerCase().endsWith(format == Format.XML ? ".xml" : ".txt")) {
+                fileToSave = new java.io.File(filePath + (format == Format.XML ? ".xml" : ".txt"));
+            }
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+                if (format == Format.TXT) {
+                    writeTxtFormat(writer); // Implement this method to write in TXT format
+                } else if (format == Format.XML) {
+                    writeXmlFormat(writer); // Implement this method to write in XML format
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+
+    private static void writeTxtFormat(BufferedWriter writer) throws IOException {
+
+    }
+
+    private static void writeXmlFormat(BufferedWriter writer) throws IOException {
+        // Example of writing in XML format
+        writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        writer.write("<simulationParameters>\n");
+        // More writing code here...
+        writer.write("</simulationParameters>\n");
     }
 }

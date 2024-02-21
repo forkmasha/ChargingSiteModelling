@@ -27,6 +27,8 @@ import results.Histogram;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.*;
 import java.util.List;
 import java.util.stream.DoubleStream;
@@ -337,194 +339,9 @@ public class ChargingSite {
         float b = rand.nextFloat();
         return new Color(r, g, b);
     }
-   /* public static void plotHistogram(ArrayList<Double> data, int numBins) {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-        double min = Collections.min(data);
-        double max = Collections.max(data);
-        double binWidth = (max - min) / numBins;
-
-        // Заповнення гістограми
-        int[] bins = new int[numBins];
-        for (double value : data) {
-            int binIndex = (int) ((value - min) / binWidth);
-            if (binIndex == numBins) {
-                binIndex--;
-            }
-            bins[binIndex]++;
-        }
-
-        for (int i = 0; i < numBins; i++) {
-            dataset.addValue(bins[i], "Frequency", String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
-        }
-
-        // Створення графіку
-        JFreeChart chart = ChartFactory.createBarChart("Histogram", "Site Power", "Frequency", dataset,PlotOrientation.VERTICAL,false,false,false);
-
-        // Відображення графіку у вікні
-        JFrame frame = new JFrame("Histogram");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new ChartPanel(chart));
-        frame.pack();
-        frame.setVisible(true);
-    }*/
-
-      /*public static void plotHistogram(ArrayList<Double> data, int numBins) {
-        // Створення гістограми
-        HashMap<Integer, Integer> histogram = new HashMap<>();
-        double min = Collections.min(data);
-        double max = Collections.max(data);
-        double binWidth = (max - min) / numBins;
-
-        // Заповнення гістограми
-        for (double value : data) {
-            int binIndex = (int) ((value - min) / binWidth);
-            histogram.put(binIndex, histogram.getOrDefault(binIndex, 0) + 1);
-        }
-
-        // Вивід гістограми
-        for (int binIndex = 0; binIndex < numBins; binIndex++) {
-            int count = histogram.getOrDefault(binIndex, 0);
-            double binStart = min + binIndex * binWidth;
-            double binEnd = binStart + binWidth;
-            System.out.printf("[%f - %f]: %d\n", binStart, binEnd, count);
-        }
-    }*/
-
-     /*public static void plotHistogram(ArrayList<Double> data, int numBins) {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-        double min = Collections.min(data);
-        double max = Collections.max(data);
-        double binWidth = (max - min) / numBins;
-
-        // Заповнення гістограми
-        int[] bins = new int[numBins];
-        for (double value : data) {
-            int binIndex = (int) ((value - min) / binWidth);
-            if (binIndex == numBins) {
-                binIndex--;
-            }
-            bins[binIndex]++;
-        }
-
-        for (int i = 0; i < numBins; i++) {
-            dataset.addValue(bins[i], "Frequency", String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
-        }
-
-        // Створення графіку
-        JFreeChart chart = ChartFactory.createBarChart3D("Histogram", "Site Power", "Frequency", dataset, PlotOrientation.VERTICAL, false, false, false);
-
-        // Відображення графіку у вікні
-        ChartPanel chartPanel = new ChartPanel(chart);
-        JFrame frame = new JFrame("Histogram");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(chartPanel);
-        frame.pack();
-        frame.setVisible(true);
-    }*/
-
-  /*  private static DefaultCategoryDataset dataset;
-    private static JFreeChart chart;
-    private static JFrame frame;
-
-    public static void plotHistogram(ArrayList<Double> data, int numBins) {
-        if (dataset == null) {
-            dataset = new DefaultCategoryDataset();
-            chart = ChartFactory.createBarChart3D("Histogram", "Site Power", "Frequency", dataset, PlotOrientation.VERTICAL, false, false, false);
-            frame = new JFrame("Histogram");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            ChartPanel chartPanel = new ChartPanel(chart);
-            frame.getContentPane().add(chartPanel);
-            frame.pack();
-            frame.setVisible(true);
-        }
-
-        double min = Collections.min(data);
-        double max = Collections.max(data);
-        double binWidth = (max - min) / numBins;
-
-        int[] bins = new int[numBins];
-        for (double value : data) {
-            int binIndex = (int) ((value - min) / binWidth);
-            if (binIndex == numBins) {
-                binIndex--;
-            }
-            bins[binIndex]++;
-        }
-
-        Color color = getRandomColor();
-
-        for (int i = 0; i < numBins; i++) {
-            dataset.addValue(bins[i], "Frequency", String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
-            chart.getCategoryPlot().getRenderer().setSeriesPaint(i, color);
-        }
-    }
-
-    private static Color getRandomColor() {
-        return new Color((int) (Math.random() * 0x1000000));
-    }*/
-
-
- /*   private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    private static int seriesCounter = 0;
-
-    public static void plotHistogram(ArrayList<Double> data, int numBins) {
-        double min = Collections.min(data);
-        double max = Collections.max(data);
-        double binWidth = (max - min) / numBins;
-
-        // Заповнення гістограми
-        int[] bins = new int[numBins];
-        for (double value : data) {
-            int binIndex = (int) ((value - min) / binWidth);
-            if (binIndex == numBins) {
-                binIndex--;
-            }
-            bins[binIndex]++;
-        }
-
-        for (int i = 0; i < numBins; i++) {
-            dataset.addValue((double) bins[i]/data.size(), "Probability" + seriesCounter, String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
-        }
-
-        // Створення графіку
-        JFreeChart chart = ChartFactory.createBarChart3D("Histogram", "Site Power", "Frequency", dataset, PlotOrientation.VERTICAL, true, true, false);
-
-        // Зміна кольору гістограми
-        CategoryPlot plot = chart.getCategoryPlot();
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setSeriesPaint(seriesCounter, getRandomColor());
-
-        seriesCounter++;
-
-        // Оновлення графіку у вікні з можливістю масштабування, переміщення та повороту
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(800, 600));
-        chartPanel.setMouseWheelEnabled(true);
-        chartPanel.setDomainZoomable(true);
-        chartPanel.setRangeZoomable(true);
-        chartPanel.setPopupMenu(null);
-
-        JFrame frame = new JFrame("Histogram");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(chartPanel);
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    private static Color getRandomColor() {
-        Random random = new Random();
-        int r = random.nextInt(256);
-        int g = random.nextInt(256);
-        int b = random.nextInt(256);
-        return new Color(r, g, b);
-    }*/
-
-
     private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
     private static int seriesCounter = 0;
-    private static JFrame frame;
+    public static JFrame frame;
 
     public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
         double min = 0; //Collections.min(data);
@@ -555,7 +372,7 @@ public class ChargingSite {
         seriesCounter++;
 
         ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(800, 600));
+        chartPanel.setPreferredSize(new Dimension(640, 590));
         chartPanel.setMouseWheelEnabled(true);
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
@@ -570,6 +387,36 @@ public class ChargingSite {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.getContentPane().add(chartPanel);
             frame.pack();
+
+            frame.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                    GraphicsDevice[] screens = ge.getScreenDevices();
+                    int maxScreenWidth = 0;
+                    int maxScreenHeight = 0;
+
+                    // Змінні для найбільшого монітора
+                    GraphicsDevice largestScreen = null;
+                    int largestArea = 0;
+
+                    for (GraphicsDevice screen : screens) {
+                        DisplayMode dm = screen.getDisplayMode();
+                        int area = dm.getWidth() * dm.getHeight();
+
+                        if (area > largestArea) {
+                            largestArea = area;
+                            largestScreen = screen;
+                            maxScreenWidth = dm.getWidth();
+                            maxScreenHeight = dm.getHeight();
+                        }
+                    }
+
+                    frame.setLocation(largestScreen.getDefaultConfiguration().getBounds().x + maxScreenWidth - frame.getWidth(),
+                            largestScreen.getDefaultConfiguration().getBounds().y + largestScreen.getDefaultConfiguration().getBounds().height - frame.getHeight());
+                }
+            });
+
             frame.setVisible(true);
         } else {
             frame.getContentPane().removeAll();
@@ -594,8 +441,31 @@ public class ChargingSite {
     private static Color[] colors = {Color.BLUE, Color.RED, Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.BLACK};
 
     public static void initializeChart1() {
+        // Отримання розмірів екранів
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] screens = ge.getScreenDevices();
+        int maxScreenWidth = 0;
+        int maxScreenHeight = 0;
+
+        // Змінні для найбільшого монітора
+        GraphicsDevice largestScreen = null;
+        int largestArea = 0;
+
+        for (GraphicsDevice screen : screens) {
+            DisplayMode dm = screen.getDisplayMode();
+            int area = dm.getWidth() * dm.getHeight();
+
+            if (area > largestArea) {
+                largestArea = area;
+                largestScreen = screen;
+                maxScreenWidth = dm.getWidth();
+                maxScreenHeight = dm.getHeight();
+            }
+        }
+
+        // Створення вікна графіка
         frame1 = new JFrame();
-        frame1.setSize(600, 400);
+        frame1.setSize(652, 580);
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         dataset1 = new XYSeriesCollection();
@@ -613,8 +483,15 @@ public class ChargingSite {
         chartPanel1 = new ChartPanel(chart);
         frame1.add(chartPanel1);
 
+        // Встановлення розташування вікна в верхній правий кут найбільшого монітора
+        int screenX = largestScreen.getDefaultConfiguration().getBounds().x;
+        int screenY = largestScreen.getDefaultConfiguration().getBounds().y;
+        frame1.setLocation(screenX + maxScreenWidth - frame1.getWidth(), screenY);
+
         frame1.setVisible(true);
     }
+
+
     static void resetData() {
         dataset.clear();
         seriesCounter = 0;
@@ -645,13 +522,6 @@ public class ChargingSite {
         int R = 0;
         int G = (int) Math.floor(255 * progress);
         int B = 255;
-
-        /*if (G>255) { System.out.println("WARNING: " +
-                "Why is in CS.displayChart the dataset1 larger ( "+ dataset1.getSeriesCount() +" ) " +
-                "than the number of simulation steps ( "+ parameters.getSIM_STEPS() +" )?");
-            G = 255;
-        }*/
-
         Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); //.createRegularCross(1, 1);.createDiamond(2.1f);
 
         dataset1.addSeries(series);
@@ -668,9 +538,3 @@ public class ChargingSite {
         frame1.repaint();
     }
 }
-
-
-
-
-
-

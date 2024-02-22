@@ -27,6 +27,13 @@ public class SimulationGUI {
     private static final Color DARK_BLUE = new Color(136, 186, 242);
     private static final Color ORANGE = new Color(255, 175, 128);
     private static final Color RED = new Color(255, 102, 102);
+
+
+    private static final Color GREY = new Color(0, 0, 128);
+    private static final Color DARK_GREY = new Color(0, 0, 80);
+    private static final Color BLUE1 = new Color(50, 50, 50);
+    private static final Color BLUE2 = new Color(80, 80, 80);
+
     private static Simulation simulation;
     private static SimulationParameters parameters;
 
@@ -496,7 +503,7 @@ public class SimulationGUI {
         jScrollPane.setMaximumSize(new Dimension(430, 550));
         numberOfClientTypes.addChangeListener(new ChangeListener() {
             @Override
-            public void stateChanged(ChangeEvent e) {
+                public void stateChanged(ChangeEvent e) {
                 int selectedClientTypes = getSpinnerValueAsInt(numberOfClientTypes);
                 if (isThirdCarPanelAdded(procPanel)) {
                     removeThirdCarPanel(procPanel);
@@ -513,11 +520,14 @@ public class SimulationGUI {
 
 
                     JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2, meanChargingDemand2, demandType2, batteryCapacity2);
-
+                    Dimension panelSize = new Dimension(240, 420);
+                    secondCarPanel.setPreferredSize(panelSize);
+                    secondCarPanel.setMinimumSize(panelSize);
+                    secondCarPanel.setMaximumSize(panelSize);
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
                     secondCarGbc.insets = new Insets(5, 5, 5, 5);
-                    secondCarGbc.gridx = 0;  // Set the column index for the second car panel
+                    secondCarGbc.gridx = 0;
                     secondCarGbc.gridy = 28;
                     procPanel.add(secondCarPanel, secondCarGbc);
                     procPanel.revalidate();
@@ -526,6 +536,11 @@ public class SimulationGUI {
                 } else if (selectedClientTypes == 3) {
 
                     JPanel secondCarPanel = createSecondCarPanel(percentageOfCars2, meanServiceTime2, maxEVPower2, meanChargingDemand2, demandType2, batteryCapacity2);
+                    Dimension panelSize = new Dimension(240, 420);
+                    secondCarPanel.setPreferredSize(panelSize);
+                    secondCarPanel.setMinimumSize(panelSize);
+                    secondCarPanel.setMaximumSize(panelSize);
+
                     GridBagConstraints secondCarGbc = new GridBagConstraints();
                     secondCarGbc.anchor = GridBagConstraints.WEST;
                     secondCarGbc.insets = new Insets(5, 5, 5, 5);
@@ -534,11 +549,13 @@ public class SimulationGUI {
                     procPanel.add(secondCarPanel, secondCarGbc);
 
                     JPanel thirdCarPanel = createThirdCarPanel(percentageOfCars3, meanServiceTime3, maxEVPower3, meanChargingDemand3, demandType3, batteryCapacity3);
+
+
                     GridBagConstraints thirdCarGbc = new GridBagConstraints();
                     thirdCarGbc.anchor = GridBagConstraints.WEST;
                     thirdCarGbc.insets = new Insets(5, 5, 5, 5);
                     thirdCarGbc.gridx = 0;
-                    thirdCarGbc.gridy = 35; // Adjust the row index as needed
+                    thirdCarGbc.gridy = 35;
                     procPanel.add(thirdCarPanel, thirdCarGbc);
 
                     procPanel.revalidate();
@@ -547,27 +564,57 @@ public class SimulationGUI {
             }
         });
 
+
         TitledBorder generalBorder = BorderFactory.createTitledBorder("General parameters");
         JPanel generalPanel = new JPanel(new GridBagLayout());
         generalPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), generalBorder));
         generalPanel.setBorder(generalBorder);
+        generalBorder.setTitleColor(Color.BLUE);
 
+        Dimension panelSize = new Dimension(240, 210);
+        generalPanel.setPreferredSize(panelSize);
+        generalPanel.setMinimumSize(panelSize);
+        generalPanel.setMaximumSize(panelSize);
         generalPanel.addMouseListener(new MouseAdapter() {
+            private boolean isParametersShown = true;
+
             public void mouseClicked(MouseEvent e) {
-                if (generalPanel.getComponentCount() > 0) {
+                if (isParametersShown) {
                     generalPanel.removeAll();
-                    generalPanel.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createEmptyBorder(10, 10, 10, 10), generalBorder));
+                    JLabel label = new JLabel("General Parameters");
+                    label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                    label.setForeground(Color.BLACK);
+                    generalPanel.add(label);
+
+                    generalPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+                    isParametersShown = false;
+                    generalPanel.setPreferredSize(new Dimension(240, 45));
+                    generalPanel.revalidate();
+                    generalPanel.repaint();
                 } else {
+                    generalPanel.removeAll();
+
                     addRowToPanel(generalPanel, gbc, "Number of Simulation Steps", numberOfSteps);
                     addRowToPanel(generalPanel, gbc, "Max Events per Step", maxEvents);
                     addRowToPanel(generalPanel, gbc, "Confidence Interval Level [%]", confLevel);
+
+                    TitledBorder generalBorder = BorderFactory.createTitledBorder("General parameters");
+                    generalPanel.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(10, 10, 10, 10),
+                            generalBorder));
+                    generalBorder.setTitleColor(Color.BLUE);
+
+                    isParametersShown = true;
+                    generalPanel.setPreferredSize(new Dimension(240, 210));
+                    generalPanel.revalidate();
+                    generalPanel.repaint();
+
                 }
                 generalPanel.revalidate();
                 generalPanel.repaint();
             }
         });
-
 
         generalPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(10, 10, 10, 10),
@@ -579,67 +626,97 @@ public class SimulationGUI {
         addRowToPanel(generalPanel, gbc, "Max Events per Step", maxEvents);
         addRowToPanel(generalPanel, gbc, "Confidence Interval Level [%]", confLevel);
 
-
-
-
         TitledBorder siteBorder = BorderFactory.createTitledBorder("Site Parameters");
         JPanel sitePanel = new JPanel(new GridBagLayout());
         sitePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), siteBorder));
 
         sitePanel.addMouseListener(new MouseAdapter() {
+            private boolean isParametersShown = true;
+
             public void mouseClicked(MouseEvent e) {
-                if (sitePanel.getComponentCount() > 0) {
+                if (isParametersShown) {
                     sitePanel.removeAll();
-                    sitePanel.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createEmptyBorder(10, 10, 10, 10), siteBorder));
+                    JLabel label = new JLabel("Site Parameters");
+                    label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                    label.setForeground(Color.BLACK);
+                    sitePanel.add(label);
+                    sitePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                    isParametersShown = false;
+                    sitePanel.setPreferredSize(new Dimension(240, 45));
                 } else {
+                    sitePanel.removeAll();
+
                     addRowToPanel(sitePanel, gbc, "Arrival Distribution Type", arrivalType);
                     addRowToPanel(sitePanel, gbc, "Max Mean Arrival Rate [EV/h]", maxArrivalRate);
-                    addRowToPanel(sitePanel, gbc, "Parking space [EV]", queueSize);
+                    addRowToPanel(sitePanel, gbc, "Parking Space [EV]", queueSize);
                     addRowToPanel(sitePanel, gbc, "Queueing Type", queueingType);
                     addRowToPanel(sitePanel, gbc, "Max Site Power [kW]", maxSitePower);
+
+                    TitledBorder tempBorder = BorderFactory.createTitledBorder("Site Parameters");
+                    sitePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), tempBorder));
+                    tempBorder.setTitleColor(Color.BLUE);
+
+                    isParametersShown = true;
+                    sitePanel.setPreferredSize(new Dimension(240, 350));
                 }
                 sitePanel.revalidate();
                 sitePanel.repaint();
             }
         });
 
-        sitePanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(10, 10, 10, 10),
-                generalBorder));
-
+        sitePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), siteBorder));
         siteBorder.setTitle("<html><body>&nbsp;<b><font color='blue'>Site Parameters</font></b></body></html>");
 
         addRowToPanel(sitePanel, gbc, "Arrival Distribution Type", arrivalType);
         addRowToPanel(sitePanel, gbc, "Max Mean Arrival Rate [EV/h]", maxArrivalRate);
-        addRowToPanel(sitePanel, gbc, "Parking space [EV]", queueSize);
+        addRowToPanel(sitePanel, gbc, "Parking Space [EV]", queueSize);
         addRowToPanel(sitePanel, gbc, "Queueing Type", queueingType);
         addRowToPanel(sitePanel, gbc, "Max Site Power [kW]", maxSitePower);
 
 
-
-
         TitledBorder chargingParameters = BorderFactory.createTitledBorder("Charging Parameters");
         JPanel chargingParametersPanel = new JPanel(new GridBagLayout());
+
+        Dimension chargingPanelSize = new Dimension(240, 210);
+        chargingParametersPanel.setPreferredSize(chargingPanelSize);
+        chargingParametersPanel.setMinimumSize(chargingPanelSize);
+        chargingParametersPanel.setMaximumSize(chargingPanelSize);
+
+        chargingParameters.setTitleColor(Color.BLUE);
+        chargingParameters.setTitle("<html><body>&nbsp;<b><font color='blue'>Charging Parameters</font></b></body></html>");
         chargingParametersPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), chargingParameters));
 
         chargingParametersPanel.addMouseListener(new MouseAdapter() {
+            private boolean isParametersShown = true;
             public void mouseClicked(MouseEvent e) {
-                if (chargingParametersPanel.getComponentCount() > 0) {
+                if (isParametersShown) {
                     chargingParametersPanel.removeAll();
-                    chargingParametersPanel.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createEmptyBorder(10, 10, 10, 10), chargingParameters));
+                    JLabel label = new JLabel("Charging Parameters");
+                    label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                    label.setForeground(Color.BLACK);
+                    chargingParametersPanel.add(label);
+                    chargingParametersPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                    isParametersShown = false;
+                    chargingParametersPanel.setPreferredSize(new Dimension(240, 45));
                 } else {
+                    chargingParametersPanel.removeAll();
+
                     addRowToPanel(chargingParametersPanel, gbc, "Number of Charging Points", numberOfServers);
                     addRowToPanel(chargingParametersPanel, gbc, "Service Distribution Type", serviceType);
                     addRowToPanel(chargingParametersPanel, gbc, "Max Power of Charging Point [kW]", maxPointPower);
+
+                    TitledBorder tempBorder = BorderFactory.createTitledBorder("Charging Parameters");
+                    tempBorder.setTitleColor(Color.BLUE);
+                    chargingParametersPanel.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(10, 10, 10, 10), tempBorder));
+
+                    isParametersShown = true;
+                    chargingParametersPanel.setPreferredSize(chargingPanelSize);
                 }
                 chargingParametersPanel.revalidate();
                 chargingParametersPanel.repaint();
             }
         });
-
-        chargingParameters.setTitle("<html><body>&nbsp;<b><font color='blue'>Charging Parameters </font></b></body></html>");
 
         addRowToPanel(chargingParametersPanel, gbc, "Number of Charging Points", numberOfServers);
         addRowToPanel(chargingParametersPanel, gbc, "Service Distribution Type", serviceType);
@@ -648,28 +725,54 @@ public class SimulationGUI {
 
         TitledBorder EVParameters = BorderFactory.createTitledBorder("EV Parameters");
         JPanel EVParametersPanel = new JPanel(new GridBagLayout());
+
+        Dimension evPanelSize = new Dimension(240, 420);
+        EVParametersPanel.setPreferredSize(evPanelSize);
+        EVParametersPanel.setMinimumSize(evPanelSize);
+        EVParametersPanel.setMaximumSize(evPanelSize);
+
+        EVParameters.setTitleColor(Color.BLUE);
+        EVParameters.setTitle("<html><body>&nbsp;<b><font color='blue'>EV Parameters</font></b></body></html>");
         EVParametersPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), EVParameters));
 
         EVParametersPanel.addMouseListener(new MouseAdapter() {
+            private boolean isParametersShown = true;
+
             public void mouseClicked(MouseEvent e) {
-                if (EVParametersPanel.getComponentCount() > 0) {
+                if (isParametersShown) {
                     EVParametersPanel.removeAll();
-                    EVParametersPanel.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createEmptyBorder(10, 10, 10, 10), EVParameters));
+                    JLabel label = new JLabel("EV Parameters");
+                    label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                    label.setForeground(Color.BLACK);
+                    EVParametersPanel.add(label);
+
+                    EVParametersPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+                    isParametersShown = false;
+                    EVParametersPanel.setPreferredSize(new Dimension(240, 45));
                 } else {
-                    addRowToPanel(EVParametersPanel, gbc,"Number of EV Types", numberOfClientTypes);
+                    EVParametersPanel.removeAll();
+
+                    addRowToPanel(EVParametersPanel, gbc, "Number of EV Types", numberOfClientTypes);
                     addRowToPanel(EVParametersPanel, gbc, "Battery Capacity [kWh]", batteryCapacity);
                     addRowToPanel(EVParametersPanel, gbc, "Mean Charging Time [h]", meanServiceTime);
-
                     addRowToPanel(EVParametersPanel, gbc, "Max EV Charging Power [kW]", maxEVPower);
                     addRowToPanel(EVParametersPanel, gbc, "Demand Distribution Type", demandType);
-                    addRowToPanel(EVParametersPanel, gbc, "Mean Charging Demand [% of battery]",meanChargingDemand);
+                    addRowToPanel(EVParametersPanel, gbc, "Mean Charging Demand [% of battery]", meanChargingDemand);
+
+
+                    TitledBorder tempBorder = BorderFactory.createTitledBorder("EV Parameters");
+                    tempBorder.setTitleColor(Color.BLUE);
+                    EVParametersPanel.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(10, 10, 10, 10), tempBorder));
+
+                    isParametersShown = true;
+                    EVParametersPanel.setPreferredSize(evPanelSize);
                 }
-                chargingParametersPanel.revalidate();
-                chargingParametersPanel.repaint();
+                EVParametersPanel.revalidate();
+                EVParametersPanel.repaint();
             }
         });
-        chargingParameters.setTitle("<html><body>&nbsp;<b><font color='blue'>EV Parameters </font></b></body></html>");
 
         addRowToPanel(EVParametersPanel, gbc, "Number of EV Types", numberOfClientTypes);
         addRowToPanel(EVParametersPanel, gbc, "Battery Capacity [kWh]", batteryCapacity);
@@ -677,7 +780,6 @@ public class SimulationGUI {
         addRowToPanel(EVParametersPanel, gbc, "Max EV Charging Power [kW]", maxEVPower);
         addRowToPanel(EVParametersPanel, gbc, "Demand Distribution Type", demandType);
         addRowToPanel(EVParametersPanel, gbc, "Mean Charging Demand [% of battery]", meanChargingDemand);
-
 
         GridBagConstraints generalGbc = new GridBagConstraints();
         generalGbc.anchor = GridBagConstraints.WEST;
@@ -722,6 +824,7 @@ public class SimulationGUI {
         frame.setResizable(true);
         return frame;
     }
+
 
     private static boolean isSecondCarPanelAdded(JPanel panel) {
         Component[] components = panel.getComponents();
@@ -774,23 +877,20 @@ public class SimulationGUI {
         gbc.gridy++;
 
         gbc.anchor = GridBagConstraints.WEST;
-
-        // Add a bit of space between label and component
         gbc.insets = new Insets(5, 5, 0, 5);
 
         JLabel label = new JLabel(labelText, SwingConstants.CENTER);
-        label.setPreferredSize(new Dimension(200, 20)); // Adjust the width as needed for labels
+        label.setPreferredSize(new Dimension(200, 20));
         panel.add(label, gbc);
 
         gbc.gridy++;
-
-        // Reset the anchor and insets for the component
-        gbc.anchor = GridBagConstraints.LINE_START; // Set the anchor to LINE_START to left-align components
+        gbc.anchor = GridBagConstraints.LINE_START;
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        component.setPreferredSize(new Dimension(200, 20)); // Adjust the width as needed for components
+        component.setPreferredSize(new Dimension(200, 20));
         panel.add(component, gbc);
     }
+
 
     private static boolean isThirdCarPanelAdded(JPanel panel) {
         Component[] components = panel.getComponents();

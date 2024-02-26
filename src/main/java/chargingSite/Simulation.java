@@ -87,7 +87,7 @@ public class Simulation extends Graph {
        return parameters.getMMnNwaitingTime(rho);
     }
 
-        public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
+    public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -109,6 +109,7 @@ public class Simulation extends Graph {
     }
 
     public void runSimulation() {
+      //  SimulationGUI.gifLabel.setVisible(true);
         resetData();
         ChargingSite.clearDataset1();
         EventSimulation.setMaxEvents(parameters.getMAX_EVENTS());
@@ -157,25 +158,22 @@ public class Simulation extends Graph {
             // mySystem.getChargingSite().addSitePowerGraph();
             // mySystem.getChargingSite().addSitePowerHistogram();
 
-           // XYSeries series = mySystem.getChargingSite().getSitePowerSeries();
-           // mySystem.getChargingSite().addSitePower3DHistogram(series, arrivalRate);
-
+            // XYSeries series = mySystem.getChargingSite().getSitePowerSeries();
+            // mySystem.getChargingSite().addSitePower3DHistogram(series, arrivalRate);
 
 
             // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
-            plotHistogram(mySystem.getChargingSite().getSitePower1(), 20,parameters);
+            plotHistogram(mySystem.getChargingSite().getSitePower1(), 20, parameters);
 
 
-            mySystem.getChargingSite().displayChart(dataList,parameters);
+            mySystem.getChargingSite().displayChart(dataList, parameters);
 
 
-           // mySystem.getChargingSite().visualizeSitePower();
-          //  mySystem.getChargingSite().displayChart();
+            // mySystem.getChargingSite().visualizeSitePower();
+            //  mySystem.getChargingSite().displayChart();
 
-         //   ChartGenerator.initializeChart();
-          //  ChartGenerator.displayChart(dataList, ChartGenerator.frame);
-
-
+            //   ChartGenerator.initializeChart();
+            //  ChartGenerator.displayChart(dataList, ChartGenerator.frame);
 
 
             //dummy.add(this.calcMMnNwaitingTime(arrivalRate * this.MEAN_SERVICE_TIME / this.NUMBER_OF_SERVERS));
@@ -249,6 +247,7 @@ public class Simulation extends Graph {
         drawGraph();
 
         chargingMonitor.drawGraph(this);
+
 
         //plotHistogram(mySystem.getChargingSite().getSitePower1(), 15);
     }
@@ -359,7 +358,7 @@ public class Simulation extends Graph {
         plot.setFixedLegendItems(legendItemSource.getLegendItems());
 
         ChartPanel chartPanel = new ChartPanel(MyChart);
-        chartPanel.setPreferredSize(new Dimension(800,  550));
+        chartPanel.setPreferredSize(new Dimension(800, 550));
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);

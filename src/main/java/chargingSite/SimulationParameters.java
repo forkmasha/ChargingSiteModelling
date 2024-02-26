@@ -3,13 +3,22 @@ package chargingSite;
 
 import distributions.Distribution;
 import distributions.DistributionType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import queueingSystem.Queue;
 
 import javax.swing.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+
 
 public class SimulationParameters {
 
@@ -50,7 +59,8 @@ public class SimulationParameters {
     private double percentageOfCars = 1;
     private double percentageOfCars2;
     private double percentageOfCars3;
-    SimulationParameters(){
+
+    SimulationParameters() {
 
     }
 
@@ -417,7 +427,7 @@ public class SimulationParameters {
 
     public void writeParameters2txt(JFrame frame) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Виберіть місце для збереження файлу параметрів симуляції");
+        fileChooser.setDialogTitle("Select a location to save the simulation parameters file");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setSelectedFile(new java.io.File("simulation_parameters.txt"));
 
@@ -432,56 +442,79 @@ public class SimulationParameters {
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
 
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd' T 'HH:mm:ss");
+                String currentDateTime = dateFormat.format(new Date());
+                writer.write("Simulation Date and Time: " + currentDateTime + "\n");
+
+                String title = "Charging Site Queueing Characteristics \n"
+                        + this.getKendallName() + " Queueing System"
+                        + " (" + getMAX_EVENTS() + " samples per evaluation point)";
+                writer.write("Simulation Title: " + title + "\n\n");
+
                 writer.write("General parameters" + "\n");
-                writer.write("Number of steps - " + SIM_STEPS + "\n");
+                writer.write("Number of  simulation steps - " + SIM_STEPS + "\n");
                 writer.write("Max Events per step - " + MAX_EVENTS + "\n");
                 writer.write("Confidence interval level - " + confLevel + "\n");
+
+                writer.newLine();
+
+                writer.write("Site parameters" + "\n");
                 writer.write("Arrival Distribution Type - " + ARRIVAL_TYPE.toString() + "\n");
                 writer.write("Max Mean Arrival Rate - " + MAX_ARRIVAL_RATE + "\n");
-                writer.write("Number of servers  - " + NUMBER_OF_SERVERS + "\n");
-                writer.write("Queue size - " + QUEUE_SIZE + "\n");
+                writer.write("Parking space - " + QUEUE_SIZE + "\n");
                 writer.write("Queueing Type - " + QUEUEING_TYPE.toString() + "\n");
+                writer.write("Max Site Power - " + MAX_SITE_POWER + "\n");
+                writer.newLine();
+
+                writer.write("Charging parameters" + "\n");
+                writer.write("Number of charging points " + NUMBER_OF_SERVERS + "\n");
                 writer.write("Service Distribution Type - " + SERVICE_TYPE.toString() + "\n");
-                writer.write("Number of client types - " + NUMBER_OF_CAR_TYPES + "\n");
-                writer.write("Demand distribution type - " + DEMAND_TYPE.toString() + "\n");
-                writer.write("Mean charging demand - " + MEAN_CHARGING_DEMAND + "\n");
+                writer.write("Max power of Charging Point" + MAX_POINT_POWER + "\n");
+                writer.newLine();
+
+                writer.write("EV parameters" + "\n");
+                writer.write("Number of EV types - " + NUMBER_OF_CAR_TYPES + "\n");
                 writer.write("Battery capacity - " + batteryCapacity + "\n");
-                writer.write("Max site power - " + MAX_SITE_POWER + "\n");
-                writer.write("Max point power - " + MAX_POINT_POWER + "\n");
-                writer.write("Max EV power - " + MAX_EV_POWER + "\n");
+                writer.write("Mean Charging Time - " + getMEAN_SERVICE_TIME() + "\n");
+                writer.write("Max EV charging power - " + MAX_EV_POWER + "\n");
+                writer.write("Demand distribution type - " + DEMAND_TYPE.toString() + "\n");
+                writer.write("Mean charging demand - " + +MEAN_CHARGING_DEMAND + "\n");
+                writer.newLine();
+
 
                 int selectedClientTypes = NUMBER_OF_CAR_TYPES;
                 if (selectedClientTypes == 2) {
 
                     writer.newLine();
-                    writer.write("Parameters for second car" + "\n");
+                    writer.write("Parameters for the second EV" + "\n");
 
-                    writer.write("Percentage of cars 2 - " + percentageOfCars2 + "\n");
-                    writer.write("Mean service time 2 - " + MEAN_SERVICE_TIME2 + "\n");
-                    writer.write("Max EV power 2 - " + MAX_EV_POWER2 + "\n");
+                    writer.write("Percentage of EV 2" + percentageOfCars2 + "\n");
+                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
+                    writer.write("Mean charging time 2 - " + MEAN_SERVICE_TIME2 + "\n");
+                    writer.write("Max EV charging power 2 - " + MAX_EV_POWER2 + "\n");
                     writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
                     writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
-                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
+
                 } else if (selectedClientTypes == 3) {
                     writer.newLine();
-                    writer.write("Parameters for second car" + "\n");
+                    writer.write("Parameters for the second EV" + "\n");
 
-                    writer.write("Percentage of cars 2 - " + percentageOfCars2 + "\n");
-                    writer.write("Mean service time 2 - " + MEAN_SERVICE_TIME2 + "\n");
-                    writer.write("Max EV power 2 - " + MAX_EV_POWER2 + "\n");
+                    writer.write("Percentage of EV 2 - " + percentageOfCars2 + "\n");
+                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
+                    writer.write("Mean charging time 2 - " + MEAN_SERVICE_TIME2 + "\n");
+                    writer.write("Max EV charging power 2 - " + MAX_EV_POWER2 + "\n");
                     writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
                     writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
-                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
 
                     writer.newLine();
-                    writer.write("Parameters for third car" + "\n");
+                    writer.write("Parameters for the third EV" + "\n");
 
-                    writer.write("Percentage of cars 3 - " + percentageOfCars3 + "\n");
-                    writer.write("Mean service time 3 - " + MEAN_SERVICE_TIME3 + "\n");
-                    writer.write("Max EV power 3 - " + MAX_EV_POWER3 + "\n");
+                    writer.write("Percentage of EV 3 -" + percentageOfCars3 + "\n");
+                    writer.write("Battery capacity 3 - " + batteryCapacity3 + "\n");
+                    writer.write("Mean charging time 3 - " + MEAN_SERVICE_TIME3 + "\n");
+                    writer.write("Max EV charging power 3 - " + MAX_EV_POWER3 + "\n");
                     writer.write("Demand distribution type 3 - " + DEMAND_TYPE3.toString() + "\n");
                     writer.write("Mean charging demand 3 - " + MEAN_CHARGING_DEMAND3 + "\n");
-                    writer.write("Battery capacity 3 - " + batteryCapacity3 + "\n");
                 }
 
             } catch (IOException ex) {
@@ -490,10 +523,9 @@ public class SimulationParameters {
         }
     }
 
-
     public void writeParameters2xml(JFrame frame) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Виберіть місце для збереження файлу параметрів симуляції в форматі XML");
+        fileChooser.setDialogTitle("Select a location to save the simulation parameters file");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setSelectedFile(new java.io.File("simulation_parameters.xml"));
 
@@ -510,41 +542,77 @@ public class SimulationParameters {
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 writer.write("<SimulationParameters>\n");
 
-                // General parameters
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                String currentDateTime = dateFormat.format(new Date());
+                writer.write("    <SimulationDateTime>" + currentDateTime + "</SimulationDateTime>\n");
+
+                String title = "Charging Site Queueing Characteristics \n"
+                        + this.getKendallName() + " Queueing System"
+                        + " (" + getMAX_EVENTS() + " samples per evaluation point)";
+                writer.write("    <SimulationTitle>" + title + "</SimulationTitle>\n");
+
                 writer.write("        <GeneralParameters>\n");
-                writer.write("        <NumberOfSteps>" + SIM_STEPS + "</NumberOfSteps>\n");
+                writer.write("        <NumberOfSimulationSteps>" + SIM_STEPS + "</NumberOfSimulationSteps>\n");
                 writer.write("        <MaxEventsPerStep>" + MAX_EVENTS + "</MaxEventsPerStep>\n");
                 writer.write("        <ConfidenceIntervalLevel>" + confLevel + "</ConfidenceIntervalLevel>\n");
-                writer.write("        <ArrivalDistributionType>" + ARRIVAL_TYPE.toString() + "</ArrivalDistributionType>\n");
-                writer.write("        <MaxMeanArrivalRate>" + MAX_ARRIVAL_RATE + "</MaxMeanArrivalRate>\n");
-                writer.write("        <NumberOfServers>" + NUMBER_OF_SERVERS + "</NumberOfServers>\n");
-                writer.write("        <QueueSize>" + QUEUE_SIZE + "</QueueSize>\n");
-                writer.write("        <QueueingType>" + QUEUEING_TYPE.toString() + "</QueueingType>\n");
-                writer.write("        <ServiceDistributionType>" + SERVICE_TYPE.toString() + "</ServiceDistributionType>\n");
-                writer.write("        <NumberOfClientTypes>" + NUMBER_OF_CAR_TYPES + "</NumberOfClientTypes>\n");
-                writer.write("        <DemandDistributionType>" + DEMAND_TYPE.toString() + "</DemandDistributionType>\n");
-                writer.write("        <MeanChargingDemand>" + MEAN_CHARGING_DEMAND + "</MeanChargingDemand>\n");
-                writer.write("        <BatteryCapacity>" + batteryCapacity + "</BatteryCapacity>\n");
-                writer.write("        <MaxSitePower>" + MAX_SITE_POWER + "</MaxSitePower>\n");
-                writer.write("        <MaxPointPower>" + MAX_POINT_POWER + "</MaxPointPower>\n");
-                writer.write("        <MaxEVPower>" + MAX_EV_POWER + "</MaxEVPower>\n");
                 writer.write("    </GeneralParameters>\n");
 
-                // Handling additional car types if applicable
-                for (int i = 2; i <= NUMBER_OF_CAR_TYPES; i++) {
-                    writer.write("    <CarType" + i + "Parameters>\n");
-                    writer.write("        <PercentageOfCars>" + getClass().getField("percentageOfCars" + i).get(this) + "</PercentageOfCars>\n");
-                    writer.write("        <MeanServiceTime>" + getClass().getField("MEAN_SERVICE_TIME" + i).get(this) + "</MeanServiceTime>\n");
-                    writer.write("        <MaxEVPower>" + getClass().getField("MAX_EV_POWER" + i).get(this) + "</MaxEVPower>\n");
-                    writer.write("        <DemandDistributionType>" + getClass().getField("DEMAND_TYPE" + i).toString() + "</DemandDistributionType>\n");
-                    writer.write("        <MeanChargingDemand>" + getClass().getField("MEAN_CHARGING_DEMAND" + i).get(this) + "</MeanChargingDemand>\n");
-                    writer.write("        <BatteryCapacity>" + getClass().getField("batteryCapacity" + i).get(this) + "</BatteryCapacity>\n");
-                    writer.write("    </CarType" + i + "Parameters>\n");
+                writer.write("        <SiteParameters>\n");
+                writer.write("        <ArrivalDistributionType>" + ARRIVAL_TYPE.toString() + "</ArrivalDistributionType>\n");
+                writer.write("        <MaxMeanArrivalRate>" + MAX_ARRIVAL_RATE + "</MaxMeanArrivalRate>\n");
+                writer.write("        <ParkingSpace>" + QUEUE_SIZE + "</ParkingSpace>\n");
+                writer.write("        <QueueingType>" + QUEUEING_TYPE.toString() + "</QueueingType>\n");
+                writer.write("        <MaxSitePower>" + MAX_SITE_POWER + "</MaxSitePower>\n");
+                writer.write("    </SiteParameters>\n");
+
+                writer.write("        <ChargingParameters>\n");
+                writer.write("        <NumberOfChargingPoints>" + NUMBER_OF_SERVERS + "</NumberOfChargingPoints>\n");
+                writer.write("        <ServiceDistributionType>" + SERVICE_TYPE.toString() + "</ServiceDistributionType>\n");
+                writer.write("        <MaxPowerOfChargingPoint>" + MAX_POINT_POWER + "</MaxPowerOfChargingPoint>\n");
+                writer.write("        </ChargingParameters>\n");
+
+                writer.write("        <EVParameters>\n");
+                writer.write("        <NumberOfEVTypes>" + NUMBER_OF_CAR_TYPES + "</NumberOfEVTypes>\n");
+                writer.write("        <BatteryCapacity>" + batteryCapacity + "</BatteryCapacity>\n");
+                writer.write("         <MeanChargingTime>" + MEAN_SERVICE_TIME + "</MeanChargingTime>\n");
+                writer.write("        <MaxEVChargingPower>" + MAX_EV_POWER + "</MaxEVChargingPower>\n");
+                writer.write("        <DemandDistributionType>" + DEMAND_TYPE.toString() + "</DemandDistributionType>\n");
+                writer.write("        <MeanChargingDemand>" + MEAN_CHARGING_DEMAND + "</MeanChargingDemand>\n");
+                writer.write("        </EVParameters>\n");
+
+                if (getNUMBER_OF_CAR_TYPES() == 2) {
+                    writer.write("        <EVParameters2>\n");
+                    writer.write("        <PercentageOfTheSecondCar>" + percentageOfCars2 + "</PercentageOfTheSecondCar>\n");
+                    writer.write("        <BatteryCapacity2>" + batteryCapacity2 + "</BatteryCapacity2>\n");
+                    writer.write("        <MeanChargingTime2>" + MEAN_SERVICE_TIME2 + "</MeanChargingTime2>\n");
+                    writer.write("        <MaxEVChargingPower2>" + MAX_EV_POWER2 + "</MaxEVChargingPower2>\n");
+                    writer.write("        <DemandDistributionType2>" + DEMAND_TYPE2.toString() + "</DemandDistributionType2>\n");
+                    writer.write("        <MeanChargingDemand2>" + MEAN_CHARGING_DEMAND2 + "</MeanChargingDemand2>\n");
+                    writer.write("        </EVParameters2>\n");
+                } else if (getNUMBER_OF_CAR_TYPES() == 3) {
+                    writer.write("        <EVParameters2>\n");
+                    writer.write("        <PercentageOfTheSecondCar>" + percentageOfCars2 + "</PercentageOfTheSecondCar>\n");
+                    writer.write("        <BatteryCapacity2>" + batteryCapacity2 + "</BatteryCapacity2>\n");
+                    writer.write("        <MeanChargingTime2>" + MEAN_SERVICE_TIME2 + "</MeanChargingTime2>\n");
+                    writer.write("        <MaxEVChargingPower2>" + MAX_EV_POWER2 + "</MaxEVChargingPower2>\n");
+                    writer.write("        <DemandDistributionType2>" + DEMAND_TYPE2.toString() + "</DemandDistributionType2>\n");
+                    writer.write("        <MeanChargingDemand2>" + MEAN_CHARGING_DEMAND2 + "</MeanChargingDemand2>\n");
+                    writer.write("        </EVParameters2>\n");
+
+                    writer.write("        <EVParameters3>\n");
+                    writer.write("        <PercentageOfTheThirdCar>" + percentageOfCars3 + "</PercentageOfTheThirdCar>\n");
+                    writer.write("        <BatteryCapacity3>" + batteryCapacity3 + "</BatteryCapacity3>\n");
+                    writer.write("        <MeanChargingTime3>" + MEAN_SERVICE_TIME3 + "</MeanChargingTime3>\n");
+                    writer.write("        <MaxEVChargingPower3>" + MAX_EV_POWER3 + "</MaxEVChargingPower3>\n");
+                    writer.write("        <DemandDistributionType3>" + DEMAND_TYPE3.toString() + "</DemandDistributionType3>\n");
+                    writer.write("        <MeanChargingDemand3>" + MEAN_CHARGING_DEMAND3 + "</MeanChargingDemand3>\n");
+                    writer.write("        </EVParameters3>\n");
+
                 }
 
                 writer.write("</SimulationParameters>\n");
-            } catch (IOException | NoSuchFieldException | IllegalAccessException ex) {
-                ex.printStackTrace();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }

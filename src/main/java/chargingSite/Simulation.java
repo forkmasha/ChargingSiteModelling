@@ -29,14 +29,11 @@ import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import static chargingSite.ChargingSite.*;
 import static org.jfree.chart.ChartFactory.createXYLineChart;
-import static results.Histogram.generateHistogram;
 
 public class Simulation extends Graph {
     /*   private static final double MIN_ARRIVAL_RATE = 0.5;
@@ -84,7 +81,7 @@ public class Simulation extends Graph {
     }
 
     public double calcMMnNwaitingTime(double rho) {
-       return parameters.getMMnNwaitingTime(rho);
+        return parameters.getMMnNwaitingTime(rho);
     }
 
     public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
@@ -109,7 +106,7 @@ public class Simulation extends Graph {
     }
 
     public void runSimulation() {
-      //  SimulationGUI.gifLabel.setVisible(true);
+        //  SimulationGUI.gifLabel.setVisible(true);
         resetData();
         ChargingSite.clearDataset1();
         EventSimulation.setMaxEvents(parameters.getMAX_EVENTS());
@@ -357,13 +354,31 @@ public class Simulation extends Graph {
 
         plot.setFixedLegendItems(legendItemSource.getLegendItems());
 
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs = ge.getScreenDevices();
+
+        // Пошук найбільшого екрана
+        GraphicsDevice largestScreen = gs[0];
+        Rectangle largestBounds = largestScreen.getDefaultConfiguration().getBounds();
+        for (GraphicsDevice gd : gs) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+            if (bounds.width * bounds.height > largestBounds.width * largestBounds.height) {
+                largestScreen = gd;
+                largestBounds = bounds;
+            }
+        }
+
+        int leftOffset = (int) (largestBounds.width * 0.25);
+        int windowWidth = (int) (largestBounds.width * 0.4);
+        int windowHeight = (int) (largestBounds.height * 0.44);
+
         ChartPanel chartPanel = new ChartPanel(MyChart);
-        chartPanel.setPreferredSize(new Dimension(800, 550));
+        chartPanel.setPreferredSize(new Dimension(windowWidth, windowHeight));
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
 
-        JFrame frame = new JFrame(title);
+        JFrame frame = new JFrame("Charging Site Queueing Characteristics");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -377,34 +392,14 @@ public class Simulation extends Graph {
                 }
             }
         });
-
         frame.setContentPane(chartPanel);
         frame.pack();
 
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs = ge.getScreenDevices();
-        Rectangle largestBounds = null;
-        long maxArea = 0;
+        // Встановлення розташування вікна з урахуванням відступу зліва та без відступу зверху
+        frame.setLocation(largestBounds.x + leftOffset, largestBounds.y);
 
-        for (GraphicsDevice gd : gs) {
-            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
-            long area = bounds.width * bounds.height;
-            if (area > maxArea) {
-                maxArea = area;
-                largestBounds = bounds;
-            }
-        }
-
-        if (largestBounds != null) {
-            // Відступ від лівого краю найбільшого монітора + ширина попереднього вікна + додатковий відступ
-            int xPosition = largestBounds.x + 2 + 465; // 2 пікселі відступу зліва + ширина попереднього вікна 450 пікселів
-            int yPosition = largestBounds.y + 1; // 1 мм відступу зверху, приблизно 3.78 пікселів, заокруглено до 1 для спрощення
-
-            frame.setLocation(xPosition, yPosition);
-        }
-
+        // Відображення вікна
         frame.setVisible(true);
-        chartPanel.repaint();
     }
 
     public void saveSVGDialogue() {

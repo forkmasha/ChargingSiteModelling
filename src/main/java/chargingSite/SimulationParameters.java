@@ -1,18 +1,11 @@
 package chargingSite;
 
-
 import distributions.Distribution;
 import distributions.DistributionType;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import queueingSystem.Queue;
 
 import javax.swing.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -444,17 +437,17 @@ public class SimulationParameters {
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd' T 'HH:mm:ss");
                 String currentDateTime = dateFormat.format(new Date());
-                writer.write("Simulation Date and Time: " + currentDateTime + "\n");
+                writer.write("Date and Time: " + currentDateTime + "\n");
 
-                String title = "Charging Site Queueing Characteristics \n"
-                        + this.getKendallName() + " Queueing System"
-                        + " (" + getMAX_EVENTS() + " samples per evaluation point)";
-                writer.write("Simulation Title: " + title + "\n\n");
+                String title = "Charging Site Model Parameters for "
+                        + this.getKendallName() + " Queueing System \n";
+                writer.write(title + "\n\n");
 
                 writer.write("General parameters" + "\n");
                 writer.write("Number of  simulation steps - " + SIM_STEPS + "\n");
                 writer.write("Max Events per step - " + MAX_EVENTS + "\n");
                 writer.write("Confidence interval level - " + confLevel + "\n");
+                writer.write("Number of EV types - " + NUMBER_OF_CAR_TYPES + "\n");
 
                 writer.newLine();
 
@@ -472,8 +465,12 @@ public class SimulationParameters {
                 writer.write("Max power of Charging Point" + MAX_POINT_POWER + "\n");
                 writer.newLine();
 
-                writer.write("EV parameters" + "\n");
-                writer.write("Number of EV types - " + NUMBER_OF_CAR_TYPES + "\n");
+                if (NUMBER_OF_CAR_TYPES > 1) {
+                    writer.write("Parameters for the first EV " + "\n");
+                    writer.write("Percentage of EV 1 - " + percentageOfCars * 100 + "\n");
+                } else {
+                    writer.write("EV parameters" + "\n");
+                }
                 writer.write("Battery capacity - " + batteryCapacity + "\n");
                 writer.write("Mean Charging Time - " + getMEAN_SERVICE_TIME() + "\n");
                 writer.write("Max EV charging power - " + MAX_EV_POWER + "\n");
@@ -483,38 +480,41 @@ public class SimulationParameters {
 
 
                 int selectedClientTypes = NUMBER_OF_CAR_TYPES;
-                if (selectedClientTypes == 2) {
+                if (selectedClientTypes > 1) {
 
-                    writer.newLine();
+
                     writer.write("Parameters for the second EV" + "\n");
 
-                    writer.write("Percentage of EV 2" + percentageOfCars2 + "\n");
+                    writer.write("Percentage of EV 2 - " + percentageOfCars2 * 100 + "\n");
+                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
+                    writer.write("Mean charging time 2 - " + MEAN_SERVICE_TIME2 + "\n");
+                    writer.write("Max EV charging power 2 - " + MAX_EV_POWER2 + "\n");
+                    writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
+                    writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
+                    writer.newLine();
+
+                }
+                if (selectedClientTypes > 2) {
+
+                   /* writer.write("Parameters for the second EV" + "\n");
+
+                    writer.write("Percentage of EV 2 - " + percentageOfCars2 * 100 + "\n");
                     writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
                     writer.write("Mean charging time 2 - " + MEAN_SERVICE_TIME2 + "\n");
                     writer.write("Max EV charging power 2 - " + MAX_EV_POWER2 + "\n");
                     writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
                     writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
 
-                } else if (selectedClientTypes == 3) {
-                    writer.newLine();
-                    writer.write("Parameters for the second EV" + "\n");
-
-                    writer.write("Percentage of EV 2 - " + percentageOfCars2 + "\n");
-                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
-                    writer.write("Mean charging time 2 - " + MEAN_SERVICE_TIME2 + "\n");
-                    writer.write("Max EV charging power 2 - " + MAX_EV_POWER2 + "\n");
-                    writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
-                    writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
-
-                    writer.newLine();
+                    writer.newLine();*/
                     writer.write("Parameters for the third EV" + "\n");
 
-                    writer.write("Percentage of EV 3 -" + percentageOfCars3 + "\n");
+                    writer.write("Percentage of EV 3 - " + percentageOfCars3 * 100 + "\n");
                     writer.write("Battery capacity 3 - " + batteryCapacity3 + "\n");
                     writer.write("Mean charging time 3 - " + MEAN_SERVICE_TIME3 + "\n");
                     writer.write("Max EV charging power 3 - " + MAX_EV_POWER3 + "\n");
                     writer.write("Demand distribution type 3 - " + DEMAND_TYPE3.toString() + "\n");
                     writer.write("Mean charging demand 3 - " + MEAN_CHARGING_DEMAND3 + "\n");
+                    writer.newLine();
                 }
 
             } catch (IOException ex) {
@@ -546,15 +546,15 @@ public class SimulationParameters {
                 String currentDateTime = dateFormat.format(new Date());
                 writer.write("    <SimulationDateTime>" + currentDateTime + "</SimulationDateTime>\n");
 
-                String title = "Charging Site Queueing Characteristics \n"
-                        + this.getKendallName() + " Queueing System"
-                        + " (" + getMAX_EVENTS() + " samples per evaluation point)";
+                String title = "Charging Site Model Parameters for \n"
+                        + this.getKendallName() + " Queueing System";
                 writer.write("    <SimulationTitle>" + title + "</SimulationTitle>\n");
 
                 writer.write("        <GeneralParameters>\n");
                 writer.write("        <NumberOfSimulationSteps>" + SIM_STEPS + "</NumberOfSimulationSteps>\n");
                 writer.write("        <MaxEventsPerStep>" + MAX_EVENTS + "</MaxEventsPerStep>\n");
                 writer.write("        <ConfidenceIntervalLevel>" + confLevel + "</ConfidenceIntervalLevel>\n");
+                writer.write("        <NumberOfEVTypes>" + NUMBER_OF_CAR_TYPES + "</NumberOfEVTypes>\n");
                 writer.write("    </GeneralParameters>\n");
 
                 writer.write("        <SiteParameters>\n");
@@ -572,7 +572,7 @@ public class SimulationParameters {
                 writer.write("        </ChargingParameters>\n");
 
                 writer.write("        <EVParameters>\n");
-                writer.write("        <NumberOfEVTypes>" + NUMBER_OF_CAR_TYPES + "</NumberOfEVTypes>\n");
+
                 writer.write("        <BatteryCapacity>" + batteryCapacity + "</BatteryCapacity>\n");
                 writer.write("         <MeanChargingTime>" + MEAN_SERVICE_TIME + "</MeanChargingTime>\n");
                 writer.write("        <MaxEVChargingPower>" + MAX_EV_POWER + "</MaxEVChargingPower>\n");
@@ -621,13 +621,11 @@ public class SimulationParameters {
         TXT, XML
     }
 
-    // Method to save parameters in either TXT or XML format
     public static void writeParameters(JFrame frame, Format format) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Choose location to save simulation parameters");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
-        // Set default file name based on format
         String defaultFileName = "simulation_parameters" + (format == Format.XML ? ".xml" : ".txt");
         fileChooser.setSelectedFile(new java.io.File(defaultFileName));
 
@@ -637,16 +635,15 @@ public class SimulationParameters {
             java.io.File fileToSave = fileChooser.getSelectedFile();
             String filePath = fileToSave.getPath();
 
-            // Ensure the file has the correct extension
             if (!filePath.toLowerCase().endsWith(format == Format.XML ? ".xml" : ".txt")) {
                 fileToSave = new java.io.File(filePath + (format == Format.XML ? ".xml" : ".txt"));
             }
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
                 if (format == Format.TXT) {
-                    writeTxtFormat(writer); // Implement this method to write in TXT format
+                    writeTxtFormat(writer);
                 } else if (format == Format.XML) {
-                    writeXmlFormat(writer); // Implement this method to write in XML format
+                    writeXmlFormat(writer);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();

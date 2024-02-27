@@ -18,17 +18,13 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import results.Histogram;
 
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.*;
 import java.util.List;
 import java.util.stream.DoubleStream;
@@ -217,20 +213,17 @@ public class ChargingSite {
                 XYPlot plot = (XYPlot) histogramChart.getPlot();
                 XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
 
-                // Sort series by the sum of their values in descending order
                 int[] seriesOrder = getSeriesOrder(histogramDataset);
 
-                // Set background color and outline color for the largest series (in the back)
                 int backgroundSeries = seriesOrder[seriesOrder.length - 1];
-                renderer.setSeriesPaint(backgroundSeries, Color.WHITE); // Background color
-                renderer.setSeriesOutlinePaint(backgroundSeries, Color.BLACK); // Outline color
+                renderer.setSeriesPaint(backgroundSeries, Color.WHITE);
+                renderer.setSeriesOutlinePaint(backgroundSeries, Color.BLACK);
 
-                // Set colors for the other series (in the front)
                 for (int i = 0; i < seriesOrder.length - 1; i++) {
                     int seriesIndex = seriesOrder[i];
                     Color color = generateTransparentColor();
                     renderer.setSeriesPaint(seriesIndex, color);
-                    renderer.setSeriesOutlinePaint(seriesIndex, Color.BLACK); // Outline color
+                    renderer.setSeriesOutlinePaint(seriesIndex, Color.BLACK);
                 }
 
                 if (mainPlot.getSubplots().size() == 0) {
@@ -265,7 +258,6 @@ public class ChargingSite {
             seriesOrder[i] = i;
         }
 
-        // Sort seriesOrder array based on sums in descending order
         IntStream.range(0, seriesOrder.length)
                 .boxed()
                 .sorted(Comparator.comparingDouble(i -> sums[(int) i]).reversed())
@@ -339,6 +331,7 @@ public class ChargingSite {
         float b = rand.nextFloat();
         return new Color(r, g, b);
     }
+
     private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
     private static int seriesCounter = 0;
     public static JFrame frame;
@@ -372,7 +365,27 @@ public class ChargingSite {
         seriesCounter++;
 
         ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(640, 590));
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice largestScreen = null;
+        Rectangle largestBounds = new Rectangle();
+        for (GraphicsDevice gd : ge.getScreenDevices()) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+            if ((largestScreen == null) || (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight())) {
+                largestScreen = gd;
+                largestBounds = bounds;
+            }
+        }
+
+        // Розрахунок розмірів та розташування вікна
+        int frameWidth = (int) (largestBounds.width * 0.32);
+        int frameHeight = (int) (largestBounds.height * 0.44);
+        int frameX = (int) (largestBounds.x + largestBounds.width - frameWidth - (largestBounds.width * 0.02));
+        int frameY = (int) (largestBounds.y + largestBounds.height - frameHeight - largestBounds.height * 0.09);
+
+        chartPanel.setPreferredSize(new Dimension(frameWidth, frameHeight));
+
+        // chartPanel.setPreferredSize(new Dimension(640, 590));
         chartPanel.setMouseWheelEnabled(true);
         chartPanel.setDomainZoomable(true);
         chartPanel.setRangeZoomable(true);
@@ -387,37 +400,9 @@ public class ChargingSite {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.getContentPane().add(chartPanel);
             frame.pack();
-
-            frame.addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                    GraphicsDevice[] screens = ge.getScreenDevices();
-                    int maxScreenWidth = 0;
-                    int maxScreenHeight = 0;
-
-                    // Змінні для найбільшого монітора
-                    GraphicsDevice largestScreen = null;
-                    int largestArea = 0;
-
-                    for (GraphicsDevice screen : screens) {
-                        DisplayMode dm = screen.getDisplayMode();
-                        int area = dm.getWidth() * dm.getHeight();
-
-                        if (area > largestArea) {
-                            largestArea = area;
-                            largestScreen = screen;
-                            maxScreenWidth = dm.getWidth();
-                            maxScreenHeight = dm.getHeight();
-                        }
-                    }
-
-                    frame.setLocation(largestScreen.getDefaultConfiguration().getBounds().x + maxScreenWidth - frame.getWidth(),
-                            largestScreen.getDefaultConfiguration().getBounds().y + largestScreen.getDefaultConfiguration().getBounds().height - frame.getHeight());
-                }
-            });
-
+            frame.setLocation(frameX, frameY);
             frame.setVisible(true);
+
         } else {
             frame.getContentPane().removeAll();
             frame.getContentPane().add(chartPanel);
@@ -441,31 +426,9 @@ public class ChargingSite {
     private static Color[] colors = {Color.BLUE, Color.RED, Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.BLACK};
 
     public static void initializeChart1() {
-        // Отримання розмірів екранів
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] screens = ge.getScreenDevices();
-        int maxScreenWidth = 0;
-        int maxScreenHeight = 0;
 
-        // Змінні для найбільшого монітора
-        GraphicsDevice largestScreen = null;
-        int largestArea = 0;
-
-        for (GraphicsDevice screen : screens) {
-            DisplayMode dm = screen.getDisplayMode();
-            int area = dm.getWidth() * dm.getHeight();
-
-            if (area > largestArea) {
-                largestArea = area;
-                largestScreen = screen;
-                maxScreenWidth = dm.getWidth();
-                maxScreenHeight = dm.getHeight();
-            }
-        }
-
-        // Створення вікна графіка
         frame1 = new JFrame();
-        frame1.setSize(652, 580);
+        //frame1.setSize(652, 580);
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         dataset1 = new XYSeriesCollection();
@@ -483,10 +446,26 @@ public class ChargingSite {
         chartPanel1 = new ChartPanel(chart);
         frame1.add(chartPanel1);
 
-        // Встановлення розташування вікна в верхній правий кут найбільшого монітора
-        int screenX = largestScreen.getDefaultConfiguration().getBounds().x;
-        int screenY = largestScreen.getDefaultConfiguration().getBounds().y;
-        frame1.setLocation(screenX + maxScreenWidth - frame1.getWidth(), screenY);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs = ge.getScreenDevices();
+
+        GraphicsDevice largestScreen = gs[0];
+        Rectangle largestBounds = largestScreen.getDefaultConfiguration().getBounds();
+        for (GraphicsDevice gd : gs) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+            if (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight()) {
+                largestScreen = gd;
+                largestBounds = bounds;
+            }
+        }
+
+        int frameWidth = (int) (largestBounds.width * 0.325);
+        int frameHeight = (int) (largestBounds.height * 0.47);
+
+        int offsetX = (int) (largestBounds.width * 0.015);
+
+        frame1.setSize(frameWidth, frameHeight);
+        frame1.setLocation(largestBounds.x + largestBounds.width - frameWidth - offsetX, largestBounds.y);
 
         frame1.setVisible(true);
     }
@@ -510,7 +489,7 @@ public class ChargingSite {
         }
 
         double maxTime = parameters.getMaxEvents() / parameters.getMaxArrivalRate() / 100;
-        double arrivalRate = ( dataset1.getSeriesCount() + 1 ) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
+        double arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
 
         XYSeries series = new XYSeries(String.format("%.1f EV/h", arrivalRate));
         for (TimePowerData data : dataList) {

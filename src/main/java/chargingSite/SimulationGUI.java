@@ -32,6 +32,14 @@ public class SimulationGUI {
     private static final Color DARK_BLUE = new Color(136, 186, 242);
     private static final Color ORANGE = new Color(255, 175, 128);
     private static final Color RED = new Color(255, 102, 102);
+    private static final Color LIGHT_GREEN = new Color(200, 240, 200);
+    private static final Color LIGHT_BLUE1 = new Color(180, 200, 240);
+    private static final Color LIGHT_YELLOW = new Color(240, 210, 160);
+    private static final Color LIGHT_PINK1 = new Color(240, 200, 220);
+    private static final Color LIGHT_YELLOW1 = new Color(240, 240, 200);
+
+    private static final Color LIGHT_KREM = new Color(240, 230, 210);
+    private static final Color LAVANDA = new Color(220, 200, 240);
 
     private static Simulation simulation;
     private static SimulationParameters parameters;
@@ -49,10 +57,25 @@ public class SimulationGUI {
     private static JFrame createSimulationFrame() {
         JFrame frame = new JFrame("Charging Site Modeling");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //  frame.getContentPane().setBackground();
-        frame.setPreferredSize(new Dimension(350, 800)); //450 775
-//        frame.setMinimumSize(new Dimension(450, 840));
 
+        GraphicsEnvironment ge1 = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs1 = ge1.getScreenDevices();
+
+        for (GraphicsDevice gd : gs1) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+
+            int frameWidth = (int) (bounds.width * 0.20);
+            int frameHeight = (int) (bounds.height * 0.9);
+
+
+            frame.setPreferredSize(new Dimension(frameWidth, frameHeight));
+            frame.setSize(frameWidth, frameHeight);
+
+            int xPosition = bounds.x;
+            int yPosition = bounds.y + (bounds.height - frameHeight) / 2;
+            frame.setLocation(xPosition, yPosition);
+
+        }
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
@@ -98,7 +121,6 @@ public class SimulationGUI {
         JSpinner maxEVPower2 = createSpinner(250, 1.0, Double.MAX_VALUE, 1);
         JSpinner meanChargingDemand2 = createSpinner(0.7, 0.0, 1.0, 0.1);
         JSpinner batteryCapacity2 = createSpinner(90.0, 0.0, 200.0, 5);
-
 
         JSpinner percentageOfCars3 = createSpinner(30, 1, 100, 10);
         JSpinner meanServiceTime3 = createSpinner(0.25, 0.0, Double.MAX_VALUE, 0.1);
@@ -150,7 +172,8 @@ public class SimulationGUI {
         confLevel.setBackground(Color.WHITE); //
 
 
-        JButton runSimulation = new JButton("Run Simulation");
+
+      /*  JButton runSimulation = new JButton("Run Simulation");
         configureButton(runSimulation);
 
         JButton saveResults = new JButton("Save Results");
@@ -163,12 +186,15 @@ public class SimulationGUI {
 
         JButton closeResults = new JButton("Load Results");
         configureButton(saveResults);
-        saveResults.setVisible(true);
+        saveResults.setVisible(true);*/
 
+        AutoResizeButton saveResults = new AutoResizeButton("Save Results");
+        AutoResizeButton runSimulation = new AutoResizeButton("Run Simulation");
+        AutoResizeButton loadResults = new AutoResizeButton("Load Parameters");
         loadResults.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Set up the file chooser
+                loadResults.setBackground(LIGHT_KREM);
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Select XML file with simulation parameters");
                 fileChooser.setAcceptAllFileFilterUsed(false);
@@ -199,12 +225,13 @@ public class SimulationGUI {
         JPanel procPanel = new JPanel();
 
         JScrollPane jScrollPane = new JScrollPane(procPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        jScrollPane.setMaximumSize(new Dimension(430, 720));
+        jScrollPane.setMaximumSize(new Dimension(430, 1000));
 
         runSimulation.addActionListener(e -> {
+            runSimulation.setBackground(LIGHT_PINK);
             jScrollPane.getViewport().setViewPosition(new Point(0, 0));
 
-                double maxSitePowerValue = getSpinnerValueAsDouble(maxSitePower);
+            double maxSitePowerValue = getSpinnerValueAsDouble(maxSitePower);
             double maxPointPowerValue = getSpinnerValueAsDouble(maxPointPower);
             double maxEVPowerValue = getSpinnerValueAsDouble(maxEVPower);
             double meanChargingDemandValue = getSpinnerValueAsDouble(meanChargingDemand);
@@ -325,13 +352,10 @@ public class SimulationGUI {
             int selectedConfidenceLevel = Integer.parseInt((String) confLevel.getSelectedItem());
             simulation.setConfLevel(selectedConfidenceLevel);
 
-
             // frame.dispose(); //fix the bug=)
 
             //simulation.runSimulation();
             saveResults.setVisible(true);
-
-
 
             gifLabel.setVisible(true);
             Dimension initial = new Dimension(100, 100);
@@ -343,6 +367,7 @@ public class SimulationGUI {
                     simulation.runSimulation();
                     return null;
                 }
+
                 @Override
                 protected void done() {
                     gifLabel.setVisible(false);
@@ -355,6 +380,7 @@ public class SimulationGUI {
 
 
         saveResults.addActionListener(e -> {
+            saveResults.setBackground(LIGHT_GREEN);
             String[] options = {
                     "Save Charging Site Queueing Characteristics",
                     "Charging Site Energy Characteristics",
@@ -450,7 +476,7 @@ public class SimulationGUI {
             }
         });
 
-        runSimulation.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        runSimulation.setBorder(BorderFactory.createEmptyBorder(13, 0, 13, 0));
 
         //setSpinnerModel(minArrivalRate);
         setSpinnerModel(numberOfSteps);
@@ -481,8 +507,7 @@ public class SimulationGUI {
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 
-
-      //  JPanel procPanel = new JPanel();
+        //  JPanel procPanel = new JPanel();
         procPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
@@ -491,21 +516,12 @@ public class SimulationGUI {
         procPanel.add(gifLabel);
         gifLabel.setVisible(false);
 
-
-        /* ImageIcon gifIcon = new ImageIcon("D:\\ChargingSiteModelling\\src\\main\\resources\\clock.gif");
-        JLabel gifLabel = new JLabel(gifIcon);
-        procPanel.add(gifLabel);
-        Dimension initial = new Dimension(100, 100);
-        gifLabel.setPreferredSize(initial);
-        gifLabel.setVisible( false);*/
-
-
         //  TitledBorder titledBorder = BorderFactory.createTitledBorder("General Parameters");
         //     procPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), titledBorder));
 
 
-       // JScrollPane jScrollPane = new JScrollPane(procPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-       // jScrollPane.setMaximumSize(new Dimension(430, 720));
+        // JScrollPane jScrollPane = new JScrollPane(procPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        // jScrollPane.setMaximumSize(new Dimension(430, 720));
 
         TitledBorder generalBorder = BorderFactory.createTitledBorder("General parameters");
         JPanel generalPanel = new JPanel(new GridBagLayout());
@@ -524,7 +540,6 @@ public class SimulationGUI {
         generalPanel.add(label);
 
 
-
         generalPanel.addMouseListener(new MouseAdapter() {
             private boolean isParametersShown = false;
 
@@ -539,15 +554,13 @@ public class SimulationGUI {
                     addRowToPanel(generalPanel, gbc, "Number of EV Types", numberOfClientTypes);
 
 
-
                     generalPanel.setBorder(BorderFactory.createCompoundBorder(
                             BorderFactory.createEmptyBorder(10, 10, 10, 10), generalBorder));
                     generalPanel.setPreferredSize(new Dimension(240, 280));
 
                     isParametersShown = true;
 
-                }
-                else {
+                } else {
 
                     generalPanel.removeAll();
                     generalPanel.add(label);
@@ -562,7 +575,6 @@ public class SimulationGUI {
             }
 
         });
-
 
         TitledBorder siteBorder = BorderFactory.createTitledBorder("Site Parameters");
         JPanel sitePanel = new JPanel(new GridBagLayout());
@@ -615,7 +627,7 @@ public class SimulationGUI {
         JPanel chargingParametersPanel = new JPanel(new GridBagLayout());
 
         Dimension chargingPanelSize = new Dimension(240, 210);
-        chargingParametersPanel.setPreferredSize(new Dimension(240, 45)); // Start with compact size
+        chargingParametersPanel.setPreferredSize(new Dimension(240, 45));
         chargingParametersPanel.setMinimumSize(chargingPanelSize);
         chargingParametersPanel.setMaximumSize(chargingPanelSize);
 
@@ -688,7 +700,7 @@ public class SimulationGUI {
                     addRowToPanel(EVParametersPanel, gbc, "Mean Charging Time [h]", meanServiceTime);
                     addRowToPanel(EVParametersPanel, gbc, "Max EV Charging Power [kW]", maxEVPower);
                     addRowToPanel(EVParametersPanel, gbc, "Demand Distribution Type", demandType);
-                    addRowToPanel(EVParametersPanel, gbc, "Mean Charging Demand [% of battery]", meanChargingDemand);
+                    addRowToPanel(EVParametersPanel, gbc, "Mean Charging Demand [fraction of battery]", meanChargingDemand);
 
                     TitledBorder tempBorder = BorderFactory.createTitledBorder("EV Parameters");
                     tempBorder.setTitleColor(Color.BLUE);
@@ -724,7 +736,7 @@ public class SimulationGUI {
         EVParametersPanel2.setVisible(false);
 
         Dimension EVPanelSize2 = new Dimension(240, 420);
-        EVParametersPanel2.setPreferredSize(new Dimension(240, 45)); // Start with compact size
+        EVParametersPanel2.setPreferredSize(new Dimension(240, 45));
         EVParametersPanel2.setMinimumSize(EVPanelSize2);
         EVParametersPanel2.setMaximumSize(EVPanelSize2);
 
@@ -739,12 +751,12 @@ public class SimulationGUI {
                 if (!isParametersShown) {
                     EVParametersPanel2.removeAll();
 
-                    addRowToPanel(EVParametersPanel2, gbc, "Percentage of EV 2", percentageOfCars2);
+                    addRowToPanel(EVParametersPanel2, gbc, "Percentage of EV 2 [%]", percentageOfCars2);
                     addRowToPanel(EVParametersPanel2, gbc, "Battery Capacity [kWh]", batteryCapacity2);
                     addRowToPanel(EVParametersPanel2, gbc, "Mean Charging Time [h]", meanServiceTime2);
                     addRowToPanel(EVParametersPanel2, gbc, "Max EV Charging Power [kW]", maxEVPower2);
                     addRowToPanel(EVParametersPanel2, gbc, "Demand Distribution Type", demandType2);
-                    addRowToPanel(EVParametersPanel2, gbc, "Mean Charging Demand [% of battery]", meanChargingDemand2);
+                    addRowToPanel(EVParametersPanel2, gbc, "Mean Charging Demand [fraction of battery]", meanChargingDemand2);
 
                     TitledBorder tempBorder = BorderFactory.createTitledBorder("EV Parameters for type 2");
                     tempBorder.setTitleColor(Color.BLUE);
@@ -781,7 +793,7 @@ public class SimulationGUI {
         EVParametersPanel3.setVisible(false);
 
         Dimension EVPanelSize3 = new Dimension(240, 420);
-        EVParametersPanel3.setPreferredSize(new Dimension(240, 45)); // Start with compact size
+        EVParametersPanel3.setPreferredSize(new Dimension(240, 45));
         EVParametersPanel3.setMinimumSize(EVPanelSize3);
         EVParametersPanel3.setMaximumSize(EVPanelSize3);
 
@@ -796,12 +808,12 @@ public class SimulationGUI {
                 if (!isParametersShown) {
                     EVParametersPanel3.removeAll();
 
-                    addRowToPanel(EVParametersPanel3, gbc, "Percentage of EV 3", percentageOfCars3);
+                    addRowToPanel(EVParametersPanel3, gbc, "Percentage of EV 3 [%]", percentageOfCars3);
                     addRowToPanel(EVParametersPanel3, gbc, "Battery Capacity [kWh]", batteryCapacity3);
                     addRowToPanel(EVParametersPanel3, gbc, "Mean Charging Time [h]", meanServiceTime3);
                     addRowToPanel(EVParametersPanel3, gbc, "Max EV Charging Power [kW]", maxEVPower3);
                     addRowToPanel(EVParametersPanel3, gbc, "Demand Distribution Type", demandType3);
-                    addRowToPanel(EVParametersPanel3, gbc, "Mean Charging Demand [% of battery]", meanChargingDemand3);
+                    addRowToPanel(EVParametersPanel3, gbc, "Mean Charging Demand [fraction of battery]", meanChargingDemand3);
 
                     TitledBorder tempBorder = BorderFactory.createTitledBorder("EV Parameters for type 3");
                     tempBorder.setTitleColor(Color.BLUE);
@@ -899,28 +911,25 @@ public class SimulationGUI {
         EVParametersGbc3.gridx = 0;
         procPanel.add(EVParametersPanel3, EVParametersGbc3);
 
-
-        // procPanel.add(gifLabel);
-       // gifLabel.setVisible(false);
-        //GridBagConstraints gbc = new GridBagConstraints();
-
         procPanel.setBackground(LIGHT_BLUE);
         verticalBox.add(jScrollPane);
 
         JPanel bottomPanel = new JPanel();
         runSimulation.setForeground(Color.BLACK);
         bottomPanel.setBackground(DARK_BLUE);
-        bottomPanel.setLayout(new GridLayout(1, 2));
+        bottomPanel.setLayout(new GridLayout(1, 3));
+
+        bottomPanel.add(loadResults);
         bottomPanel.add(runSimulation);
         bottomPanel.add(saveResults);
-        bottomPanel.add(loadResults);
-       // bottomPanel.add(closeResults);
+
+        // bottomPanel.add(closeResults);
 
         frame.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
-        frame.setResizable(true);
+        frame.setResizable(false);
         return frame;
     }
 
@@ -937,7 +946,6 @@ public class SimulationGUI {
                 Document doc = dBuilder.parse(selectedFile);
                 doc.getDocumentElement().normalize();
 
-                // Load General Parameters
                 NodeList generalParamsList = doc.getElementsByTagName("GeneralParameters");
                 if (generalParamsList.getLength() > 0) {
                     Element generalParams = (Element) generalParamsList.item(0);
@@ -945,13 +953,11 @@ public class SimulationGUI {
                     int maxEventsPerStep = Integer.parseInt(generalParams.getElementsByTagName("MaxEventsPerStep").item(0).getTextContent());
                     int confidenceIntervalLevel = Integer.parseInt(generalParams.getElementsByTagName("ConfidenceIntervalLevel").item(0).getTextContent());
 
-                    // Assuming you have a method in your simulation to set these values
                     simulation.getParameters().setSIM_STEPS(numberOfSimulationSteps);
                     simulation.getParameters().setMAX_EVENTS(maxEventsPerStep);
-                    // Set confidence level...
+                    simulation.getParameters().setConfLevel(confidenceIntervalLevel);
                 }
 
-                // Load Site Parameters
                 NodeList siteParamsList = doc.getElementsByTagName("SiteParameters");
                 if (siteParamsList.getLength() > 0) {
                     Element siteParams = (Element) siteParamsList.item(0);
@@ -961,7 +967,6 @@ public class SimulationGUI {
                     String queueingType = siteParams.getElementsByTagName("QueueingType").item(0).getTextContent();
                     int maxSitePower = Integer.parseInt(siteParams.getElementsByTagName("MaxSitePower").item(0).getTextContent());
 
-                    // Assuming you have methods to set these values
                     simulation.getParameters().setARRIVAL_TYPE(DistributionType.valueOf(arrivalDistributionType));
                     simulation.getParameters().setMAX_ARRIVAL_RATE(maxMeanArrivalRate);
                     simulation.getParameters().setQUEUE_SIZE(parkingSpace);
@@ -969,7 +974,6 @@ public class SimulationGUI {
                     simulation.getParameters().setMaxSitePower(maxSitePower);
                 }
 
-                // Load Charging Parameters
                 NodeList chargingParamsList = doc.getElementsByTagName("ChargingParameters");
                 if (chargingParamsList.getLength() > 0) {
                     Element chargingParams = (Element) chargingParamsList.item(0);
@@ -977,13 +981,11 @@ public class SimulationGUI {
                     String serviceDistributionType = chargingParams.getElementsByTagName("ServiceDistributionType").item(0).getTextContent();
                     int maxPowerOfChargingPoint = Integer.parseInt(chargingParams.getElementsByTagName("MaxPowerOfChargingPoint").item(0).getTextContent());
 
-                    // Assuming you have methods to set these values
                     simulation.getParameters().setNUMBER_OF_SERVERS(numberOfChargingPoints);
                     simulation.getParameters().setSERVICE_TYPE(DistributionType.valueOf(serviceDistributionType));
                     simulation.getParameters().setMaxPointPower(maxPowerOfChargingPoint);
                 }
 
-                // Load EV Parameters
                 NodeList evParamsList = doc.getElementsByTagName("EVParameters");
                 for (int temp = 0; temp < evParamsList.getLength(); temp++) {
                     Node nNode = evParamsList.item(temp);
@@ -996,7 +998,6 @@ public class SimulationGUI {
                         String demandDistributionType = evParams.getElementsByTagName("DemandDistributionType").item(0).getTextContent();
                         double meanChargingDemand = Double.parseDouble(evParams.getElementsByTagName("MeanChargingDemand").item(0).getTextContent());
 
-                        // Assuming you have methods to set these values
                         simulation.getParameters().setNUMBER_OF_CAR_TYPES(numberOfEVTypes);
                         simulation.getParameters().setBatteryCapacity(batteryCapacity);
                         simulation.getParameters().setMEAN_SERVICE_TIME(meanChargingTime);
@@ -1005,8 +1006,6 @@ public class SimulationGUI {
                         simulation.getParameters().setMeanChargingDemand(meanChargingDemand);
                     }
                 }
-
-                // After loading all parameters, update GUI components or start the simulation
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1239,6 +1238,47 @@ public class SimulationGUI {
                     return comp;
                 }
             };
+        }
+    }
+
+
+    public static class AutoResizeButton extends JButton {
+
+
+        public AutoResizeButton(String text) {
+            super("<html>" + text + "</html>");
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            fitTextToButton();
+        }
+
+        private void fitTextToButton() {
+            FontMetrics fm = getFontMetrics(getFont());
+            String text = getText().replaceAll("<html>", "").replaceAll("</html>", "");
+            int stringWidth = fm.stringWidth(text);
+            int componentWidth = getWidth();
+
+            if (stringWidth > componentWidth) {
+                StringBuilder newText = new StringBuilder("<html>");
+                String[] words = text.split(" ");
+                String currentLine = "";
+                for (String word : words) {
+                    // Перевіряємо ширину поточного рядка з новим словом
+                    int lineWidth = fm.stringWidth(currentLine + word);
+                    if (lineWidth < componentWidth) {
+                        currentLine += word + " ";
+                    } else {
+                        // Якщо слово не вміщається, додаємо його на новий рядок
+                        newText.append(currentLine.trim()).append("<br>");
+                        currentLine = word + " ";
+                    }
+                }
+                newText.append(currentLine).append("</html>");
+                setText(newText.toString());
+            }
         }
     }
 }

@@ -23,6 +23,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -383,33 +384,29 @@ public class Monitor extends Graph {
         }
     }
 
+    private String formatDouble(DecimalFormat df, Double value) {
+        return df.format(value);
+    }
+
+
     public void saveGraphDataToCSV(String filePath) {
+        DecimalFormat df = new DecimalFormat("#.####################");
+        df.setDecimalSeparatorAlwaysShown(false);
         try (FileWriter writer = new FileWriter(filePath)) {
             writer.append("Step;Mean;Std;Max90;Min10;MeanSitePower;StdSitePower;MaxSitePower;MeanChargingDeviation;StdChargingDeviation;ConfChargingDeviation\n");
 
             for (int i = 0; i < steps.size(); i++) {
-                writer.append(steps.get(i).toString());
-                writer.append(";");
-                writer.append(means.get(i).toString());
-                writer.append(";");
-                writer.append(stds.get(i).toString());
-                writer.append(";");
-                writer.append(maxs90.get(i).toString());
-                writer.append(";");
-                writer.append(mins10.get(i).toString());
-                writer.append(";");
-                writer.append(meansSitePower.get(i).toString());
-                writer.append(";");
-                writer.append(stdsSitePower.get(i).toString());
-                writer.append(";");
-                writer.append(maxSitePower.get(i).toString());
-                writer.append(";");
-                writer.append(meansChargingDeviation.get(i).toString());
-                writer.append(";");
-                writer.append(stdsChargingDeviation.get(i).toString());
-                writer.append(";");
-                writer.append(confidencesChargingDeviation.get(i).toString());
-                writer.append("\n");
+                writer.append(formatDouble(df, steps.get(i))).append(";");
+                writer.append(formatDouble(df, means.get(i))).append(";");
+                writer.append(formatDouble(df, stds.get(i))).append(";");
+                writer.append(formatDouble(df, maxs90.get(i))).append(";");
+                writer.append(formatDouble(df, mins10.get(i))).append(";");
+                writer.append(formatDouble(df, meansSitePower.get(i))).append(";");
+                writer.append(formatDouble(df, stdsSitePower.get(i))).append(";");
+                writer.append(formatDouble(df, maxSitePower.get(i))).append(";");
+                writer.append(formatDouble(df, meansChargingDeviation.get(i))).append(";");
+                writer.append(formatDouble(df, stdsChargingDeviation.get(i))).append(";");
+                writer.append(formatDouble(df, confidencesChargingDeviation.get(i))).append("\n");
             }
 
             System.out.println("CSV file has been created successfully!");
@@ -417,6 +414,8 @@ public class Monitor extends Graph {
             System.out.println("Error writing to CSV: " + e.getMessage());
         }
     }
+
+
 }
   /*public void saveSVGDialogue() {
         boolean inputValid = false;

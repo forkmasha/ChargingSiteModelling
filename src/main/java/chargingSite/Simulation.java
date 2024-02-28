@@ -28,6 +28,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -53,6 +54,7 @@ public class Simulation extends Graph {
     private JFreeChart MyChart;
     private JFreeChart SitePowerGraph;
     public Monitor chargingMonitor;
+    public ChargingSite site;
 
     private final Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private final Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
@@ -89,12 +91,9 @@ public class Simulation extends Graph {
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
 
-
         SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
 
-
         MyChart.draw(svgGenerator, new Rectangle2D.Double(0, 0, wi, hi));
-
 
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
             svgGenerator.stream(writer, true);
@@ -106,13 +105,13 @@ public class Simulation extends Graph {
     }
 
     public void runSimulation() {
-        //  SimulationGUI.gifLabel.setVisible(true);
         resetData();
         ChargingSite.clearDataset1();
         EventSimulation.setMaxEvents(parameters.getMAX_EVENTS());
         Client[] myFirstClients = new Client[1];
         Client myFirstClient;
         QueueingSystem mySystem = new QueueingSystem(parameters);
+        site = mySystem.getChargingSite();
         chargingMonitor.setSource(mySystem);
         if (parameters.getNUMBER_OF_CAR_TYPES() > 1) {
             mySystem.setName(Distribution.getTitleAbbreviation(parameters.getARRIVAL_TYPE().toString())
@@ -342,7 +341,6 @@ public class Simulation extends Graph {
             public LegendItemCollection getLegendItems() {
                 LegendItemCollection items = new LegendItemCollection();
 
-                // Add legend items for each series
                 items.add(new LegendItem("Service Time", Color.blue));
                 items.add(new LegendItem("Queuing Time", Color.RED));
                 items.add(new LegendItem("System Time", Color.MAGENTA));
@@ -357,7 +355,6 @@ public class Simulation extends Graph {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
 
-        // Пошук найбільшого екрана
         GraphicsDevice largestScreen = gs[0];
         Rectangle largestBounds = largestScreen.getDefaultConfiguration().getBounds();
         for (GraphicsDevice gd : gs) {
@@ -395,10 +392,8 @@ public class Simulation extends Graph {
         frame.setContentPane(chartPanel);
         frame.pack();
 
-        // Встановлення розташування вікна з урахуванням відступу зліва та без відступу зверху
         frame.setLocation(largestBounds.x + leftOffset, largestBounds.y);
 
-        // Відображення вікна
         frame.setVisible(true);
     }
 
@@ -415,9 +410,8 @@ public class Simulation extends Graph {
                 options[0]);
 
         if (formatResult == JOptionPane.YES_OPTION) {
-            // Save as SVG
-            boolean inputValid = getUserInput() && chooseFile();
 
+            boolean inputValid = getUserInput() && chooseFile();
             if (inputValid) {
                 try {
                     int imageWidth = Integer.parseInt(getWidthField().getText());
@@ -446,6 +440,9 @@ public class Simulation extends Graph {
 
 
     public void saveGraphDataToCSV(String filePath) {
+        DecimalFormat df = new DecimalFormat("#.####################");
+        df.setDecimalSeparatorAlwaysShown(false);
+
         try (FileWriter writer = new FileWriter(filePath)) {
             writer.append("Arrival Rate [1/h];Mean Service Time;std serviceTime;confidence Service Time; Mean Queueing Time;std queueingTime;confidence Queueing Time; Mean System Time;std systemTime;confidence System Time\n");
             List<Double> arrivalRates = meanSystemTimes.getSteps();
@@ -462,31 +459,24 @@ public class Simulation extends Graph {
             List<Double> confSystemTimeValues = meanSystemTimes.getConfidences();
 
             for (int i = 0; i < arrivalRates.size(); i++) {
-                writer.append(arrivalRates.get(i).toString());
-                writer.append(";");
-                writer.append(meanServiceTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(stdServiceTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(confServiceTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(meanQueueingTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(stdQueueingTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(confQueueingTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(meanSystemTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(stdSystemTimeValues.get(i).toString());
-                writer.append(";");
-                writer.append(confSystemTimeValues.get(i).toString());
-                writer.append("\n");
+                writer.append(formatDouble(df, arrivalRates.get(i))).append(";");
+                writer.append(formatDouble(df, meanServiceTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, stdServiceTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, confServiceTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, meanQueueingTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, stdQueueingTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, confQueueingTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, meanSystemTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, stdSystemTimeValues.get(i))).append(";");
+                writer.append(formatDouble(df, confSystemTimeValues.get(i))).append("\n");
             }
             System.out.println("CSV file has been created successfully!");
 
         } catch (IOException e) {
             System.out.println("Error writing to CSV: " + e.getMessage());
         }
+    }
+    private String formatDouble(DecimalFormat df, Double value) {
+        return df.format(value);
     }
 }

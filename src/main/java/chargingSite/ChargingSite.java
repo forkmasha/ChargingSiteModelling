@@ -8,10 +8,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.CombinedDomainXYPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -20,11 +17,22 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
+import org.jfree.graphics2d.svg.SVGUtils;
 import org.jfree.util.ShapeUtilities;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 import results.Histogram;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.DoubleStream;
@@ -242,6 +250,7 @@ public class ChargingSite {
         }
     }
 
+    private static boolean isWindowClosing = false;
 
     private int[] getSeriesOrder(HistogramDataset dataset) {
         int[] seriesOrder = new int[dataset.getSeriesCount()];
@@ -377,7 +386,6 @@ public class ChargingSite {
             }
         }
 
-        // Розрахунок розмірів та розташування вікна
         int frameWidth = (int) (largestBounds.width * 0.32);
         int frameHeight = (int) (largestBounds.height * 0.44);
         int frameX = (int) (largestBounds.x + largestBounds.width - frameWidth - (largestBounds.width * 0.02));
@@ -419,6 +427,53 @@ public class ChargingSite {
         return new Color(r, g, b);
     }
 
+    public static void saveHistogramToSVG(String filePath) {
+        int width = 1400;
+        int height = 700;
+        // Переконуємося, що frame та chartPanel існують
+        if (frame == null || frame.getContentPane().getComponentCount() == 0) {
+            System.err.println("Гістограма ще не була створена або відображена.");
+            return;
+        }
+        // Створюємо SVG контекст для малювання з вказаними розмірами
+        SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+
+        // Отримуємо chartPanel для доступу до графіка
+        ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
+        // Використовуємо метод draw з адаптованими розмірами
+        chartPanel.getChart().draw(g2, new Rectangle(0, 0, width, height));
+
+        // Записуємо SVG у файл
+        try {
+            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
+            System.out.println("Гістограма успішно збережена у форматі SVG з розмірами 1400x700.");
+        } catch (IOException e) {
+            System.err.println("Помилка при збереженні гістограми у форматі SVG: " + e.getMessage());
+        }
+    }
+    /* public static void saveHistogramToSVG(String filePath) {
+    if (frame == null || frame.getContentPane().getComponentCount() == 0) {
+            System.err.println("Гістограма ще не була створена або відображена.");
+            return;
+        }
+        // Визначаємо розмір SVG на основі розмірів ChartPanel
+        ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
+        int width = chartPanel.getWidth();
+        int height = chartPanel.getHeight();
+
+        // Створюємо SVG контекст для малювання
+        SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+        // Отримуємо графік з chartPanel та відображаємо його на SVGGraphics2D об'єкті
+        chartPanel.getChart().draw(g2, new Rectangle(width, height));
+
+        // Записуємо створений SVG у файл
+        try {
+            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
+            System.out.println("Гістограма успішно збережена у форматі SVG.");
+        } catch (IOException e) {
+            System.err.println("Помилка при збереженні гістограми у форматі SVG: " + e.getMessage());
+        }
+    }*/
 
     private static JFrame frame1;
     private static ChartPanel chartPanel1;
@@ -428,7 +483,6 @@ public class ChargingSite {
     public static void initializeChart1() {
 
         frame1 = new JFrame();
-        //frame1.setSize(652, 580);
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         dataset1 = new XYSeriesCollection();

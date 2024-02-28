@@ -21,7 +21,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class SimulationGUI {
     private static final Color LIGHT_PINK = new Color(255, 182, 193);
@@ -47,6 +51,7 @@ public class SimulationGUI {
     static ImageIcon gifIcon = new ImageIcon("D:\\ChargingSiteModelling\\src\\main\\resources\\clock3.gif");
     static JLabel gifLabel = new JLabel(gifIcon);
 
+    private static boolean simulationRun = false;
 
     public static void runSimulationGUI() {
         JFrame frame = createSimulationFrame();
@@ -204,11 +209,11 @@ public class SimulationGUI {
                 int result = fileChooser.showOpenDialog(frame);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    // Ensure the file is not a directory and ends with .xml
+
                     if (selectedFile.isFile() && selectedFile.getName().toLowerCase().endsWith(".xml")) {
                         try {
                             loadParametersFromXml(frame, selectedFile);
-                            // Assuming startSimulation() is a method that starts the simulation
+
                             simulation.runSimulation();
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frame, "Failed to load parameters or start the simulation: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -228,6 +233,7 @@ public class SimulationGUI {
         jScrollPane.setMaximumSize(new Dimension(430, 1000));
 
         runSimulation.addActionListener(e -> {
+            simulationRun = true;
             runSimulation.setBackground(LIGHT_PINK);
             jScrollPane.getViewport().setViewPosition(new Point(0, 0));
 
@@ -380,101 +386,349 @@ public class SimulationGUI {
 
 
         saveResults.addActionListener(e -> {
-            saveResults.setBackground(LIGHT_GREEN);
-            String[] options = {
-                    "Save Charging Site Queueing Characteristics",
-                    "Charging Site Energy Characteristics",
-                    "Power vs Time Chart",
-                    "Site Power Distribution Histogram",
-                    "GUI Parameters",
-                    "All Results"
-            };
-            JList<String> optionList = new JList<>(options);
-            optionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            optionList.setLayoutOrientation(JList.VERTICAL);
-            optionList.setVisibleRowCount(options.length);
+            saveResults.setBackground(LIGHT_YELLOW1);
+            if (!simulationRun) {
+                String[] options = {
+                        "GUI Parameters"
+                };
+                JList<String> optionList = new JList<>(options);
+                optionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                optionList.setLayoutOrientation(JList.VERTICAL);
+                optionList.setVisibleRowCount(options.length);
 
-            // Використання JOptionPane для відображення JList
-            JOptionPane.showMessageDialog(
-                    frame, // frame - ваш JFrame
-                    new JScrollPane(optionList), // Обгорнути JList в JScrollPane
-                    "Save Parameters", // Заголовок
-                    JOptionPane.PLAIN_MESSAGE
-            );
+                JOptionPane.showMessageDialog(
+                        frame,
+                        new JScrollPane(optionList),
+                        "Save Parameters",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+                int selectedIndex = optionList.getSelectedIndex();
+                if (selectedIndex != -1) {
+                    switch (selectedIndex) {
 
-            // Отримання вибору користувача
-            int selectedIndex = optionList.getSelectedIndex();
-            if (selectedIndex != -1) {
-                switch (selectedIndex) {
-                    case 0:
-                        String[] formats = {"csv", "svg"};
-                        String selectedFormat = (String) JOptionPane.showInputDialog(
-                                frame, // ваш JFrame
-                                "Choose the format to save the graph:", // текст запитання
-                                "Save Format", // заголовок вікна
-                                JOptionPane.QUESTION_MESSAGE,
-                                null, // без іконки
-                                formats, // опції для вибору
-                                formats[0] // вибір за замовчуванням
-                        );
+                        case 0:
+                            String[] formats1 = {"txt", "xml"};
+                            String selectedFormat1 = (String) JOptionPane.showInputDialog(
+                                    frame,
+                                    "Choose the format to save the result:",
+                                    "Save Format",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    formats1,
+                                    formats1[0]
+                            );
 
-                        // Перевірка вибору користувача та виконання відповідної логіки
-                        if (selectedFormat != null) {
-                            if ("csv".equals(selectedFormat)) {
-                                simulation.saveGraphDataToCSV("D:\\masha1.csv");
+                            if (selectedFormat1 != null) {
+                                if ("txt".equals(selectedFormat1)) {
+                                    //SimulationParameters parameters = new SimulationParameters();
+                                    parameters.writeParameters2txt(frame);
 
-                                // Логіка збереження в форматі CSV
-
-                            } else if ("svg".equals(selectedFormat)) {
-                                // Логіка збереження в форматі SVG
-                                File svgFile = new File("D:\\sim.svg");                        ///
-
-                                try {
-                                    simulation.saveAsSVG(200, 200, svgFile);
-                                } catch (IOException ex) {
-                                    throw new RuntimeException(ex);
+                                } else if ("xml".equals(selectedFormat1)) {
+                                    parameters.writeParameters2xml(frame);
                                 }
                             }
-                        }
-                        break;
-                    case 1:
-                        // Логіка для збереження Charging Site Energy Characteristics
+                            break;
+                    }
 
-                        break;
-                    case 2:
-                        // Логіка для збереження Power vs Time Chart
-                        break;
-                    case 3:
-                        // Логіка для збереження Site Power Distribution Histogram
-                        break;
-                    case 4:
-                        String[] formats1 = {"txt", "xml"};
-                        String selectedFormat1 = (String) JOptionPane.showInputDialog(
-                                frame, // ваш JFrame
-                                "Choose the format to save the result:", // текст запитання
-                                "Save Format", // заголовок вікна
-                                JOptionPane.QUESTION_MESSAGE,
-                                null, // без іконки
-                                formats1, // опції для вибору
-                                formats1[0] // вибір за замовчуванням
-                        );
-
-                        if (selectedFormat1 != null) {
-                            if ("txt".equals(selectedFormat1)) {
-                                //SimulationParameters parameters = new SimulationParameters();
-
-                                parameters.writeParameters2txt(frame);
-
-                            } else if ("xml".equals(selectedFormat1)) {
-                                parameters.writeParameters2xml(frame);
-                            }
-                        }
-                        break;
                 }
             } else {
-                // Користувач не вибрав опцію
+
+                saveResults.setBackground(LIGHT_GREEN);
+                String[] options = {
+                        "Save Charging Site Queueing Characteristics",
+                        "Charging Site Energy Characteristics",
+                        "Power vs Time Chart",
+                        "Site Power Distribution Histogram",
+                        "GUI Parameters",
+                        "All Results"
+                };
+
+                JList<String> optionList = new JList<>(options);
+                optionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                optionList.setLayoutOrientation(JList.VERTICAL);
+                optionList.setVisibleRowCount(options.length);
+
+                JOptionPane.showMessageDialog(
+                        frame,
+                        new JScrollPane(optionList),
+                        "Save Parameters",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+
+                int selectedIndex = optionList.getSelectedIndex();
+                if (selectedIndex != -1) {
+                    switch (selectedIndex) {
+                        case 0:
+                            String[] formats = {"csv", "svg"};
+                            String selectedFormat = (String) JOptionPane.showInputDialog(
+                                    frame,
+                                    "Choose the format to save the graph:",
+                                    "Save Format",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    formats,
+                                    formats[0]
+                            );
+
+                            if (selectedFormat != null) {
+                                JFileChooser fileChooser = new JFileChooser();
+                                fileChooser.setDialogTitle("Specify a file to save");
+
+                                if ("csv".equals(selectedFormat)) {
+                                    fileChooser.setSelectedFile(new File("ChargingSiteQueueingCharacteristics.csv"));
+                                } else if ("svg".equals(selectedFormat)) {
+                                    fileChooser.setSelectedFile(new File("ChargingSiteQueueingCharacteristics.svg"));
+                                }
+
+                                int userSelection = fileChooser.showSaveDialog(frame);
+
+                                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                                    File fileToSave = fileChooser.getSelectedFile();
+
+                                    if ("csv".equals(selectedFormat)) {
+                                        simulation.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                    } else if ("svg".equals(selectedFormat)) {
+                                        try {
+                                            simulation.saveAsSVG(1200, 730, fileToSave);
+                                        } catch (IOException ex) {
+                                            throw new RuntimeException(ex);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 1:
+                            String[] formats1 = {"csv", "svg"};
+                            String selectedFormat1 = (String) JOptionPane.showInputDialog(
+                                    frame,
+                                    "Choose the format to save the graph:",
+                                    "Save Format",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    formats1,
+                                    formats1[0]
+                            );
+
+                            if (selectedFormat1 != null) {
+                                JFileChooser fileChooser = new JFileChooser();
+                                fileChooser.setDialogTitle("Specify a file to save");
+
+                                if ("csv".equals(selectedFormat1)) {
+                                    fileChooser.setSelectedFile(new File("ChargingSiteEnergyCharacteristics.csv"));
+                                } else if ("svg".equals(selectedFormat1)) {
+                                    fileChooser.setSelectedFile(new File("ChargingSiteEnergyCharacteristics.svg"));
+                                }
+
+                                int userSelection = fileChooser.showSaveDialog(frame);
+
+                                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                                    File fileToSave = fileChooser.getSelectedFile();
+
+                                    if ("csv".equals(selectedFormat1)) {
+                                        simulation.chargingMonitor.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                    }
+                                    else if ("svg".equals(selectedFormat1)) {
+                                        simulation.chargingMonitor.saveSVGDialogue();
+                                        try {
+                                            simulation.chargingMonitor.saveAsSVG(1200, 730, fileToSave);
+                                        } catch (IOException ex) {
+                                            throw new RuntimeException(ex);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 2:
+                            String[] formats2 = {"csv", "svg"};
+                            String selectedFormat2 = (String) JOptionPane.showInputDialog(
+                                    frame,
+                                    "Choose the format to save the graph:",
+                                    "Save Format",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    formats2,
+                                    formats2[0]
+                            );
+
+                            if (selectedFormat2 != null) {
+                                JFileChooser fileChooser = new JFileChooser();
+                                fileChooser.setDialogTitle("Specify a file to save");
+
+                                if ("csv".equals(selectedFormat2)) {
+                                    fileChooser.setSelectedFile(new File("PowerOverTimeChart.csv"));
+                                } else if ("svg".equals(selectedFormat2)) {
+                                    fileChooser.setSelectedFile(new File("PowerOverTimeChart.svg"));
+                                }
+
+                                int userSelection = fileChooser.showSaveDialog(frame);
+
+                                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                                    File fileToSave = fileChooser.getSelectedFile();
+
+                                    if ("csv".equals(selectedFormat2)) {
+                                        simulation.site.saveChartDataToCSV(fileToSave.getAbsolutePath());
+                                    }
+                                    else if ("svg".equals(selectedFormat2)) {
+                                        //    simulation.saveAsSVG(1200, 730, fileToSave);
+                                        simulation.site.saveToSVG(fileToSave.getAbsolutePath());
+
+                                    }
+                                }
+                            }
+                            break;
+                        case 3:
+
+                            String[] formats3 = {"csv", "svg"};
+                            String selectedFormat3 = (String) JOptionPane.showInputDialog(
+                                    frame,
+                                    "Choose the format to save the histogram:",
+                                    "Save Format",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    formats3,
+                                    formats3[0]
+                            );
+
+                            if (selectedFormat3 != null) {
+                                JFileChooser fileChooser = new JFileChooser();
+                                fileChooser.setDialogTitle("Specify a file to save");
+
+                                if ("csv".equals(selectedFormat3)) {
+                                    fileChooser.setSelectedFile(new File("SitePowerDistributionHistogram.csv"));
+                                } else if ("svg".equals(selectedFormat3)) {
+                                    fileChooser.setSelectedFile(new File("SitePowerDistributionHistogram.svg"));
+                                }
+
+                                int userSelection = fileChooser.showSaveDialog(frame);
+
+                                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                                    File fileToSave = fileChooser.getSelectedFile();
+
+                                    if ("csv".equals(selectedFormat3)) {
+                                        try {
+                                            simulation.site.saveHistogramDataToCSV(fileToSave.getAbsolutePath());
+                                        } catch (IOException ex) {
+                                            throw new RuntimeException(ex);
+                                        }
+                                    } else if ("svg".equals(selectedFormat3)) {
+                                        //    simulation.saveAsSVG(1200, 730, fileToSave);
+                                        simulation.site.saveHistogramToSVG(fileToSave.getAbsolutePath());
+                                    }
+                                }
+                            }
+                            break;
+                        case 4:
+                            String[] formats4 = {"txt", "xml"};
+                            String selectedFormat4 = (String) JOptionPane.showInputDialog(
+                                    frame, // ваш JFrame
+                                    "Choose the format to save the result:", // текст запитання
+                                    "Save Format", // заголовок вікна
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null, // без іконки
+                                    formats4, // опції для вибору
+                                    formats4[0] // вибір за замовчуванням
+                            );
+
+                            if (selectedFormat4 != null) {
+                                if ("txt".equals(selectedFormat4)) {
+                                    //SimulationParameters parameters = new SimulationParameters();
+
+                                    parameters.writeParameters2txt(frame);
+
+                                } else if ("xml".equals(selectedFormat4)) {
+                                    parameters.writeParameters2xml(frame);
+                                }
+                            }
+                            break;
+                        case 5:
+                            JFileChooser fileChooser = new JFileChooser();
+                            fileChooser.setDialogTitle("Specify a file to save all results in a ZIP archive");
+                            fileChooser.setSelectedFile(new File("AllResults.zip"));
+                            int userSelection = fileChooser.showSaveDialog(frame);
+
+                            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                                File zipFileToSave = fileChooser.getSelectedFile();
+
+                                try (FileOutputStream fos = new FileOutputStream(zipFileToSave);
+                                     ZipOutputStream zipOut = new ZipOutputStream(fos)) {
+
+                                    // Масив назв і форматів файлів для збереження
+                                    String[][] fileInfo = {
+                                            {"ChargingSiteQueueingCharacteristics", "csv", "svg"},
+                                            {"ChargingSiteEnergyCharacteristics", "csv", "svg"},
+                                            {"PowerUSTimeChart", "csv", "svg"},
+                                            {"SitePowerDistributionHistogram", "csv", "svg"}
+                                    };
+
+                                    for (String[] info : fileInfo) {
+                                        for (int formatIndex = 1; formatIndex <= 2; formatIndex++) {
+                                            String format = info[formatIndex];
+                                            String baseName = info[0];
+                                            String fileName = baseName + "." + format;
+
+                                            // Генерація файлів для кожного формату
+                                            File fileToSave = new File(System.getProperty("java.io.tmpdir"), fileName);
+
+                                            // Виклик відповідного методу збереження в залежності від формату
+                                            if ("csv".equals(format)) {
+                                                if ("ChargingSiteQueueingCharacteristics".equals(baseName)) {
+                                                    simulation.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                                } else if ("ChargingSiteEnergyCharacteristics".equals(baseName)) {
+                                                    simulation.chargingMonitor.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                                } else if ("PowerUSTimeChart".equals(baseName)) {
+                                                    simulation.site.saveChartDataToCSV(fileToSave.getAbsolutePath());
+                                                } else if ("SitePowerDistributionHistogram".equals(baseName)) {
+                                                    simulation.site.saveHistogramDataToCSV(fileToSave.getAbsolutePath());
+                                                }
+                                            } else if ("svg".equals(format)) {
+                                                if ("ChargingSiteQueueingCharacteristics".equals(baseName)) {
+                                                    simulation.saveAsSVG(1200, 730, fileToSave);
+                                                } else if ("ChargingSiteEnergyCharacteristics".equals(baseName)) {
+                                                    simulation.chargingMonitor.saveAsSVG(1200, 730, fileToSave);
+                                                } else if ("PowerUSTimeChart".equals(baseName)) {
+                                                    simulation.site.saveToSVG(fileToSave.getAbsolutePath());
+                                                } else if ("SitePowerDistributionHistogram".equals(baseName)) {
+                                                    simulation.site.saveHistogramToSVG(fileToSave.getAbsolutePath());
+                                                }
+                                            }
+
+                                            // Додавання файлу до ZIP архіву
+                                            try (FileInputStream fis = new FileInputStream(fileToSave)) {
+                                                ZipEntry zipEntry = new ZipEntry(fileToSave.getName());
+                                                zipOut.putNextEntry(zipEntry);
+
+                                                byte[] bytes = new byte[1024];
+                                                int length;
+                                                while ((length = fis.read(bytes)) >= 0) {
+                                                    zipOut.write(bytes, 0, length);
+                                                }
+                                                zipOut.closeEntry();
+                                            }
+
+                                            // Видалення тимчасового файлу
+                                            fileToSave.delete();
+                                        }
+                                    }
+                                } catch (IOException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                            break;
+                    }
+                } else {
+                    // Користувач не вибрав опцію
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "Please select an option to proceed with saving.",
+                            "Selection Required",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                }
             }
         });
+
 
         runSimulation.setBorder(BorderFactory.createEmptyBorder(13, 0, 13, 0));
 
@@ -1271,7 +1525,6 @@ public class SimulationGUI {
                     if (lineWidth < componentWidth) {
                         currentLine += word + " ";
                     } else {
-                        // Якщо слово не вміщається, додаємо його на новий рядок
                         newText.append(currentLine.trim()).append("<br>");
                         currentLine = word + " ";
                     }

@@ -56,6 +56,9 @@ public class ChargingSite {
         return sitePower1;
     }
 
+    public static Color DARK_BLUE = new Color(0, 0, 139); // Темно-синій
+    public static Color LIGHT_BLUE = new Color(173, 216, 230); // Світло-синій
+
 
     public ChargingSite(SimulationParameters parameters) {
         this.simParameters = parameters;
@@ -570,4 +573,98 @@ public class ChargingSite {
 
         frame1.repaint();
     }
+
+    /*public static void saveToSVG(String filePath) {
+        // Створення SVG графіка з JFreeChart
+        SVGGraphics2D g2 = new SVGGraphics2D(chartPanel1.getWidth(), chartPanel1.getHeight());
+        Rectangle r = new Rectangle(0, 0, chartPanel1.getWidth(), chartPanel1.getHeight());
+        chartPanel1.getChart().draw(g2, r);
+
+        // Запис SVG у файл
+        try {
+            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
+    public static void saveToSVG(String filePath) {
+        // Задаємо розмір зображення 1200x400
+        int width = 1200;
+        int height = 700;
+
+        // Створення SVG графіка з заданими розмірами
+        SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+        Rectangle r = new Rectangle(0, 0, width, height);
+        chartPanel1.getChart().draw(g2, r);
+
+        // Запис SVG у файл
+        try {
+            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveHistogramDataToCSV(String filePath) throws IOException {
+        DecimalFormat df = new DecimalFormat("#.######################");
+        df.setDecimalSeparatorAlwaysShown(false);
+
+        FileWriter csvWriter = new FileWriter(filePath);
+        csvWriter.append("Arrival Rate");
+
+        // Отримання кількості рядів та стовпців даних
+        int seriesCount = dataset.getRowCount();
+        int columnCount = dataset.getColumnCount();
+
+        for (int column = 0; column < columnCount; column++) {
+            String binRange = dataset.getColumnKey(column).toString();
+            csvWriter.append("; ").append(binRange);
+        }
+        csvWriter.append("\n");
+        for (int series = 0; series < seriesCount; series++) {
+            double arrivalRate=(series+1)*simParameters.getARRIVAL_RATE_STEP();
+            csvWriter.append(formatDouble(df, arrivalRate));
+            for (int column = 0; column < columnCount; column++) {
+                Number probability = dataset.getValue(series, column);
+                csvWriter.append(";").append(formatDouble(df, probability.doubleValue()));
+            }
+            csvWriter.append("\n");
+        }
+
+        csvWriter.flush();
+        csvWriter.close();
+    }
+
+    private static String formatDouble(DecimalFormat df, Double value) {
+        return df.format(value);
+    }
+
+    public static void saveChartDataToCSV(String filePath) {
+        DecimalFormat df = new DecimalFormat("#.####################");
+        df.setDecimalSeparatorAlwaysShown(false);
+
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.append("Time;Power\n");
+
+            for (int i = 0; i < dataset1.getSeriesCount(); i++) {
+                XYSeries series = dataset1.getSeries(i);
+                for (int j = 0; j < series.getItemCount(); j++) {
+                    double time = (double) series.getX(j);
+                    Number power = series.getY(j);
+                    if (time > 1.0 && time <= 2.0) {
+                        writer.append(formatDouble(df, time))
+                                .append(";")
+                                .append(formatDouble(df, power.doubleValue()))
+                                .append("\n");
+                    }
+
+                }
+            }
+
+            System.out.println("CSV file has been created successfully!");
+        } catch (IOException e) {
+            System.out.println("Error writing to CSV: " + e.getMessage());
+        }
+    }
+
 }

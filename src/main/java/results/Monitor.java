@@ -1,6 +1,7 @@
 package results;
 
 import chargingSite.Simulation;
+import chargingSite.SimulationGUI;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.*;
@@ -386,6 +387,16 @@ public class Monitor extends Graph {
 
     private String formatDouble(DecimalFormat df, Double value) {
         return df.format(value);
+    }
+    public void saveEnergyCharacteristicsGraphToPNG(String filePath) {
+        try {
+            int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
+            int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+            File PNGFile = new File(filePath);
+            ChartUtilities.saveChartAsPNG(PNGFile, MyChart, width, height);
+        } catch (IOException e) {
+            System.err.println("Problem occurred creating chart.");
+        }
     }
 
 

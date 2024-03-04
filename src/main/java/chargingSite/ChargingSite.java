@@ -2,12 +2,15 @@ package chargingSite;
 
 import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
+import org.jfree.chart.*;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.LegendItemEntity;
+import org.jfree.chart.entity.TitleEntity;
+import org.jfree.chart.event.TitleChangeEvent;
+import org.jfree.chart.event.TitleChangeListener;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -20,18 +23,13 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.jfree.graphics2d.svg.SVGUtils;
 import org.jfree.util.ShapeUtilities;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
 import results.Histogram;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.geom.Rectangle2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
@@ -422,6 +420,7 @@ public class ChargingSite {
         }
     }
 
+
     private static Color getRandomColor() {
         Random random = new Random();
         int r = random.nextInt(256);
@@ -431,22 +430,22 @@ public class ChargingSite {
     }
 
     public static void saveHistogramToSVG(String filePath) {
-        int width = 1400;
-        int height = 700;
-        // Переконуємося, що frame та chartPanel існують
+        int width = SimulationGUI.WIDTH_OF_SVG_PICTURE;
+        int height = SimulationGUI.HEIGHT_OF_SVG_PICTURE;
+
         if (frame == null || frame.getContentPane().getComponentCount() == 0) {
             System.err.println("Гістограма ще не була створена або відображена.");
             return;
         }
-        // Створюємо SVG контекст для малювання з вказаними розмірами
+
         SVGGraphics2D g2 = new SVGGraphics2D(width, height);
 
-        // Отримуємо chartPanel для доступу до графіка
+
         ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
-        // Використовуємо метод draw з адаптованими розмірами
+
         chartPanel.getChart().draw(g2, new Rectangle(0, 0, width, height));
 
-        // Записуємо SVG у файл
+
         try {
             SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
             System.out.println("Гістограма успішно збережена у форматі SVG з розмірами 1400x700.");
@@ -454,34 +453,10 @@ public class ChargingSite {
             System.err.println("Помилка при збереженні гістограми у форматі SVG: " + e.getMessage());
         }
     }
-    /* public static void saveHistogramToSVG(String filePath) {
-    if (frame == null || frame.getContentPane().getComponentCount() == 0) {
-            System.err.println("Гістограма ще не була створена або відображена.");
-            return;
-        }
-        // Визначаємо розмір SVG на основі розмірів ChartPanel
-        ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
-        int width = chartPanel.getWidth();
-        int height = chartPanel.getHeight();
-
-        // Створюємо SVG контекст для малювання
-        SVGGraphics2D g2 = new SVGGraphics2D(width, height);
-        // Отримуємо графік з chartPanel та відображаємо його на SVGGraphics2D об'єкті
-        chartPanel.getChart().draw(g2, new Rectangle(width, height));
-
-        // Записуємо створений SVG у файл
-        try {
-            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
-            System.out.println("Гістограма успішно збережена у форматі SVG.");
-        } catch (IOException e) {
-            System.err.println("Помилка при збереженні гістограми у форматі SVG: " + e.getMessage());
-        }
-    }*/
 
     private static JFrame frame1;
     private static ChartPanel chartPanel1;
     private static XYSeriesCollection dataset1;
-    private static Color[] colors = {Color.BLUE, Color.RED, Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.BLACK};
 
     public static void initializeChart1() {
 
@@ -503,7 +478,7 @@ public class ChargingSite {
         chartPanel1 = new ChartPanel(chart);
         frame1.add(chartPanel1);
 
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
 
         GraphicsDevice largestScreen = gs[0];
@@ -540,6 +515,7 @@ public class ChargingSite {
         }
     }
 
+
     public static void displayChart(List<TimePowerData> dataList, SimulationParameters parameters) {
         if (frame1 == null || chartPanel1 == null || dataset1 == null) {
             initializeChart1();
@@ -554,6 +530,7 @@ public class ChargingSite {
                 series.add(data.getTime(), data.getPower());
             }
         }
+
         double progress = (double) dataset1.getSeriesCount() / parameters.getSIM_STEPS();
         int R = 0;
         int G = (int) Math.floor(255 * progress);
@@ -562,6 +539,9 @@ public class ChargingSite {
 
         dataset1.addSeries(series);
         XYPlot plot = (XYPlot) chartPanel1.getChart().getPlot();
+
+        // plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
+        plot.setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
         renderer.setSeriesLinesVisible(dataset1.getSeriesCount() - 1, false);
@@ -574,23 +554,10 @@ public class ChargingSite {
         frame1.repaint();
     }
 
-    /*public static void saveToSVG(String filePath) {
-        // Створення SVG графіка з JFreeChart
-        SVGGraphics2D g2 = new SVGGraphics2D(chartPanel1.getWidth(), chartPanel1.getHeight());
-        Rectangle r = new Rectangle(0, 0, chartPanel1.getWidth(), chartPanel1.getHeight());
-        chartPanel1.getChart().draw(g2, r);
-
-        // Запис SVG у файл
-        try {
-            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
     public static void saveToSVG(String filePath) {
         // Задаємо розмір зображення 1200x400
-        int width = 1200;
-        int height = 700;
+        int width = SimulationGUI.WIDTH_OF_SVG_PICTURE;
+        int height = SimulationGUI.HEIGHT_OF_SVG_PICTURE;
 
         // Створення SVG графіка з заданими розмірами
         SVGGraphics2D g2 = new SVGGraphics2D(width, height);
@@ -622,7 +589,7 @@ public class ChargingSite {
         }
         csvWriter.append("\n");
         for (int series = 0; series < seriesCount; series++) {
-            double arrivalRate=(series+1)*simParameters.getARRIVAL_RATE_STEP();
+            double arrivalRate = (series + 1) * simParameters.getARRIVAL_RATE_STEP();
             csvWriter.append(formatDouble(df, arrivalRate));
             for (int column = 0; column < columnCount; column++) {
                 Number probability = dataset.getValue(series, column);
@@ -664,6 +631,39 @@ public class ChargingSite {
             System.out.println("CSV file has been created successfully!");
         } catch (IOException e) {
             System.out.println("Error writing to CSV: " + e.getMessage());
+        }
+    }
+
+    public static void save3GraphToPNG(String filePath) {
+        if (chartPanel1 != null && chartPanel1.getChart() != null) {
+            try {
+                int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
+                int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+                File outFile = new File(filePath);
+                ChartUtils.saveChartAsPNG(outFile, chartPanel1.getChart(), width, height);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Chart or ChartPanel is null.");
+        }
+    }
+    public static void saveHistogramToPNG(String filePath) {
+        try {
+
+            int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
+            int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+
+            if (frame != null && frame.getContentPane().getComponentCount() > 0 && frame.getContentPane().getComponent(0) instanceof ChartPanel) {
+                ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
+                JFreeChart chart = chartPanel.getChart();
+                ChartUtilities.saveChartAsPNG(new File(filePath), chart, width, height);
+            } else {
+                System.err.println("Chart not found or frame is not initialized.");
+            }
+        } catch (IOException e) {
+            System.err.println("Problem occurred while saving the chart to PNG.");
+            e.printStackTrace();
         }
     }
 

@@ -375,7 +375,11 @@ public class SimulationParameters {
                 + Distribution.getTitleAbbreviation(String.valueOf(SERVICE_TYPE)) + "/"
                 + NUMBER_OF_SERVERS + "/" + (NUMBER_OF_SERVERS + QUEUE_SIZE);
     }
-
+    public String getKendallNameForFile() {
+        String kendallName = getKendallName();
+        String kendallNameForFile = kendallName.replace("/", "-");
+        return kendallNameForFile;
+    }
 
     public double getMMnNwaitingTime(double rho) {
         double meanWaitingTime;
@@ -418,26 +422,20 @@ public class SimulationParameters {
         return meanWaitingTime;
     }
 
-    public void writeParameters2txt(JFrame frame) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Select a location to save the simulation parameters file");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fileChooser.setSelectedFile(new java.io.File("simulation_parameters.txt"));
+    public void writeParameters2txt(JFrame frame, String filePath) {
 
-        int userSelection = fileChooser.showSaveDialog(frame);
+        java.io.File fileToSave = new java.io.File(filePath);
 
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            java.io.File fileToSave = fileChooser.getSelectedFile();
 
-            if (!fileToSave.getPath().toLowerCase().endsWith(".txt")) {
-                fileToSave = new java.io.File(fileToSave.getPath() + ".txt");
-            }
+        if (!fileToSave.getPath().toLowerCase().endsWith(".txt")) {
+            fileToSave = new java.io.File(fileToSave.getPath() + ".txt");
+        }
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd' T 'HH:mm:ss");
-                String currentDateTime = dateFormat.format(new Date());
-                writer.write("Date and Time: " + currentDateTime + "\n");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd' T 'HH:mm:ss");
+            String currentDateTime = dateFormat.format(new Date());
+            writer.write("Date and Time: " + currentDateTime + "\n");
 
                 String title = "Charging Site Model Parameters for "
                         + this.getKendallName() + " Queueing System \n";
@@ -496,16 +494,6 @@ public class SimulationParameters {
                 }
                 if (selectedClientTypes > 2) {
 
-                   /* writer.write("Parameters for the second EV" + "\n");
-
-                    writer.write("Percentage of EV 2 - " + percentageOfCars2 * 100 + "\n");
-                    writer.write("Battery capacity 2 - " + batteryCapacity2 + "\n");
-                    writer.write("Mean charging time 2 - " + MEAN_SERVICE_TIME2 + "\n");
-                    writer.write("Max EV charging power 2 - " + MAX_EV_POWER2 + "\n");
-                    writer.write("Demand distribution type 2 - " + DEMAND_TYPE2.toString() + "\n");
-                    writer.write("Mean charging demand 2 - " + MEAN_CHARGING_DEMAND2 + "\n");
-
-                    writer.newLine();*/
                     writer.write("Parameters for the third EV" + "\n");
 
                     writer.write("Percentage of EV 3 - " + percentageOfCars3 * 100 + "\n");
@@ -521,26 +509,20 @@ public class SimulationParameters {
                 ex.printStackTrace();
             }
         }
-    }
 
-    public void writeParameters2xml(JFrame frame) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Select a location to save the simulation parameters file");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fileChooser.setSelectedFile(new java.io.File("simulation_parameters.xml"));
 
-        int userSelection = fileChooser.showSaveDialog(frame);
+    public void writeParameters2xml(JFrame frame, String filePath) {
+        // Створення об'єкта File безпосередньо з переданого шляху
+        java.io.File fileToSave = new java.io.File(filePath);
 
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            java.io.File fileToSave = fileChooser.getSelectedFile();
+        // Перевірка та додавання розширення ".xml", якщо це необхідно
+        if (!fileToSave.getPath().toLowerCase().endsWith(".xml")) {
+            fileToSave = new java.io.File(fileToSave.getPath() + ".xml");
+        }
 
-            if (!fileToSave.getPath().toLowerCase().endsWith(".xml")) {
-                fileToSave = new java.io.File(fileToSave.getPath() + ".xml");
-            }
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
-                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<SimulationParameters>\n");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.write("<SimulationParameters>\n");
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                 String currentDateTime = dateFormat.format(new Date());
@@ -615,7 +597,7 @@ public class SimulationParameters {
                 throw new RuntimeException(e);
             }
         }
-    }
+
 
     public enum Format {
         TXT, XML

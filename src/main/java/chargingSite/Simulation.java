@@ -55,7 +55,6 @@ public class Simulation extends Graph {
     private JFreeChart SitePowerGraph;
     public Monitor chargingMonitor;
     public ChargingSite site;
-
     private final Times meanServiceTimes = new Times("ArrivalRate", "MeanServiceTime");
     private final Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
     private final Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
@@ -376,6 +375,7 @@ public class Simulation extends Graph {
         chartPanel.setMouseWheelEnabled(true);
 
         JFrame frame = new JFrame("Charging Site Queueing Characteristics");
+
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -397,8 +397,19 @@ public class Simulation extends Graph {
         frame.setVisible(true);
     }
 
+    public void saveQueueingCharacteristicsGraphToPNG(String filePath) {
+        try {
+            int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
+            int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+            File PNGFile = new File(filePath);
+            ChartUtilities.saveChartAsPNG(PNGFile, MyChart, width, height);
+        } catch (IOException e) {
+            System.err.println("Problem occurred creating chart PNG.");
+        }
+    }
+
     public void saveSVGDialogue() {
-        Object[] options = {"SVG", "CSV"};
+        Object[] options = {"SVG", "CSV","PNG"};
         int formatResult = JOptionPane.showOptionDialog(
                 null,
                 "Choose the file format to save:",

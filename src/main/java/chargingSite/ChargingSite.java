@@ -21,6 +21,8 @@ import org.jfree.util.ShapeUtilities;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
@@ -177,6 +179,74 @@ public class ChargingSite {
     private static XYSeriesCollection dataset1;
 
     public static void initializePowerOverTimeChart1() {
+        frame1 = new JFrame();
+        frame1.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame1.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                promptSaveOnClosePowerOverTime();
+            }
+        });
+
+        dataset1 = new XYSeriesCollection();
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Power over Time Chart",
+                "Time",
+                "Power",
+                dataset1,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+        chart.getLegend().setVisible(false);
+        chartPanel1 = new ChartPanel(chart);
+
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(chartPanel1, BorderLayout.CENTER);
+
+
+        JButton toggleLegendButton = new JButton("Toggle Legend");
+        toggleLegendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                boolean legendVisibility = chart.getLegend().isVisible();
+                chart.getLegend().setVisible(!legendVisibility);
+                chartPanel1.repaint();
+            }
+        });
+
+        panel.add(toggleLegendButton, BorderLayout.SOUTH);
+
+        frame1.getContentPane().add(panel);
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs = ge.getScreenDevices();
+
+        GraphicsDevice largestScreen = gs[0];
+        Rectangle largestBounds = largestScreen.getDefaultConfiguration().getBounds();
+        for (GraphicsDevice gd : gs) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+            if (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight()) {
+                largestScreen = gd;
+                largestBounds = bounds;
+            }
+        }
+
+        int frameWidth = (int) (largestBounds.width * 0.325);
+        int frameHeight = (int) (largestBounds.height * 0.47);
+
+        int offsetX = (int) (largestBounds.width * 0.015);
+
+        frame1.setSize(frameWidth, frameHeight);
+        frame1.setLocation(largestBounds.x + largestBounds.width - frameWidth - offsetX, largestBounds.y);
+
+        frame1.setVisible(true);
+    }
+
+  /*  public static void initializePowerOverTimeChart1() {
 
         frame1 = new JFrame();
         frame1.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -224,7 +294,7 @@ public class ChargingSite {
         frame1.setLocation(largestBounds.x + largestBounds.width - frameWidth - offsetX, largestBounds.y);
 
         frame1.setVisible(true);
-    }
+    }*/
 
     private static void promptSaveOnClosePowerOverTime() {
         Object[] options = {"Save", "Cancel", "Close"};
@@ -382,6 +452,9 @@ public class ChargingSite {
             System.out.println("Error writing to CSV: " + e.getMessage());
         }
     }
+    public static JFrame getPowerOverTimeFrame() {
+        return frame1;
+    }
 
     public static void savePowerOverTimeToSVG(String filePath) {
         int width = SimulationGUI.WIDTH_OF_SVG_PICTURE;
@@ -469,7 +542,6 @@ public class ChargingSite {
         seriesCounter++;
 
         ChartPanel chartPanel = new ChartPanel(chart);
-
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice largestScreen = null;
         Rectangle largestBounds = new Rectangle();
@@ -498,7 +570,7 @@ public class ChargingSite {
         CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
 
-        if (frame == null) {
+          if (frame == null) {
             frame = new JFrame("Site Power Distribution Histogram");
             frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
             frame.getContentPane().add(chartPanel);
@@ -519,6 +591,27 @@ public class ChargingSite {
             frame.revalidate();
             frame.repaint();
         }
+
+       /* if (frame == null) {
+           frame = new JFrame("Site Power Distribution Histogram");
+           frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+           frame.getContentPane().add(panel);
+           frame.pack();
+           frame.setLocation(frameX, frameY);
+           frame.setVisible(true);
+           frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+           frame.addWindowListener(new WindowAdapter() {
+               @Override
+               public void windowClosing(WindowEvent e) {
+                   promptSaveOnCloseHistogram();
+               }
+           });
+       } else {
+           frame.getContentPane().removeAll();
+           frame.getContentPane().add(panel);
+           frame.revalidate();
+           frame.repaint();
+       }*/
     }
 
     private static void promptSaveOnCloseHistogram() {
@@ -717,6 +810,10 @@ public class ChargingSite {
         dataset.clear();
         seriesCounter = 0;
     }
+    public static JFrame getHistogramFrame() {
+        return frame;
+    }
+
 }
 
 

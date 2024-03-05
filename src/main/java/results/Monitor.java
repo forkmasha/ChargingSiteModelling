@@ -208,6 +208,8 @@ public class Monitor extends Graph {
         dataset.addSeries(stdChargingDeviationSeries);
     }
 
+    public static JFrame energyCharacteristicsFrame;
+
     public void drawGraphEnergyCharacteristics(Simulation mySim) {
 
         String title = "Charging Site Energy Characteristics";
@@ -324,13 +326,16 @@ public class Monitor extends Graph {
             }
         });
 
-
+        energyCharacteristicsFrame = frame;
         frame.setContentPane(chartPanel);
         frame.pack();
        // frame.setLocation(largestBounds.x + xOffset, yOffset);
         frame.setLocation(largestBounds.x + xOffset, yOffset);
         frame.setVisible(true);
         chartPanel.repaint();
+    }
+    public static JFrame getEnergyCharacteristicsFrame() {
+        return energyCharacteristicsFrame;
     }
     private void promptSaveOnCloseEnergyCharacteristics(JFrame frame) {
         Object[] options = {"Save", "Cancel", "Close"};

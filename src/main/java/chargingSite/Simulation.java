@@ -246,6 +246,7 @@ public class Simulation extends Graph {
 
         //plotHistogram(mySystem.getChargingSite().getSitePower1(), 15);
     }
+    public static JFrame queueingCharacteristicsFrame;
 
     public void drawGraphQueueingCharacteristics() {   // D/D/5/10 Queueing System
 
@@ -375,6 +376,7 @@ public class Simulation extends Graph {
         chartPanel.setMouseWheelEnabled(true);
 
         JFrame frame = new JFrame("Charging Site Queueing Characteristics");
+        queueingCharacteristicsFrame = frame;
 
        /* frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {

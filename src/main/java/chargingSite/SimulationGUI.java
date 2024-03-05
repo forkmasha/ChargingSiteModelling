@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import queueingSystem.Queue;
+import results.Monitor;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -60,6 +61,7 @@ public class SimulationGUI {
     static JLabel gifLabel = new JLabel(gifIcon);
 
     private static boolean simulationRun = false;
+    static boolean isSimulationStarted = false;
 
     public static void runSimulationGUI() {
         JFrame frame = createSimulationFrame();
@@ -69,6 +71,7 @@ public class SimulationGUI {
 
     private static JFrame createSimulationFrame() {
         JFrame frame = new JFrame("Charging Site Modeling");
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         GraphicsEnvironment ge1 = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -112,7 +115,6 @@ public class SimulationGUI {
             int yPosition = largestBounds.y + (largestBounds.height - frame.getPreferredSize().height) / 2; // Центрування по вертикалі
             frame.setLocation(xPosition, yPosition);
         }
-
 
         //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
@@ -225,6 +227,8 @@ public class SimulationGUI {
         jScrollPane.setMaximumSize(new Dimension(430, 1000));
 
         runSimulation.addActionListener(e -> {
+
+            isSimulationStarted = false;
             if (ChargingSite.frame1 != null) {
                 ChargingSite.frame1.setVisible(true);
             } else {
@@ -595,13 +599,13 @@ public class SimulationGUI {
                         case 4:
                             String[] formats4 = {"txt", "xml"};
                             String selectedFormat4 = (String) JOptionPane.showInputDialog(
-                                    frame, // ваш JFrame
-                                    "Choose the format to save the result:", // текст запитання
-                                    "Save Format", // заголовок вікна
+                                    frame,
+                                    "Choose the format to save the result:",
+                                    "Save Format",
                                     JOptionPane.QUESTION_MESSAGE,
-                                    null, // без іконки
-                                    formats4, // опції для вибору
-                                    formats4[0] // вибір за замовчуванням
+                                    null,
+                                    formats4,
+                                    formats4[0]
                             );
 
                             if (selectedFormat4 != null) {
@@ -647,7 +651,6 @@ public class SimulationGUI {
                                 try (FileOutputStream fos = new FileOutputStream(zipFileToSave);
                                      ZipOutputStream zipOut = new ZipOutputStream(fos)) {
 
-                                    // Масив назв і форматів файлів для збереження
                                     String[][] fileInfo = {
                                             {"ChargingSiteQueueingCharacteristics", "csv", "svg", "png"},
                                             {"ChargingSiteEnergyCharacteristics", "csv", "svg", "png"},
@@ -1166,29 +1169,97 @@ public class SimulationGUI {
         EVParametersGbc3.gridx = 0;
         procPanel.add(EVParametersPanel3, EVParametersGbc3);
 
+       /* closeWindows.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                closeWindows.setBackground(BLUE);
+                JFrame histogramFrame = ChargingSite.getHistogramFrame();
+                if (histogramFrame != null) {
+                    histogramFrame.dispose();
+                }
+
+                JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
+                if (powerOverTimeFrame != null) {
+                    powerOverTimeFrame.dispose();
+                }
+
+                if (Simulation.queueingCharacteristicsFrame != null) {
+                    Simulation.queueingCharacteristicsFrame.dispose();
+                    Simulation.queueingCharacteristicsFrame = null;
+                }
+
+                JFrame frame = Monitor.getEnergyCharacteristicsFrame();
+                if (frame != null) {
+                    frame.dispose();
+                    Monitor.energyCharacteristicsFrame = null;
+                }
+            }
+        });*/
+        boolean isSimulationStarted = false;
+        closeWindows.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (!isSimulationStarted) {
+                    closeWindows.setBackground(LIGHT_PINK);
+                    JOptionPane.showMessageDialog(null, "Run the simulation first=).", "Warning", JOptionPane.WARNING_MESSAGE);
+                }
+
+                JFrame histogramFrame = ChargingSite.getHistogramFrame();
+                boolean isHistogramFrameClosed = false;
+                if (histogramFrame != null) {
+                    histogramFrame.dispose();
+                    isHistogramFrameClosed = true;
+                }
+
+                JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
+                boolean isPowerOverTimeFrameClosed = false;
+                if (powerOverTimeFrame != null) {
+                    powerOverTimeFrame.dispose();
+                    isPowerOverTimeFrameClosed = true;
+                }
+
+                boolean isQueueingCharacteristicsFrameClosed = false;
+                if (Simulation.queueingCharacteristicsFrame != null) {
+                    Simulation.queueingCharacteristicsFrame.dispose();
+                    Simulation.queueingCharacteristicsFrame = null;
+                    isQueueingCharacteristicsFrameClosed = true;
+                }
+
+                JFrame frame = Monitor.getEnergyCharacteristicsFrame();
+                boolean isEnergyCharacteristicsFrameClosed = false;
+                if (frame != null) {
+                    frame.dispose();
+                    Monitor.energyCharacteristicsFrame = null;
+                    isEnergyCharacteristicsFrameClosed = true;
+                }
+
+
+                if (isHistogramFrameClosed && isPowerOverTimeFrameClosed && isQueueingCharacteristicsFrameClosed && isEnergyCharacteristicsFrameClosed) {
+                    JOptionPane.showMessageDialog(null, "All windows are closed. To obtain a new result, run the simulation again.", "Information", JOptionPane.INFORMATION_MESSAGE);
+                }
+                closeWindows.setBackground(BLUE);
+            }
+        });
+
+        JTextArea textArea = new JTextArea(10, 30); // 10 рядків, 30 символів в ширину
+        textArea.setEditable(false); // Зробити текстове поле нередагованим
+        JScrollPane scrollPane = new JScrollPane(textArea); // Додати прокрутку для текстового поля
+        frame.getContentPane().add(scrollPane, BorderLayout.CENTER); // Додати скрол до вмісту фрейму
+
         procPanel.setBackground(LIGHT_BLUE);
         verticalBox.add(jScrollPane);
-
-        JTextArea consoleTextArea = new JTextArea(10, 40); // Визначте розміри текстової області
-        consoleTextArea.setEditable(false); // Забороніть редагування тексту в консолі
-        JScrollPane scrollPane = new JScrollPane(consoleTextArea); // Додайте прокрутку до JTextArea
-
 
         JPanel bottomPanel = new JPanel();
         runSimulation.setForeground(Color.BLACK);
         bottomPanel.setBackground(DARK_BLUE);
-        bottomPanel.setLayout(new GridLayout(1, 3));
+        bottomPanel.setLayout(new GridLayout(2, 2));
 
         bottomPanel.add(loadResults);
         bottomPanel.add(runSimulation);
         bottomPanel.add(saveResults);
 
-        // bottomPanel.add(closeResults);
-
-        /*  consoleTextArea.setEditable(false);
-        JScrollPane consoleScrollPane = new JScrollPane(consoleTextArea);
-        procPanel.add(consoleScrollPane, gbc10);
-        consoleTextArea.append("Hello, World!\n");*/
+        bottomPanel.add(closeWindows);
 
         frame.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         frame.getContentPane().add(verticalBox, BorderLayout.CENTER);

@@ -47,11 +47,11 @@ public class SimulationGUI {
     private static final Color LIGHT_KREM = new Color(240, 230, 210);
     private static final Color LAVANDA = new Color(220, 200, 240);
 
-    public static final int WIDTH_OF_PNG_PICTURE = 2400;
-    public static final int HEIGHT_OF_PNG_PICTURE = 1560;
+    public static int WIDTH_OF_PNG_PICTURE = 2400;
+    public static int HEIGHT_OF_PNG_PICTURE = 1560;
 
-    public static final int WIDTH_OF_SVG_PICTURE = 1200;
-    public static final int HEIGHT_OF_SVG_PICTURE = 730;
+    public static int WIDTH_OF_SVG_PICTURE = 1200;
+    public static int HEIGHT_OF_SVG_PICTURE = 730;
 
     private static Simulation simulation;
     private static SimulationParameters parameters;
@@ -225,6 +225,11 @@ public class SimulationGUI {
         jScrollPane.setMaximumSize(new Dimension(430, 1000));
 
         runSimulation.addActionListener(e -> {
+            if (ChargingSite.frame1 != null) {
+                ChargingSite.frame1.setVisible(true);
+            } else {
+                ChargingSite.initializePowerOverTimeChart1();
+            }
             simulationRun = true;
             runSimulation.setBackground(LIGHT_PINK);
             jScrollPane.getViewport().setViewPosition(new Point(0, 0));
@@ -442,10 +447,10 @@ public class SimulationGUI {
                                     File fileToSave = fileChooser.getSelectedFile();
 
                                     if ("csv".equals(selectedFormat)) {
-                                        simulation.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                        simulation.saveQueueingCharacteristicsToCSV(fileToSave.getAbsolutePath());
                                     } else if ("svg".equals(selectedFormat)) {
                                         try {
-                                            simulation.saveAsSVG(WIDTH_OF_SVG_PICTURE, HEIGHT_OF_SVG_PICTURE, fileToSave);
+                                            simulation.saveQueueingCharacteristicsAsSVG(WIDTH_OF_SVG_PICTURE, HEIGHT_OF_SVG_PICTURE, fileToSave);
                                         } catch (IOException ex) {
                                             throw new RuntimeException(ex);
                                         }
@@ -486,10 +491,10 @@ public class SimulationGUI {
                                     File fileToSave = fileChooser.getSelectedFile();
 
                                     if ("csv".equals(selectedFormat1)) {
-                                        simulation.chargingMonitor.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                        simulation.chargingMonitor.saveEnergyCharacteristicsGraphToCSV(fileToSave.getAbsolutePath());
                                     } else if ("svg".equals(selectedFormat1)) {
                                         try {
-                                            simulation.chargingMonitor.saveAsSVG(WIDTH_OF_SVG_PICTURE, HEIGHT_OF_SVG_PICTURE, fileToSave);
+                                            simulation.chargingMonitor.saveEnergyCharacteristicsGraphAsSVG(WIDTH_OF_SVG_PICTURE, HEIGHT_OF_SVG_PICTURE, fileToSave);
                                         } catch (IOException ex) {
                                             throw new RuntimeException(ex);
                                         }
@@ -530,14 +535,14 @@ public class SimulationGUI {
                                     File fileToSave = fileChooser.getSelectedFile();
 
                                     if ("csv".equals(selectedFormat2)) {
-                                        simulation.site.saveChartDataToCSV(fileToSave.getAbsolutePath());
+                                        simulation.site.savePowerOverTimeGraphToCSV(fileToSave.getAbsolutePath());
                                     } else if ("svg".equals(selectedFormat2)) {
                                         //    simulation.saveAsSVG(1200, 730, fileToSave);
-                                        simulation.site.saveToSVG(fileToSave.getAbsolutePath());
+                                        simulation.site.savePowerOverTimeToSVG(fileToSave.getAbsolutePath());
 
                                     } else if ("png".equals(selectedFormat2)) {
                                         //    simulation.saveAsSVG(1200, 730, fileToSave);
-                                        simulation.site.save3GraphToPNG(fileToSave.getAbsolutePath());
+                                        simulation.site.savePowerOverTimeGraphToPNG(fileToSave.getAbsolutePath());
                                     }
                                 }
                             }
@@ -661,21 +666,21 @@ public class SimulationGUI {
 
                                             if ("csv".equals(format)) {
                                                 if ("ChargingSiteQueueingCharacteristics".equals(baseName)) {
-                                                    simulation.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                                    simulation.saveQueueingCharacteristicsToCSV(fileToSave.getAbsolutePath());
                                                 } else if ("ChargingSiteEnergyCharacteristics".equals(baseName)) {
-                                                    simulation.chargingMonitor.saveGraphDataToCSV(fileToSave.getAbsolutePath());
+                                                    simulation.chargingMonitor.saveEnergyCharacteristicsGraphToCSV(fileToSave.getAbsolutePath());
                                                 } else if ("PowerOverTimeChart".equals(baseName)) {
-                                                    simulation.site.saveChartDataToCSV(fileToSave.getAbsolutePath());
+                                                    simulation.site.savePowerOverTimeGraphToCSV(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramDataToCSV(fileToSave.getAbsolutePath());
                                                 }
                                             } else if ("svg".equals(format)) {
                                                 if ("ChargingSiteQueueingCharacteristics".equals(baseName)) {
-                                                    simulation.saveAsSVG(1200, 730, fileToSave);
+                                                    simulation.saveQueueingCharacteristicsAsSVG(1200, 730, fileToSave);
                                                 } else if ("ChargingSiteEnergyCharacteristics".equals(baseName)) {
-                                                    simulation.chargingMonitor.saveAsSVG(1200, 730, fileToSave);
+                                                    simulation.chargingMonitor.saveEnergyCharacteristicsGraphAsSVG(1200, 730, fileToSave);
                                                 } else if ("PowerOverTimeChart".equals(baseName)) {
-                                                    simulation.site.saveToSVG(fileToSave.getAbsolutePath());
+                                                    simulation.site.savePowerOverTimeToSVG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToSVG(fileToSave.getAbsolutePath());
                                                 }
@@ -685,7 +690,7 @@ public class SimulationGUI {
                                                 } else if ("ChargingSiteEnergyCharacteristics".equals(baseName)) {
                                                     simulation.chargingMonitor.saveEnergyCharacteristicsGraphToPNG(fileToSave.getAbsolutePath());
                                                 } else if ("PowerOverTimeChart".equals(baseName)) {
-                                                    simulation.site.save3GraphToPNG(fileToSave.getAbsolutePath());
+                                                    simulation.site.savePowerOverTimeGraphToPNG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToPNG(fileToSave.getAbsolutePath());
                                                 }

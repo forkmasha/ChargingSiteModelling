@@ -132,8 +132,7 @@ public class Monitor extends Graph {
         confidencesChargingDeviation.add(calc.getConfidenceInterval(source.getChargingDeviations(), confLevel));
     }
 
-
-    public void addGraphs(XYSeriesCollection dataset) {
+    public void addGraphsEnergyCharacteristics(XYSeriesCollection dataset) {
 
         XYSeries meanSeries = new XYSeries("Mean");
         XYSeries stdSeries = new XYSeries("Std");
@@ -209,11 +208,11 @@ public class Monitor extends Graph {
         dataset.addSeries(stdChargingDeviationSeries);
     }
 
-    public void drawGraph(Simulation mySim) {
+    public void drawGraphEnergyCharacteristics(Simulation mySim) {
 
         String title = "Charging Site Energy Characteristics";
         XYSeriesCollection dataset = new XYSeriesCollection();
-        mySim.chargingMonitor.addGraphs(dataset);
+        mySim.chargingMonitor.addGraphsEnergyCharacteristics(dataset);
 
         MyChart = createXYLineChart(
                 title,
@@ -281,7 +280,7 @@ public class Monitor extends Graph {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
 
-        // Знаходження найбільшого екрана
+
         GraphicsDevice largestScreen = gs[0];
         Rectangle largestBounds = largestScreen.getDefaultConfiguration().getBounds();
         for (GraphicsDevice gd : gs) {
@@ -292,12 +291,11 @@ public class Monitor extends Graph {
             }
         }
 
-        // Розрахунок розмірів вікна
-        int windowWidth = (int) (largestBounds.width * 0.4); // 40% ширини найбільшого екрана
-        int windowHeight = (int) (largestBounds.height * 0.44); // 50% висоти найбільшого екрана
-        int xOffset = (int) (largestBounds.width * 0.25); // 20% ширини найбільшого екрана для GUI
+        int windowWidth = (int) (largestBounds.width * 0.4);
+        int windowHeight = (int) (largestBounds.height * 0.44);
+        int xOffset = (int) (largestBounds.width * 0.25);
 
-// Змінено тут: yOffset розраховується так, що вікно зсувається вгору на 10% від висоти екрана знизу
+
         int yOffset = (int) (largestBounds.height - windowHeight - (largestBounds.height * 0.09)); // Знизу з додатковим зсувом вгору на 10%
 
         ChartPanel chartPanel = new ChartPanel(MyChart);
@@ -306,7 +304,7 @@ public class Monitor extends Graph {
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        frame.addWindowListener(new WindowAdapter() {
+        /* frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 int result = JOptionPane.showConfirmDialog(frame, "Do you want to save your work before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -316,6 +314,13 @@ public class Monitor extends Graph {
                 } else if (result == JOptionPane.NO_OPTION) {
                     frame.dispose();
                 }
+            }
+        });*/
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                promptSaveOnCloseEnergyCharacteristics(frame);
             }
         });
 
@@ -327,8 +332,98 @@ public class Monitor extends Graph {
         frame.setVisible(true);
         chartPanel.repaint();
     }
+    private void promptSaveOnCloseEnergyCharacteristics(JFrame frame) {
+        Object[] options = {"Save", "Cancel", "Close"};
+        int choice = JOptionPane.showOptionDialog(frame, "Do you want to save the chart before closing?", "Save or Close",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
-    public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
+        switch (choice) {
+            case JOptionPane.YES_OPTION:
+                showSaveOptionsEnergyCharacteristics(frame);
+                break;
+            case JOptionPane.NO_OPTION:
+
+                break;
+            case JOptionPane.CANCEL_OPTION:
+                frame.dispose();
+                break;
+            default:
+
+                break;
+        }
+    }
+    private void showSaveOptionsEnergyCharacteristics(JFrame frame) {
+        Object[] saveOptions = {"CSV", "SVG", "PNG"};
+        int formatChoice = JOptionPane.showOptionDialog(frame, "Choose the format to save the chart:", "Save Chart Format",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, saveOptions, saveOptions[0]);
+
+        if (formatChoice == JOptionPane.CLOSED_OPTION) {
+            return;
+        }
+
+        String fileExtension = formatChoice == 0 ? ".csv" : formatChoice == 1 ? ".svg" : ".png";
+        String defaultFileName = "ChargingSiteEnergyCharacteristics" + fileExtension;
+
+        int width = 1000, height = 1000;
+
+        if (formatChoice == 1 || formatChoice == 2) { // If not CSV
+            String defaultSize = formatChoice == 1 ? "1200x730" : "2400x1560";
+            String sizeInput = JOptionPane.showInputDialog(frame, "Enter dimensions (width x height):", defaultSize);
+            if (sizeInput == null || sizeInput.trim().isEmpty()) {
+                return;
+            }
+            String[] sizes = sizeInput.split("x");
+            try {
+                width = Integer.parseInt(sizes[0].trim());
+                height = Integer.parseInt(sizes[1].trim());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "Invalid dimensions. Using default values.");
+            }
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Select directory and filename to save");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setSelectedFile(new File(defaultFileName));
+
+        if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            if (!fileToSave.getAbsolutePath().endsWith(fileExtension)) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + fileExtension);
+            }
+
+            try {
+                if (fileExtension.equals(".svg")) {
+                    saveEnergyCharacteristicsGraphAsSVG(MyChart, fileToSave.getAbsolutePath(), width, height);
+                } else if (fileExtension.equals(".csv")) {
+                    saveEnergyCharacteristicsGraphToCSV(fileToSave.getAbsolutePath());
+                } else if (fileExtension.equals(".png")) {
+                    saveEnergyCharacteristicsGraphToPNG(MyChart, fileToSave.getAbsolutePath(), width, height);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "Error saving file: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+
+    public static void saveEnergyCharacteristicsGraphAsSVG(JFreeChart chart, String filePath, int width, int height) throws IOException {
+        File svgFile = new File(filePath);
+
+        DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+        Document document = domImpl.createDocument(null, "svg", null);
+        SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+        svgGenerator.setSVGCanvasSize(new Dimension(width, height));
+        chart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width, height));
+
+        try (Writer out = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
+            svgGenerator.stream(out, true);
+        } catch (IOException e) {
+            throw new IOException("Problem occurred creating chart SVG: " + e.getMessage(), e);
+        }
+    }
+
+    public void saveEnergyCharacteristicsGraphAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -341,53 +436,6 @@ public class Monitor extends Graph {
             svgGenerator.stream(writer, true);
         }
     }
-
-
-    public void saveSVGDialogue() {
-        Object[] options = {"SVG", "CSV"};
-        int formatResult = JOptionPane.showOptionDialog(
-                null,
-                "Choose the file format to save:",
-                "Choose File Format",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
-
-        if (formatResult == JOptionPane.YES_OPTION) {
-            // Save as SVG
-            boolean inputValid = getUserInput() && chooseFile();
-
-            if (inputValid) {
-                try {
-                    int imageWidth = Integer.parseInt(getWidthField().getText());
-                    int imageHeight = Integer.parseInt(getHeightField().getText());
-                    saveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                }
-            }
-        } else if (formatResult == JOptionPane.NO_OPTION) {
-            JFileChooser csvFileChooser = new JFileChooser();
-            csvFileChooser.setDialogTitle("Choose CSV File Location");
-            csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
-            int csvResult = csvFileChooser.showSaveDialog(null);
-
-            if (csvResult == JFileChooser.APPROVE_OPTION) {
-                String csvFilePath = csvFileChooser.getSelectedFile().toString();
-                if (!csvFilePath.endsWith(".csv")) {
-                    csvFilePath += ".csv";
-                }
-                saveGraphDataToCSV(csvFilePath);
-            }
-        }
-    }
-
-    private String formatDouble(DecimalFormat df, Double value) {
-        return df.format(value);
-    }
     public void saveEnergyCharacteristicsGraphToPNG(String filePath) {
         try {
             int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
@@ -398,9 +446,19 @@ public class Monitor extends Graph {
             System.err.println("Problem occurred creating chart.");
         }
     }
+    public static void saveEnergyCharacteristicsGraphToPNG(JFreeChart chart, String filePath, int width, int height) {
+        try {
+            File PNGFile = new File(filePath);
+            ChartUtilities.saveChartAsPNG(PNGFile, chart, width, height);
+        } catch (IOException e) {
+            System.err.println("Problem occurred creating chart PNG: " + e.getMessage());
+        }
+    }
 
-
-    public void saveGraphDataToCSV(String filePath) {
+    private String formatDouble(DecimalFormat df, Double value) {
+        return df.format(value);
+    }
+    public void saveEnergyCharacteristicsGraphToCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.####################");
         df.setDecimalSeparatorAlwaysShown(false);
         try (FileWriter writer = new FileWriter(filePath)) {
@@ -425,8 +483,47 @@ public class Monitor extends Graph {
             System.out.println("Error writing to CSV: " + e.getMessage());
         }
     }
+    public void saveSVGDialogue() {
+        Object[] options = {"SVG", "CSV"};
+        int formatResult = JOptionPane.showOptionDialog(
+                null,
+                "Choose the file format to save:",
+                "Choose File Format",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
 
+        if (formatResult == JOptionPane.YES_OPTION) {
+            // Save as SVG
+            boolean inputValid = getUserInput() && chooseFile();
 
+            if (inputValid) {
+                try {
+                    int imageWidth = Integer.parseInt(getWidthField().getText());
+                    int imageHeight = Integer.parseInt(getHeightField().getText());
+                    saveEnergyCharacteristicsGraphAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
+                } catch (IOException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+            }
+        } else if (formatResult == JOptionPane.NO_OPTION) {
+            JFileChooser csvFileChooser = new JFileChooser();
+            csvFileChooser.setDialogTitle("Choose CSV File Location");
+            csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+            int csvResult = csvFileChooser.showSaveDialog(null);
+
+            if (csvResult == JFileChooser.APPROVE_OPTION) {
+                String csvFilePath = csvFileChooser.getSelectedFile().toString();
+                if (!csvFilePath.endsWith(".csv")) {
+                    csvFilePath += ".csv";
+                }
+                saveEnergyCharacteristicsGraphToCSV(csvFilePath);
+            }
+        }
+    }
 }
   /*public void saveSVGDialogue() {
         boolean inputValid = false;

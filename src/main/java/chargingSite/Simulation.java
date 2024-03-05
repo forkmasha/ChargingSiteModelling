@@ -51,7 +51,7 @@ public class Simulation extends Graph {
     private static final DistributionType SERVICE_TYPE = DistributionType.ERLANGD;   // ERLANGD is a good choice
     private static int confLevel = 98;*/
     private static final Logger LOGGER = Logger.getLogger(Simulation.class.getName());
-    private JFreeChart MyChart;
+    private static JFreeChart MyChart;
     private JFreeChart SitePowerGraph;
     public Monitor chargingMonitor;
     public ChargingSite site;
@@ -85,7 +85,7 @@ public class Simulation extends Graph {
         return parameters.getMMnNwaitingTime(rho);
     }
 
-    public void saveAsSVG(int wi, int hi, File svgFile) throws IOException {
+    public void saveQueueingCharacteristicsAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -104,8 +104,8 @@ public class Simulation extends Graph {
     }
 
     public void runSimulation() {
-        resetData();
-        ChargingSite.clearDataset1();
+        resetDataHistogram();
+        ChargingSite.clearPowerOverTimeDataset1();
         EventSimulation.setMaxEvents(parameters.getMAX_EVENTS());
         Client[] myFirstClients = new Client[1];
         Client myFirstClient;
@@ -161,7 +161,7 @@ public class Simulation extends Graph {
             plotHistogram(mySystem.getChargingSite().getSitePower1(), 20, parameters);
 
 
-            mySystem.getChargingSite().displayChart(dataList, parameters);
+            mySystem.getChargingSite().displayPowerOverTimeChart(dataList, parameters);
 
 
             // mySystem.getChargingSite().visualizeSitePower();
@@ -239,15 +239,15 @@ public class Simulation extends Graph {
 
             arrivalRate += parameters.getARRIVAL_RATE_STEP();
         }
-        drawGraph();
+        drawGraphQueueingCharacteristics();
 
-        chargingMonitor.drawGraph(this);
+        chargingMonitor.drawGraphEnergyCharacteristics(this);
 
 
         //plotHistogram(mySystem.getChargingSite().getSitePower1(), 15);
     }
 
-    public void drawGraph() {   // D/D/5/10 Queueing System
+    public void drawGraphQueueingCharacteristics() {   // D/D/5/10 Queueing System
 
         String title = "Charging Site Queueing Characteristics \n"
                 + this.getKendallName() + " Queueing System"
@@ -376,7 +376,7 @@ public class Simulation extends Graph {
 
         JFrame frame = new JFrame("Charging Site Queueing Characteristics");
 
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+       /* frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -388,15 +388,121 @@ public class Simulation extends Graph {
                     frame.dispose();
                 }
             }
-        });
+        });*/
+
+
         frame.setContentPane(chartPanel);
         frame.pack();
 
         frame.setLocation(largestBounds.x + leftOffset, largestBounds.y);
 
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                promptSaveOnCloseQueueingCharacteristics(frame);
+            }
+        });
+
+
         frame.setVisible(true);
     }
 
+    private void promptSaveOnCloseQueueingCharacteristics(JFrame frame) {
+        Object[] options = {"Save", "Cancel", "Close"};
+        int choice = JOptionPane.showOptionDialog(frame, "Do you want to save the chart before closing?", "Save or Close",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        switch (choice) {
+            case JOptionPane.YES_OPTION:
+                showSaveOptionsQueueingCharacteristics(frame);
+                break;
+            case JOptionPane.CANCEL_OPTION:
+                frame.dispose();
+                break;
+            case JOptionPane.NO_OPTION:
+            default:
+                break;
+        }
+    }
+    private void showSaveOptionsQueueingCharacteristics(JFrame frame) {
+        Object[] saveOptions = {"CSV", "SVG", "PNG"};
+        int formatChoice = JOptionPane.showOptionDialog(frame, "Choose the format to save the chart:", "Save Chart Format",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, saveOptions, saveOptions[0]);
+
+        if (formatChoice == JOptionPane.CLOSED_OPTION) {
+            return;
+        }
+
+        String fileExtension = formatChoice == 0 ? ".csv" : formatChoice == 1 ? ".svg" : ".png";
+        String defaultFileName = "ChargingSiteQueueingCharacteristics" + fileExtension;
+
+
+        int width = 1000, height = 1000;
+
+        if (formatChoice == 1 || formatChoice == 2) {
+            String defaultSize = formatChoice == 1 ? "1200x730" : "2400x1560";
+            String sizeInput = JOptionPane.showInputDialog(frame, "Enter dimensions (width x height):", defaultSize);
+            if (sizeInput == null) {
+                return;
+            }
+            String[] sizes = sizeInput.split("x");
+            try {
+                width = Integer.parseInt(sizes[0].trim());
+                height = Integer.parseInt(sizes[1].trim());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "Invalid dimensions. Using default values.");
+            }
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Select directory and filename to save");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setSelectedFile(new File(defaultFileName));
+
+        if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            if (!fileToSave.getAbsolutePath().endsWith(fileExtension)) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + fileExtension);
+            }
+
+            try {
+                if (fileExtension.equals(".svg")) {
+                    saveQueueingCharacteristicsAsSVG(fileToSave.getAbsolutePath(), width, height);
+                } else if (fileExtension.equals(".png")) {
+                    saveQueueingCharacteristicsGraphToPNG(fileToSave.getAbsolutePath(), width, height);
+                } else if (fileExtension.equals(".csv")) {
+                    saveQueueingCharacteristicsToCSV(fileToSave.getAbsolutePath());
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "Error saving file: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    public static void saveQueueingCharacteristicsAsSVG(String filePath, int width, int height) throws IOException {
+        File svgFile = new File(filePath);
+        DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+        Document document = domImpl.createDocument(null, "svg", null);
+
+        SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+        svgGenerator.setSVGCanvasSize(new Dimension(width, height));
+        MyChart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width, height));
+
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
+            svgGenerator.stream(writer, true);
+        } catch (IOException e) {
+            System.err.println("Problem occurred creating chart SVG: " + e.getMessage());
+        }
+    }
+    public static void saveQueueingCharacteristicsGraphToPNG(String filePath, int width, int height) {
+        try {
+            File PNGFile = new File(filePath);
+            ChartUtilities.saveChartAsPNG(PNGFile, MyChart, width, height);
+        } catch (IOException e) {
+            System.err.println("Problem occurred creating chart PNG: " + e.getMessage());
+        }
+    }
     public void saveQueueingCharacteristicsGraphToPNG(String filePath) {
         try {
             int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
@@ -407,50 +513,7 @@ public class Simulation extends Graph {
             System.err.println("Problem occurred creating chart PNG.");
         }
     }
-
-    public void saveSVGDialogue() {
-        Object[] options = {"SVG", "CSV","PNG"};
-        int formatResult = JOptionPane.showOptionDialog(
-                null,
-                "Choose the file format to save:",
-                "Choose File Format",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
-
-        if (formatResult == JOptionPane.YES_OPTION) {
-
-            boolean inputValid = getUserInput() && chooseFile();
-            if (inputValid) {
-                try {
-                    int imageWidth = Integer.parseInt(getWidthField().getText());
-                    int imageHeight = Integer.parseInt(getHeightField().getText());
-                    saveAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                }
-            }
-        } else if (formatResult == JOptionPane.NO_OPTION) {
-            JFileChooser csvFileChooser = new JFileChooser();
-            csvFileChooser.setDialogTitle("Choose CSV File Location");
-            csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
-            int csvResult = csvFileChooser.showSaveDialog(null);
-
-            if (csvResult == JFileChooser.APPROVE_OPTION) {
-                String csvFilePath = csvFileChooser.getSelectedFile().toString();
-                if (!csvFilePath.endsWith(".csv")) {
-                    csvFilePath += ".csv";
-                }
-                saveGraphDataToCSV(csvFilePath);
-            }
-        }
-    }
-
-
-    public void saveGraphDataToCSV(String filePath) {
+    public void saveQueueingCharacteristicsToCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.####################");
         df.setDecimalSeparatorAlwaysShown(false);
 
@@ -490,4 +553,45 @@ public class Simulation extends Graph {
     private String formatDouble(DecimalFormat df, Double value) {
         return df.format(value);
     }
+    public void saveSVGDialogue() {
+        Object[] options = {"SVG", "CSV","PNG"};
+        int formatResult = JOptionPane.showOptionDialog(
+                null,
+                "Choose the file format to save:",
+                "Choose File Format",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (formatResult == JOptionPane.YES_OPTION) {
+
+            boolean inputValid = getUserInput() && chooseFile();
+            if (inputValid) {
+                try {
+                    int imageWidth = Integer.parseInt(getWidthField().getText());
+                    int imageHeight = Integer.parseInt(getHeightField().getText());
+                    saveQueueingCharacteristicsAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
+                } catch (IOException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+            }
+        } else if (formatResult == JOptionPane.NO_OPTION) {
+            JFileChooser csvFileChooser = new JFileChooser();
+            csvFileChooser.setDialogTitle("Choose CSV File Location");
+            csvFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            csvFileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+            int csvResult = csvFileChooser.showSaveDialog(null);
+
+            if (csvResult == JFileChooser.APPROVE_OPTION) {
+                String csvFilePath = csvFileChooser.getSelectedFile().toString();
+                if (!csvFilePath.endsWith(".csv")) {
+                    csvFilePath += ".csv";
+                }
+                saveQueueingCharacteristicsToCSV(csvFilePath);
+            }
+        }
+    }
+
 }

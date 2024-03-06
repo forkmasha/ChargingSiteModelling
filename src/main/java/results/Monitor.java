@@ -209,6 +209,17 @@ public class Monitor extends Graph {
     }
 
     public static JFrame energyCharacteristicsFrame;
+    private static final List<JFrame> openWindows = new ArrayList<>();
+
+    public static void addWindow(JFrame frame) {
+        openWindows.add(frame);
+    }
+    public static void closeAllWindows() {
+        for (JFrame frame : openWindows) {
+            frame.dispose();
+        }
+        openWindows.clear();
+    }
 
     public void drawGraphEnergyCharacteristics(Simulation mySim) {
 
@@ -304,6 +315,7 @@ public class Monitor extends Graph {
         chartPanel.setPreferredSize(new java.awt.Dimension(windowWidth, windowHeight));
 
         JFrame frame = new JFrame(title);
+        Monitor.addWindow(frame);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         /* frame.addWindowListener(new WindowAdapter() {

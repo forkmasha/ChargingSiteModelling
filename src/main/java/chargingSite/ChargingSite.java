@@ -508,12 +508,122 @@ public class ChargingSite {
         }
     }
 
-
     private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
     private static int seriesCounter = 0;
     public static JFrame frame;
 
-   public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
+    public static void initializeHistogramFrame() {
+        frame = new JFrame("Site Power Distribution Histogram");
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                promptSaveOnCloseHistogram();
+            }
+        });
+
+
+        frame.setSize(getPreferredFrameSize());
+        frame.setLocation(getPreferredFrameLocation());
+
+        frame.setVisible(true);
+    }
+
+    public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
+        if (frame == null) {
+            initializeHistogramFrame();
+        }
+
+        updateDataset(data, numBins, parameters);
+        JFreeChart chart = createHistogramChart();
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        configureChartPanel(chartPanel);
+
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(chartPanel);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private static void updateDataset(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
+        double min = 0;
+        double max = parameters.MAX_SITE_POWER;
+        double binWidth = (max - min) / numBins;
+
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = Math.min((int) ((value - min) / binWidth), numBins - 1);
+            bins[binIndex]++;
+        }
+
+        for (int i = 0; i < numBins; i++) {
+            dataset.addValue((double) bins[i] / data.size(),
+                    parameters.getARRIVAL_RATE_STEP() * (1 + seriesCounter) + " EV/h",
+                    String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
+        }
+        seriesCounter++;
+    }
+
+    private static JFreeChart createHistogramChart() {
+        JFreeChart chart = ChartFactory.createBarChart3D(
+                "Site Power Distribution Histogram",
+                "Site Power Intervals",
+                "Probability",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false);
+
+        CategoryPlot plot = chart.getCategoryPlot();
+        CategoryItemRenderer renderer = plot.getRenderer();
+        renderer.setSeriesPaint(seriesCounter - 1, getRandomColor());
+
+        CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
+
+        return chart;
+    }
+
+    private static void configureChartPanel(ChartPanel chartPanel) {
+        chartPanel.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()));
+        chartPanel.setMouseWheelEnabled(true);
+        chartPanel.setDomainZoomable(true);
+        chartPanel.setRangeZoomable(true);
+        chartPanel.setPopupMenu(null);
+    }
+
+    private static Dimension getPreferredFrameSize() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Rectangle largestBounds = new Rectangle();
+        for (GraphicsDevice gd : ge.getScreenDevices()) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+            if (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight()) {
+                largestBounds = bounds;
+            }
+        }
+        int frameWidth = (int) (largestBounds.width * 0.32);
+        int frameHeight = (int) (largestBounds.height * 0.44);
+        return new Dimension(frameWidth, frameHeight);
+    }
+    private static Point getPreferredFrameLocation() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Rectangle largestBounds = new Rectangle();
+        for (GraphicsDevice gd : ge.getScreenDevices()) {
+            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+            if ((largestBounds.isEmpty()) || (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight())) {
+                largestBounds = bounds;
+            }
+        }
+        Dimension frameSize = getPreferredFrameSize();
+        int frameX = (int) (largestBounds.x + largestBounds.width - frameSize.width - (largestBounds.width * 0.02));
+
+        int frameY = (int) (largestBounds.y + (largestBounds.height - frameSize.height) * 0.5 + largestBounds.height * 0.19);
+
+        return new Point(frameX, frameY);
+    }
+    /* public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
         double min = 0; //Collections.min(data);
         double max = parameters.MAX_SITE_POWER; //Collections.max(data);
         double binWidth = (max - min) / numBins;
@@ -590,7 +700,7 @@ public class ChargingSite {
             frame.getContentPane().add(chartPanel);
             frame.revalidate();
             frame.repaint();
-        }
+        }*/
 
        /* if (frame == null) {
            frame = new JFrame("Site Power Distribution Histogram");
@@ -612,7 +722,7 @@ public class ChargingSite {
            frame.revalidate();
            frame.repaint();
        }*/
-    }
+    //}
 
     private static void promptSaveOnCloseHistogram() {
         Object[] options = {"Save", "Cancel", "Close"};

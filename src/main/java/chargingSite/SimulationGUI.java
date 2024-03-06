@@ -30,6 +30,9 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static chargingSite.ChargingSite.clearPowerOverTimeDataset1;
+import static chargingSite.ChargingSite.resetDataHistogram;
+
 public class SimulationGUI {
     private static final Color LIGHT_PINK = new Color(255, 182, 193);
     private static final Color LAVENDER = new Color(230, 230, 250);
@@ -228,13 +231,20 @@ public class SimulationGUI {
 
         runSimulation.addActionListener(e -> {
 
-            isSimulationStarted = false;
+
             if (ChargingSite.frame1 != null) {
                 ChargingSite.frame1.setVisible(true);
             } else {
                 ChargingSite.initializePowerOverTimeChart1();
             }
-            simulationRun = true;
+
+            if (ChargingSite.frame != null) {
+                ChargingSite.frame.setVisible(true);
+            } else {
+                ChargingSite.initializeHistogramFrame();
+            }
+
+
             runSimulation.setBackground(LIGHT_PINK);
             jScrollPane.getViewport().setViewPosition(new Point(0, 0));
 
@@ -1169,10 +1179,10 @@ public class SimulationGUI {
         EVParametersGbc3.gridx = 0;
         procPanel.add(EVParametersPanel3, EVParametersGbc3);
 
-       /* closeWindows.addActionListener(new ActionListener() {
+        /* closeWindows.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                closeWindows.setBackground(BLUE);
+
                 JFrame histogramFrame = ChargingSite.getHistogramFrame();
                 if (histogramFrame != null) {
                     histogramFrame.dispose();
@@ -1192,52 +1202,67 @@ public class SimulationGUI {
                 if (frame != null) {
                     frame.dispose();
                     Monitor.energyCharacteristicsFrame = null;
+
                 }
+
+                closeWindows.setBackground(BLUE);
             }
         });*/
-        boolean isSimulationStarted = false;
+
         closeWindows.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (!isSimulationStarted) {
-                    closeWindows.setBackground(LIGHT_PINK);
-                    JOptionPane.showMessageDialog(null, "Run the simulation first=).", "Warning", JOptionPane.WARNING_MESSAGE);
+                Object[] options = {"Close results of the last simulation", "Close whole results"};
+                int choice = JOptionPane.showOptionDialog(null,
+                        "Choose what to do:",
+                        "Close windows",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+                if (choice == JOptionPane.YES_OPTION) {
+
+                   JFrame histogramFrame = ChargingSite.getHistogramFrame();
+                    if (histogramFrame != null) {
+                      //  histogramFrame.dispose();
+                        resetDataHistogram();
+                    }
+
+                    JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
+                    if (powerOverTimeFrame != null) {
+                       // powerOverTimeFrame.dispose();
+                        clearPowerOverTimeDataset1();
+                    }
+
+                    if (Simulation.queueingCharacteristicsFrame != null) {
+                        Simulation.queueingCharacteristicsFrame.dispose();
+                        Simulation.queueingCharacteristicsFrame = null;
+                    }
+
+                    JFrame frame = Monitor.getEnergyCharacteristicsFrame();
+                    if (frame != null) {
+                        frame.dispose();
+                        Monitor.energyCharacteristicsFrame = null;
+                    }
+                } else if (choice == JOptionPane.NO_OPTION) {
+                    Monitor.closeAllWindows();
+                    Simulation.closeAllWindows();
+
+                    JFrame histogramFrame = ChargingSite.getHistogramFrame();
+                    if (histogramFrame != null) {
+                        histogramFrame.dispose();
+                    }
+
+                    JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
+                    if (powerOverTimeFrame != null) {
+                        powerOverTimeFrame.dispose();
+                    }
+
                 }
 
-                JFrame histogramFrame = ChargingSite.getHistogramFrame();
-                boolean isHistogramFrameClosed = false;
-                if (histogramFrame != null) {
-                    histogramFrame.dispose();
-                    isHistogramFrameClosed = true;
-                }
-
-                JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
-                boolean isPowerOverTimeFrameClosed = false;
-                if (powerOverTimeFrame != null) {
-                    powerOverTimeFrame.dispose();
-                    isPowerOverTimeFrameClosed = true;
-                }
-
-                boolean isQueueingCharacteristicsFrameClosed = false;
-                if (Simulation.queueingCharacteristicsFrame != null) {
-                    Simulation.queueingCharacteristicsFrame.dispose();
-                    Simulation.queueingCharacteristicsFrame = null;
-                    isQueueingCharacteristicsFrameClosed = true;
-                }
-
-                JFrame frame = Monitor.getEnergyCharacteristicsFrame();
-                boolean isEnergyCharacteristicsFrameClosed = false;
-                if (frame != null) {
-                    frame.dispose();
-                    Monitor.energyCharacteristicsFrame = null;
-                    isEnergyCharacteristicsFrameClosed = true;
-                }
-
-
-                if (isHistogramFrameClosed && isPowerOverTimeFrameClosed && isQueueingCharacteristicsFrameClosed && isEnergyCharacteristicsFrameClosed) {
-                    JOptionPane.showMessageDialog(null, "All windows are closed. To obtain a new result, run the simulation again.", "Information", JOptionPane.INFORMATION_MESSAGE);
-                }
                 closeWindows.setBackground(BLUE);
             }
         });

@@ -27,6 +27,16 @@
       <option name="url" value="https://repo.clojars.org/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="jogamp-java3d-remote" />
+      <option name="name" value="jogamp java3d test mirror" />
+      <option name="url" value="https://www.jogamp.org/deployment/maven-java3d/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jogamp-remote" />
+      <option name="name" value="jogamp test mirror" />
+      <option name="url" value="https://www.jogamp.org/deployment/maven/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="jzy3d-snapshots" />
       <option name="name" value="Jzy3d Snapshots" />
       <option name="url" value="https://maven.jzy3d.org.snapshots" />

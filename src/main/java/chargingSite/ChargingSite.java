@@ -1,5 +1,17 @@
 package chargingSite;
 
+import com.orsoncharts.*;
+import com.orsoncharts.axis.NumberAxis3D;
+import com.orsoncharts.data.xyz.XYZDataset;
+import com.orsoncharts.data.xyz.XYZSeries;
+import com.orsoncharts.data.xyz.XYZSeriesCollection;
+import com.orsoncharts.graphics3d.Dimension3D;
+import com.orsoncharts.graphics3d.World;
+import com.orsoncharts.plot.XYZPlot;
+import com.orsoncharts.renderer.ComposeType;
+import com.orsoncharts.renderer.Renderer3DChangeListener;
+import com.orsoncharts.renderer.xyz.XYZColorSource;
+import com.orsoncharts.renderer.xyz.XYZRenderer;
 import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
 import org.jfree.chart.*;
@@ -245,6 +257,7 @@ public class ChargingSite {
 
         frame1.setVisible(true);
     }
+
 
   /*  public static void initializePowerOverTimeChart1() {
 
@@ -512,7 +525,7 @@ public class ChargingSite {
     private static int seriesCounter = 0;
     public static JFrame frame;
 
-    public static void initializeHistogramFrame() {
+     public static void initializeHistogramFrame() {
         frame = new JFrame("Site Power Distribution Histogram");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
@@ -522,10 +535,8 @@ public class ChargingSite {
             }
         });
 
-
         frame.setSize(getPreferredFrameSize());
         frame.setLocation(getPreferredFrameLocation());
-
         frame.setVisible(true);
     }
 
@@ -533,7 +544,6 @@ public class ChargingSite {
         if (frame == null) {
             initializeHistogramFrame();
         }
-
         updateDataset(data, numBins, parameters);
         JFreeChart chart = createHistogramChart();
 
@@ -623,6 +633,160 @@ public class ChargingSite {
 
         return new Point(frameX, frameY);
     }
+    static JFrame frame2 = new JFrame("3D Chart Example");
+    private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
+
+    public static void plotHistogram3D(double arrivalRate, ArrayList<Double> data, int numBins, SimulationParameters parameters) {
+
+        double min = 0;
+        double max = parameters.MAX_SITE_POWER;
+        double binWidth = (max - min) / numBins;
+
+
+      XYZSeries<String> series = new XYZSeries<>(String.format("%.1f EV/h", arrivalRate));
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = Math.min((int) ((value - min) / binWidth), numBins - 1);
+            bins[binIndex]++;
+        }
+
+        double binSum = Arrays.stream(bins).sum();
+        for (int i = 0; i < numBins; i++) {
+            double xValue = min + i * binWidth + binWidth / 2; // Середнє значення для кожного біна
+            double yValue = arrivalRate; // Стале значення для всіх точок
+            double zValue = bins[i] / binSum; // Нормалізована кількість значень в біні
+            series.add(xValue, yValue, zValue);
+        }
+        dataset2.add(series);
+
+        /* XYZSeriesCollection<String> dataset = new XYZSeriesCollection<>();
+        XYZSeries<String> series = new XYZSeries<>("Histogram Series");
+
+        int[] bins = new int[numBins];
+        for (double value : data) {
+            int binIndex = (int) ((value - min) / binWidth);
+            if (binIndex == numBins) {
+                binIndex--;
+            }
+            bins[binIndex]++;
+        }
+
+        double binSum = Arrays.stream(bins).sum();
+        for (int i = 0; i < numBins; i++) {
+            double xValue = min + i * binWidth + binWidth / 2; //site power
+            double yValue = arrivalRate; //arrival rate,
+            double zValue = bins[i]/ binSum; //probability mass
+            series.add(xValue, yValue, zValue);
+        }
+        dataset.add(series);*/
+
+
+
+
+        NumberAxis3D xAxis = new NumberAxis3D("X-axis");
+        NumberAxis3D yAxis = new NumberAxis3D("Y-axis");
+        NumberAxis3D zAxis = new NumberAxis3D("Z-axis");
+
+        XYZRenderer renderer = new XYZRenderer() {
+            @Override
+            public XYZPlot getPlot() {
+                return null;
+            }
+
+            @Override
+            public void setPlot(XYZPlot xyzPlot) {
+
+            }
+
+            @Override
+            public XYZColorSource getColorSource() {
+                return null;
+            }
+
+            @Override
+            public void setColorSource(XYZColorSource xyzColorSource) {
+
+            }
+
+            @Override
+            public void setColors(Color... colors) {
+
+            }
+
+            @Override
+            public Range findXRange(XYZDataset xyzDataset) {
+                return null;
+            }
+
+            @Override
+            public Range findYRange(XYZDataset xyzDataset) {
+                return null;
+            }
+
+            @Override
+            public Range findZRange(XYZDataset xyzDataset) {
+                return null;
+            }
+
+            @Override
+            public ComposeType getComposeType() {
+                return null;
+            }
+
+            @Override
+            public void composeItem(XYZDataset xyzDataset, int i, int i1, World world, Dimension3D dimension3D, double v, double v1, double v2) {
+
+            }
+
+            @Override
+            public void composeAll(XYZPlot xyzPlot, World world, Dimension3D dimension3D, double v, double v1, double v2) {
+
+            }
+
+            @Override
+            public void addChangeListener(Renderer3DChangeListener renderer3DChangeListener) {
+
+            }
+
+            @Override
+            public void removeChangeListener(Renderer3DChangeListener renderer3DChangeListener) {
+
+            }
+
+            @Override
+            public void receive(ChartElementVisitor chartElementVisitor) {
+
+            }
+        };
+
+        if (frame2.getContentPane().getComponentCount() == 0) {
+            Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+            Chart3DPanel chartPanel = new Chart3DPanel(chart);
+            frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame2.add(chartPanel);
+        } else {
+            frame2.getContentPane().removeAll();
+            Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+            Chart3DPanel chartPanel = new Chart3DPanel(chart);
+            frame2.add(chartPanel);
+        }
+        XYZPlot plot = new XYZPlot(dataset2 ,renderer, xAxis, yAxis, zAxis);
+
+       // Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2,"site power","arrival rate","probability mass");
+
+     //   Chart3DPanel chartPanel = new Chart3DPanel(chart);
+
+        frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+     //   frame2.add(chartPanel);
+      //  frame2.setSize(600, 400);
+    //    frame2.setVisible(true);
+
+        frame2.setSize(600, 400);
+        frame2.validate();
+        frame2.repaint();
+        frame2.setVisible(true);
+    }
+
     /* public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
         double min = 0; //Collections.min(data);
         double max = parameters.MAX_SITE_POWER; //Collections.max(data);
@@ -923,6 +1087,7 @@ public class ChargingSite {
     public static JFrame getHistogramFrame() {
         return frame;
     }
+
 
 }
 

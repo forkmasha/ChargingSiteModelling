@@ -230,6 +230,7 @@ public class SimulationGUI {
         jScrollPane.setMaximumSize(new Dimension(430, 1000));
 
         runSimulation.addActionListener(e -> {
+            simulationRun = true;
 
 
             if (ChargingSite.frame1 != null) {
@@ -645,7 +646,7 @@ public class SimulationGUI {
                         case 5:
                             SimpleDateFormat dateFormat = new SimpleDateFormat("ddMM_HHmm");
                             String dateTime = dateFormat.format(new Date());
-                            String kendallName = parameters. getKendallNameForFile();
+                            String kendallName = parameters.getKendallNameForFile();
                             String finalFileName = kendallName + "_" + dateTime + ".zip";
 
                             JFileChooser fileChooser = new JFileChooser();
@@ -1225,15 +1226,15 @@ public class SimulationGUI {
 
                 if (choice == JOptionPane.YES_OPTION) {
 
-                   JFrame histogramFrame = ChargingSite.getHistogramFrame();
+                    JFrame histogramFrame = ChargingSite.getHistogramFrame();
                     if (histogramFrame != null) {
-                      //  histogramFrame.dispose();
+                        //  histogramFrame.dispose();
                         resetDataHistogram();
                     }
 
                     JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
                     if (powerOverTimeFrame != null) {
-                       // powerOverTimeFrame.dispose();
+                        // powerOverTimeFrame.dispose();
                         clearPowerOverTimeDataset1();
                     }
 

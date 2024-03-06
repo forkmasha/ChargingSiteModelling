@@ -158,10 +158,12 @@ public class Simulation extends Graph {
 
 
             // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
+            plotHistogram3D(stepCounter*parameters.getARRIVAL_RATE_STEP() , mySystem.getChargingSite().getSitePower1(), 20, parameters);
             plotHistogram(mySystem.getChargingSite().getSitePower1(), 20, parameters);
 
 
             mySystem.getChargingSite().displayPowerOverTimeChart(dataList, parameters);
+
 
 
             // mySystem.getChargingSite().visualizeSitePower();

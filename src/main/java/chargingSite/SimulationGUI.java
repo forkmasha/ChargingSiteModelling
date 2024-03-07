@@ -667,6 +667,7 @@ public class SimulationGUI {
                                             {"ChargingSiteEnergyCharacteristics", "csv", "svg", "png"},
                                             {"PowerOverTimeChart", "csv", "svg", "png"},
                                             {"SitePowerDistributionHistogram", "csv", "svg", "png"},
+                                            {"SitePowerDistribution3DHistogram", "png"},
                                             {"SimulationParameters", "txt", "xml"}
                                     };
 
@@ -707,6 +708,9 @@ public class SimulationGUI {
                                                     simulation.site.savePowerOverTimeGraphToPNG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToPNG(fileToSave.getAbsolutePath());
+                                                }
+                                                else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
+                                                    simulation.site.saveHistogram3DToPNG(fileToSave.getAbsolutePath());
                                                 }
                                             } else if ("SimulationParameters".equals(baseName)) {
                                                 if ("txt".equals(format)) {

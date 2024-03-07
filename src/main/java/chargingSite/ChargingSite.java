@@ -6,14 +6,20 @@ import com.orsoncharts.data.xyz.XYZDataset;
 import com.orsoncharts.data.xyz.XYZSeries;
 import com.orsoncharts.data.xyz.XYZSeriesCollection;
 import com.orsoncharts.graphics3d.Dimension3D;
+import com.orsoncharts.graphics3d.Point3D;
+import com.orsoncharts.graphics3d.ViewPoint3D;
 import com.orsoncharts.graphics3d.World;
+import com.orsoncharts.legend.LegendAnchor;
 import com.orsoncharts.plot.XYZPlot;
 import com.orsoncharts.renderer.ComposeType;
 import com.orsoncharts.renderer.Renderer3DChangeListener;
 import com.orsoncharts.renderer.xyz.XYZColorSource;
 import com.orsoncharts.renderer.xyz.XYZRenderer;
+import com.orsoncharts.util.Anchor2D;
+import com.orsoncharts.util.Orientation;
 import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
+import org.apache.batik.dom.GenericDOMImplementation;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
@@ -22,6 +28,7 @@ import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
@@ -30,18 +37,25 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.jfree.graphics2d.svg.SVGUtils;
 import org.jfree.util.ShapeUtilities;
+import org.jzy3d.plot3d.rendering.legends.overlay.Legend;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
+
+
 
 
 public class ChargingSite {
@@ -633,7 +647,7 @@ public class ChargingSite {
 
         return new Point(frameX, frameY);
     }
-    static JFrame frame2 = new JFrame("3D Chart Example");
+    static JFrame frame2 = new JFrame("Site Power distribution histogram");
     private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
 
     public static void plotHistogram3D(double arrivalRate, ArrayList<Double> data, int numBins, SimulationParameters parameters) {
@@ -643,7 +657,7 @@ public class ChargingSite {
         double binWidth = (max - min) / numBins;
 
 
-      XYZSeries<String> series = new XYZSeries<>(String.format("%.1f EV/h", arrivalRate));
+        XYZSeries<String> series = new XYZSeries<>(String.format("%.1f EV/h", arrivalRate));
         int[] bins = new int[numBins];
         for (double value : data) {
             int binIndex = Math.min((int) ((value - min) / binWidth), numBins - 1);
@@ -652,33 +666,12 @@ public class ChargingSite {
 
         double binSum = Arrays.stream(bins).sum();
         for (int i = 0; i < numBins; i++) {
-            double xValue = min + i * binWidth + binWidth / 2; // Середнє значення для кожного біна
-            double yValue = arrivalRate; // Стале значення для всіх точок
-            double zValue = bins[i] / binSum; // Нормалізована кількість значень в біні
+            double xValue = min + i * binWidth + binWidth / 2;
+            double yValue = arrivalRate;
+            double zValue = bins[i] / binSum;
             series.add(xValue, yValue, zValue);
         }
         dataset2.add(series);
-
-        /* XYZSeriesCollection<String> dataset = new XYZSeriesCollection<>();
-        XYZSeries<String> series = new XYZSeries<>("Histogram Series");
-
-        int[] bins = new int[numBins];
-        for (double value : data) {
-            int binIndex = (int) ((value - min) / binWidth);
-            if (binIndex == numBins) {
-                binIndex--;
-            }
-            bins[binIndex]++;
-        }
-
-        double binSum = Arrays.stream(bins).sum();
-        for (int i = 0; i < numBins; i++) {
-            double xValue = min + i * binWidth + binWidth / 2; //site power
-            double yValue = arrivalRate; //arrival rate,
-            double zValue = bins[i]/ binSum; //probability mass
-            series.add(xValue, yValue, zValue);
-        }
-        dataset.add(series);*/
 
 
 
@@ -761,31 +754,66 @@ public class ChargingSite {
 
         if (frame2.getContentPane().getComponentCount() == 0) {
             Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+            chart.setLegendOrientation(Orientation.VERTICAL);
+            chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
+
+
             Chart3DPanel chartPanel = new Chart3DPanel(chart);
             frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame2.add(chartPanel);
+
         } else {
             frame2.getContentPane().removeAll();
             Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+            chart.setLegendOrientation(Orientation.VERTICAL);
             Chart3DPanel chartPanel = new Chart3DPanel(chart);
+            // ViewPoint3D viewPoint = new ViewPoint3D(-0.975,-1.425,60,0); // (-45,-45,60,0) works
+            //   ViewPoint3D viewPoint = new ViewPoint3D(-0.975,-1.425,60,0);
+            ViewPoint3D viewPoint = new ViewPoint3D(-0.775,-1.425,35,0);
+            chartPanel.setViewPoint(viewPoint);
+
             frame2.add(chartPanel);
         }
-        XYZPlot plot = new XYZPlot(dataset2 ,renderer, xAxis, yAxis, zAxis);
+        XYZPlot plot = new XYZPlot(dataset2, renderer, xAxis, yAxis, zAxis);
 
-       // Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2,"site power","arrival rate","probability mass");
-
-     //   Chart3DPanel chartPanel = new Chart3DPanel(chart);
 
         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-     //   frame2.add(chartPanel);
-      //  frame2.setSize(600, 400);
-    //    frame2.setVisible(true);
-
-        frame2.setSize(600, 400);
+        frame2.setSize(1200, 720);
         frame2.validate();
         frame2.repaint();
         frame2.setVisible(true);
     }
+    static void resetData3DHistogram() {
+        dataset2.removeAll();
+        seriesCounter = 0;
+    }
+    public static void saveHistogram3DToPNG(String filePath) {
+        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+            Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
+            int originalWidth = chartPanel.getWidth();
+            int originalHeight = chartPanel.getHeight();
+
+            int width = originalWidth * 3;
+            int height = originalHeight * 3;
+
+            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = image.createGraphics();
+
+            g2.scale(3.0, 3.0);
+
+            chartPanel.paint(g2);
+            g2.dispose();
+
+            try {
+                ImageIO.write(image, "png", new File(filePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Не знайдено Chart3DPanel.");
+        }
+    }
+
 
     /* public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
         double min = 0; //Collections.min(data);

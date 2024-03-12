@@ -414,7 +414,8 @@ public class SimulationGUI {
                         "Power vs Time Chart",
                         "Site Power Distribution Histogram",
                         "GUI Parameters",
-                        "All Results"
+                        "All Results",
+                        "Site Power Distribution 3D Histogram"
                 };
 
                 JList<String> optionList = new JList<>(options);
@@ -667,7 +668,7 @@ public class SimulationGUI {
                                             {"ChargingSiteEnergyCharacteristics", "csv", "svg", "png"},
                                             {"PowerOverTimeChart", "csv", "svg", "png"},
                                             {"SitePowerDistributionHistogram", "csv", "svg", "png"},
-                                            {"SitePowerDistribution3DHistogram", "png"},
+                                            {"SitePowerDistribution3DHistogram", "svg", "png","csv"},
                                             {"SimulationParameters", "txt", "xml"}
                                     };
 
@@ -689,6 +690,10 @@ public class SimulationGUI {
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramDataToCSV(fileToSave.getAbsolutePath());
                                                 }
+                                                else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
+                                                  //  simulation.site.saveHistogram3DToCSV(fileToSave.getAbsolutePath());
+                                                    simulation.site.saveHistogramData3DToCSV(fileToSave.getAbsolutePath());
+                                                }
                                             } else if ("svg".equals(format)) {
                                                 if ("ChargingSiteQueueingCharacteristics".equals(baseName)) {
                                                     simulation.saveQueueingCharacteristicsAsSVG(1200, 730, fileToSave);
@@ -698,7 +703,11 @@ public class SimulationGUI {
                                                     simulation.site.savePowerOverTimeToSVG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToSVG(fileToSave.getAbsolutePath());
+                                                } else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
+                                                   // simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
+                                                    simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
                                                 }
+
                                             } else if ("png".equals(format)) {
                                                 if ("ChargingSiteQueueingCharacteristics".equals(baseName)) {
                                                     simulation.saveQueueingCharacteristicsGraphToPNG(fileToSave.getAbsolutePath());
@@ -708,8 +717,7 @@ public class SimulationGUI {
                                                     simulation.site.savePowerOverTimeGraphToPNG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToPNG(fileToSave.getAbsolutePath());
-                                                }
-                                                else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
+                                                } else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogram3DToPNG(fileToSave.getAbsolutePath());
                                                 }
                                             } else if ("SimulationParameters".equals(baseName)) {
@@ -739,8 +747,55 @@ public class SimulationGUI {
                                 }
                             }
                             break;
+                        case 6:
+
+                            String[] formats6 = {"csv", "svg", "png"};
+                            String selectedFormat6 = (String) JOptionPane.showInputDialog(
+                                    frame,
+                                    "Choose the format to save the 3d histogram:",
+                                    "Save Format",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    formats6,
+                                    formats6[0]
+                            );
+
+                            if (selectedFormat6 != null) {
+                                JFileChooser fileChooser6 = new JFileChooser();
+                                fileChooser6.setDialogTitle("Specify a file to save");
+
+                                if ("csv".equals(selectedFormat6)) {
+                                    fileChooser6.setSelectedFile(new File("SitePowerDistribution3DHistogram.csv"));
+                                } else if ("svg".equals(selectedFormat6)) {
+                                    fileChooser6.setSelectedFile(new File("SitePowerDistribution3DHistogram.svg"));
+                                } else if ("png".equals(selectedFormat6)) {
+                                    fileChooser6.setSelectedFile(new File("SitePowerDistribution3DHistogram.png"));
+                                }
+
+                                int userSelection6 = fileChooser6.showSaveDialog(frame);
+
+                                if (userSelection6 == JFileChooser.APPROVE_OPTION) {
+                                    File fileToSave = fileChooser6.getSelectedFile();
+
+                                    if ("csv".equals(selectedFormat6)) {
+                                      //  simulation.site.saveHistogram3DToCSV(fileToSave.getAbsolutePath());
+                                        try {
+                                            simulation.site.saveHistogramData3DToCSV(fileToSave.getAbsolutePath());
+                                        } catch (IOException ex) {
+                                            throw new RuntimeException(ex);
+                                        }
+                                    } else if ("svg".equals(selectedFormat6)) {
+                                        simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
+
+                                    } else if ("png".equals(selectedFormat6)) {
+                                        simulation.site.saveHistogram3DToPNG(fileToSave.getAbsolutePath());
+                                    }
+                                }
+                            }
+                            break;
                     }
-                } else {
+                }
+                else {
                     JOptionPane.showMessageDialog(
                             frame,
                             "Please select an option to proceed with saving.",

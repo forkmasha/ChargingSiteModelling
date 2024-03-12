@@ -10,9 +10,14 @@ import com.orsoncharts.graphics3d.Point3D;
 import com.orsoncharts.graphics3d.ViewPoint3D;
 import com.orsoncharts.graphics3d.World;
 import com.orsoncharts.legend.LegendAnchor;
+import com.orsoncharts.plot.CategoryPlot3D;
 import com.orsoncharts.plot.XYZPlot;
+import com.orsoncharts.renderer.ColorScale;
 import com.orsoncharts.renderer.ComposeType;
+import com.orsoncharts.renderer.GradientColorScale;
 import com.orsoncharts.renderer.Renderer3DChangeListener;
+import com.orsoncharts.renderer.xyz.AbstractXYZRenderer;
+import com.orsoncharts.renderer.xyz.StandardXYZColorSource;
 import com.orsoncharts.renderer.xyz.XYZColorSource;
 import com.orsoncharts.renderer.xyz.XYZRenderer;
 import com.orsoncharts.util.Anchor2D;
@@ -25,6 +30,7 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.*;
+import org.jfree.chart.renderer.PaintScale;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -48,14 +54,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
-
-
 
 
 public class ChargingSite {
@@ -261,8 +266,8 @@ public class ChargingSite {
             }
         }
 
-        int frameWidth = (int) (largestBounds.width * 0.325);
-        int frameHeight = (int) (largestBounds.height * 0.47);
+        int frameWidth = (int) (largestBounds.width * 0.332);
+        int frameHeight = (int) (largestBounds.height * 0.473);
 
         int offsetX = (int) (largestBounds.width * 0.015);
 
@@ -479,6 +484,7 @@ public class ChargingSite {
             System.out.println("Error writing to CSV: " + e.getMessage());
         }
     }
+
     public static JFrame getPowerOverTimeFrame() {
         return frame1;
     }
@@ -539,7 +545,7 @@ public class ChargingSite {
     private static int seriesCounter = 0;
     public static JFrame frame;
 
-     public static void initializeHistogramFrame() {
+   /* public static void initializeHistogramFrame() {
         frame = new JFrame("Site Power Distribution Histogram");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
@@ -552,23 +558,52 @@ public class ChargingSite {
         frame.setSize(getPreferredFrameSize());
         frame.setLocation(getPreferredFrameLocation());
         frame.setVisible(true);
-    }
+    }*/
+   private static JPanel mainPanel;
+   public static void initializeHistogramFrame() {
+       frame = new JFrame("Site Power Distribution Histogram");
+       frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+       frame.addWindowListener(new WindowAdapter() {
+           @Override
+           public void windowClosing(WindowEvent e) {
+               promptSaveOnCloseHistogram();
+           }
+       });
+       mainPanel = new JPanel(new BorderLayout());
+       frame.setContentPane(mainPanel);
 
-    public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
-        if (frame == null) {
-            initializeHistogramFrame();
-        }
-        updateDataset(data, numBins, parameters);
-        JFreeChart chart = createHistogramChart();
+       JButton toggleLegendButton = new JButton("Toggle Legend");
+       toggleLegendButton.addActionListener(e -> {
 
-        ChartPanel chartPanel = new ChartPanel(chart);
-        configureChartPanel(chartPanel);
+           ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+           JFreeChart chart = chartPanel.getChart();
+           chart.getLegend().setVisible(!chart.getLegend().isVisible());
+           chartPanel.repaint();
+       });
+       mainPanel.add(toggleLegendButton, BorderLayout.SOUTH);
 
-        frame.getContentPane().removeAll();
-        frame.getContentPane().add(chartPanel);
-        frame.revalidate();
-        frame.repaint();
-    }
+       frame.setSize(getPreferredFrameSize());
+       frame.setLocation(getPreferredFrameLocation());
+       frame.setVisible(true);
+   }
+
+   public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
+       if (frame == null) {
+           initializeHistogramFrame();
+       }
+       updateDataset(data, numBins, parameters);
+       JFreeChart chart = createHistogramChart();
+
+       ChartPanel chartPanel = new ChartPanel(chart);
+       configureChartPanel(chartPanel);
+
+       if (mainPanel.getComponentCount() > 1) {
+           mainPanel.remove(1);
+       }
+       mainPanel.add(chartPanel, BorderLayout.CENTER);
+       mainPanel.revalidate();
+       mainPanel.repaint();
+   }
 
     private static void updateDataset(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
         double min = 0;
@@ -606,7 +641,7 @@ public class ChargingSite {
 
         CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
-
+        chart.getLegend().setVisible(false);
         return chart;
     }
 
@@ -627,10 +662,11 @@ public class ChargingSite {
                 largestBounds = bounds;
             }
         }
-        int frameWidth = (int) (largestBounds.width * 0.32);
-        int frameHeight = (int) (largestBounds.height * 0.44);
+        int frameWidth = (int) (largestBounds.width * 0.33);
+        int frameHeight = (int) (largestBounds.height * 0.47);
         return new Dimension(frameWidth, frameHeight);
     }
+
     private static Point getPreferredFrameLocation() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Rectangle largestBounds = new Rectangle();
@@ -641,12 +677,13 @@ public class ChargingSite {
             }
         }
         Dimension frameSize = getPreferredFrameSize();
-        int frameX = (int) (largestBounds.x + largestBounds.width - frameSize.width - (largestBounds.width * 0.02));
+        int frameX = (int) (largestBounds.x + largestBounds.width - frameSize.width - (largestBounds.width * 0.016));
 
-        int frameY = (int) (largestBounds.y + (largestBounds.height - frameSize.height) * 0.5 + largestBounds.height * 0.19);
+        int frameY = (int) (largestBounds.y + (largestBounds.height - frameSize.height) * 0.5 + largestBounds.height * 0.205);
 
         return new Point(frameX, frameY);
     }
+
     static JFrame frame2 = new JFrame("Site Power distribution histogram");
     private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
 
@@ -673,14 +710,46 @@ public class ChargingSite {
         }
         dataset2.add(series);
 
-
-
-
         NumberAxis3D xAxis = new NumberAxis3D("X-axis");
         NumberAxis3D yAxis = new NumberAxis3D("Y-axis");
         NumberAxis3D zAxis = new NumberAxis3D("Z-axis");
 
         XYZRenderer renderer = new XYZRenderer() {
+
+            XYZColorSource colorSource = new XYZColorSource() {
+                public Color getColor(int series, int item) {
+                    double progress = (double) series / (dataset2.getSeriesCount() - 1); // Від 0 до 1, враховуючи, що series від 0 до getSeriesCount() - 1
+
+
+                    int startR = 0;
+                    int startG = 0;
+                    int startB = 128;
+
+
+                    int endR = 173;
+                    int endG = 216;
+                    int endB = 230;
+
+
+                    int R = (int) (startR + (endR - startR) * progress);
+                    int G = (int) (startG + (endG - startG) * progress);
+                    int B = (int) (startB + (endB - startB) * progress);
+
+                    return new Color(R, G, B);
+                }
+
+
+                @Override
+                public Color getLegendColor(int i) {
+                    return null;
+                }
+
+                @Override
+                public void style(Color... colors) {
+
+                }
+            };
+
             @Override
             public XYZPlot getPlot() {
                 return null;
@@ -688,16 +757,16 @@ public class ChargingSite {
 
             @Override
             public void setPlot(XYZPlot xyzPlot) {
-
             }
 
             @Override
             public XYZColorSource getColorSource() {
-                return null;
+                return colorSource;
             }
 
             @Override
             public void setColorSource(XYZColorSource xyzColorSource) {
+                //this.colorSource = xyzColorSource;
 
             }
 
@@ -705,6 +774,7 @@ public class ChargingSite {
             public void setColors(Color... colors) {
 
             }
+
 
             @Override
             public Range findXRange(XYZDataset xyzDataset) {
@@ -752,32 +822,48 @@ public class ChargingSite {
             }
         };
 
-        if (frame2.getContentPane().getComponentCount() == 0) {
-            Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
-            chart.setLegendOrientation(Orientation.VERTICAL);
-            chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
+
+        Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+        chart.setLegendOrientation(Orientation.VERTICAL);
+        chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
 
 
-            Chart3DPanel chartPanel = new Chart3DPanel(chart);
-            frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame2.add(chartPanel);
 
-        } else {
+       double progress = (double) dataset2.getSeriesCount() / parameters.getSIM_STEPS();
+        int R = 0;
+        int G = (int) Math.floor(255 * progress);
+        int B = 255;
+        Color dynamicColor = new Color(R, G, B);
+
+        XYZPlot plot3D =(XYZPlot)chart.getPlot();
+       // plot3D.setRenderer(renderer);
+
+        for (int i = 0;i<seriesCounter;i++){
+
+            plot3D.getRenderer().setColors(dynamicColor);
+      }
+
+
+       // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
+        //XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);
+    //--  XYZPlot plot =(XYZPlot)chart.getPlot();
+     //-- plot.getRenderer().setColors(Colors.getColors2());
+      //  plot.getRenderer().setColors(Colors.createFancyDarkColors());
+      //  plot.setRenderer(renderer);
+      //  renderer.getColorSource().getColor(1,1);
+
+
+
+        Chart3DPanel chartPanel = new Chart3DPanel(chart);
+        ViewPoint3D viewPoint = new ViewPoint3D(-0.775, -1.425, 35, 0);
+        chartPanel.setViewPoint(viewPoint);
+
+        if (frame2.getContentPane().getComponentCount() > 0) {
             frame2.getContentPane().removeAll();
-            Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
-            chart.setLegendOrientation(Orientation.VERTICAL);
-            Chart3DPanel chartPanel = new Chart3DPanel(chart);
-            // ViewPoint3D viewPoint = new ViewPoint3D(-0.975,-1.425,60,0); // (-45,-45,60,0) works
-            //   ViewPoint3D viewPoint = new ViewPoint3D(-0.975,-1.425,60,0);
-            ViewPoint3D viewPoint = new ViewPoint3D(-0.775,-1.425,35,0);
-            chartPanel.setViewPoint(viewPoint);
-
-            frame2.add(chartPanel);
         }
-        XYZPlot plot = new XYZPlot(dataset2, renderer, xAxis, yAxis, zAxis);
 
-
-        frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame2.add(chartPanel);
+         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame2.setSize(1200, 720);
         frame2.validate();
         frame2.repaint();
@@ -787,6 +873,51 @@ public class ChargingSite {
         dataset2.removeAll();
         seriesCounter = 0;
     }
+
+
+    public static void saveHistogramData3DToCSV(String filePath) throws IOException {
+        DecimalFormat df = new DecimalFormat("#.######################");
+        df.setDecimalSeparatorAlwaysShown(false);
+
+        try (FileWriter csvWriter = new FileWriter(filePath)) {
+            csvWriter.append("Arrival Rate");
+
+            int seriesCount = dataset2.getSeriesCount();
+
+            int maxItemCount = 0;
+            for (int i = 0; i < seriesCount; i++) {
+                int itemCount = dataset2.getSeries(i).getItemCount();
+                if (itemCount > maxItemCount) {
+                    maxItemCount = itemCount;
+                }
+            }
+//first line of csv file
+            for (int column = 0; column < maxItemCount; column++) {
+                //  csvWriter.append("; ").append("Bin ").append(Integer.toString(column + 1));
+                double binWidth = simParameters.MAX_SITE_POWER / maxItemCount;
+                String binRange = column * binWidth + "-" + (column + 1) * binWidth;
+              //  String binRange = dataset.getColumnKey(column).toString();
+                csvWriter.append("; ").append(binRange);
+            }
+            csvWriter.append("\n");
+
+//following lines of csv file
+            for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+                XYZSeries<String> series = dataset2.getSeries(seriesIndex);
+                csvWriter.append(series.getKey());
+
+                for (int itemIndex = 0; itemIndex < series.getItemCount(); itemIndex++) {
+                    double zValue = series.getZValue(itemIndex);
+
+                    csvWriter.append(";").append(formatDouble(df, zValue));
+                }
+                csvWriter.append("\n");
+            }
+            csvWriter.flush();
+        }
+    }
+
+
     public static void saveHistogram3DToPNG(String filePath) {
         if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
             Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
@@ -806,6 +937,95 @@ public class ChargingSite {
 
             try {
                 ImageIO.write(image, "png", new File(filePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Не знайдено Chart3DPanel.");
+        }
+    }
+
+    public static void saveHistogram3DToPNG(String filePath, int width, int height) {
+        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+            Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
+
+            // Використання заданих параметрів ширини та висоти для створення зображення
+            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = image.createGraphics();
+
+            // Масштабування зображення залежно від заданих параметрів ширини та висоти
+            double scaleX = (double) width / chartPanel.getWidth();
+            double scaleY = (double) height / chartPanel.getHeight();
+            g2.scale(scaleX, scaleY);
+
+            chartPanel.paint(g2);
+            g2.dispose();
+
+            try {
+                ImageIO.write(image, "png", new File(filePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Не знайдено Chart3DPanel.");
+        }
+    }
+
+    public static void saveHistogram3DToCSV(String filePath) {
+
+        try (FileWriter writer = new FileWriter(filePath)) {
+
+            writer.append("X Value,Y Value,Z Value\n");
+
+            for (int seriesIndex = 0; seriesIndex < dataset2.getSeriesCount(); seriesIndex++) {
+                XYZSeries<String> series = dataset2.getSeries(seriesIndex);
+
+                for (int itemIndex = 0; itemIndex < series.getItemCount(); itemIndex++) {
+                    double xValue = series.getXValue(itemIndex);
+                    double yValue = series.getYValue(itemIndex);
+                    double zValue = series.getZValue(itemIndex);
+
+                    writer.append(String.format("%f,%f,%f\n", xValue, yValue, zValue));
+                }
+            }
+
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveHistogram3DToSVG(String filePath) {
+        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+            Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
+
+            int width = 1200;
+            int height = 720;
+
+            SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+
+            chartPanel.getChart().draw(g2, new Rectangle(0, 0, width, height));
+
+            try {
+                SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Не знайдено Chart3DPanel.");
+        }
+    }
+
+    public static void saveHistogram3DToSVG(String filePath, int width, int height) {
+        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+            Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
+
+            SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+
+            chartPanel.getChart().draw(g2, new Rectangle(0, 0, width, height));
+
+            try {
+                SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -928,8 +1148,8 @@ public class ChargingSite {
             case JOptionPane.NO_OPTION:
                 break;
             case JOptionPane.CANCEL_OPTION:
-               frame.setVisible(false);
-               //frame.dispose();
+                frame.setVisible(false);
+                //frame.dispose();
                 break;
             default:
                 break;
@@ -1001,47 +1221,61 @@ public class ChargingSite {
     }
 
     public static void saveHistogramToSVG(String filePath, int width, int height) {
-        if (frame == null || frame.getContentPane().getComponentCount() == 0) {
-            System.err.println("Гістограма ще не була створена або відображена.");
+        if (frame == null) {
+            System.err.println("Histogram frame not initialized");
             return;
         }
 
-        SVGGraphics2D g2 = new SVGGraphics2D(width, height);
-        ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
-        chartPanel.getChart().draw(g2, new Rectangle(0, 0, width, height));
+        if (mainPanel.getComponentCount() > 1) {
+            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+            JFreeChart chart = chartPanel.getChart();
 
-        try {
-            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
-            System.out.println("Гістограма успішно збережена у форматі SVG.");
-        } catch (IOException e) {
-            System.err.println("Помилка при збереженні гістограми у форматі SVG: " + e.getMessage());
+
+            SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+            Rectangle2D chartArea = new Rectangle2D.Double(0, 0, width, height);
+
+
+            chart.draw(g2, chartArea);
+
+
+            File svgFile = new File(filePath);
+            try {
+                SVGUtils.writeToSVG(svgFile, g2.getSVGElement());
+                System.out.println("Histogram saved to SVG successfully.");
+            } catch (IOException e) {
+                System.err.println("Error saving histogram to SVG: " + e.getMessage());
+            }
+        } else {
+            System.err.println("ChartPanel not found in mainPanel");
         }
     }
-
     public static void saveHistogramToSVG(String filePath) {
-        int width = SimulationGUI.WIDTH_OF_SVG_PICTURE;
-        int height = SimulationGUI.HEIGHT_OF_SVG_PICTURE;
 
-        if (frame == null || frame.getContentPane().getComponentCount() == 0) {
-            System.err.println("Гістограма ще не була створена або відображена.");
+        if (frame == null) {
+            System.err.println("Histogram frame not initialized");
             return;
         }
+        if (mainPanel.getComponentCount() > 1) {
+            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+            JFreeChart chart = chartPanel.getChart();
 
-        SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+            SVGGraphics2D g2 = new SVGGraphics2D(SimulationGUI.WIDTH_OF_SVG_PICTURE, SimulationGUI.HEIGHT_OF_SVG_PICTURE);
+            Rectangle2D chartArea = new Rectangle2D.Double(0, 0, SimulationGUI.WIDTH_OF_SVG_PICTURE, SimulationGUI.HEIGHT_OF_SVG_PICTURE);
 
+            chart.draw(g2, chartArea);
 
-        ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
-
-        chartPanel.getChart().draw(g2, new Rectangle(0, 0, width, height));
-
-
-        try {
-            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
-            System.out.println("Гістограма успішно збережена у форматі SVG з розмірами 1400x700.");
-        } catch (IOException e) {
-            System.err.println("Помилка при збереженні гістограми у форматі SVG: " + e.getMessage());
+            File svgFile = new File(filePath);
+            try {
+                SVGUtils.writeToSVG(svgFile, g2.getSVGElement());
+                System.out.println("Histogram saved to SVG successfully.");
+            } catch (IOException e) {
+                System.err.println("Error saving histogram to SVG: " + e.getMessage());
+            }
+        } else {
+            System.err.println("ChartPanel not found in mainPanel");
         }
     }
+
 
     public static void saveHistogramDataToCSV(String filePath) throws IOException {
         DecimalFormat df = new DecimalFormat("#.######################");
@@ -1074,22 +1308,30 @@ public class ChargingSite {
     }
 
     public static void saveHistogramToPNG(String filePath, int width, int height) {
-        try {
-            if (frame != null && frame.getContentPane().getComponentCount() > 0 && frame.getContentPane().getComponent(0) instanceof ChartPanel) {
-                ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
-                JFreeChart chart = chartPanel.getChart();
-                ChartUtilities.saveChartAsPNG(new File(filePath), chart, width, height);
-                System.out.println("Гістограма успішно збережена у форматі PNG.");
-            } else {
-                System.err.println("Chart not found or frame is not initialized.");
-            }
-        } catch (IOException e) {
-            System.err.println("Problem occurred while saving the chart to PNG: " + e.getMessage());
-            e.printStackTrace();
+        if (frame == null) {
+            System.err.println("Histogram frame not initialized");
+            return;
         }
+        Component[] components = frame.getContentPane().getComponents();
+        for (Component comp : components) {
+            if (comp instanceof ChartPanel) {
+                ChartPanel chartPanel = (ChartPanel) comp;
+                JFreeChart chart = chartPanel.getChart();
+
+                try {
+                    ChartUtilities.saveChartAsPNG(new File(filePath), chart, width, height);
+                    System.out.println("Histogram saved to PNG successfully.");
+                    return;
+                } catch (IOException e) {
+                    System.err.println("Error saving histogram to PNG: " + e.getMessage());
+                    return;
+                }
+            }
+        }
+        System.err.println("ChartPanel not found");
     }
 
-    public static void saveHistogramToPNG(String filePath) {
+    /* public static void saveHistogramToPNG(String filePath) {
         try {
 
             int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
@@ -1106,6 +1348,29 @@ public class ChargingSite {
             System.err.println("Problem occurred while saving the chart to PNG.");
             e.printStackTrace();
         }
+    }*/
+    public static void saveHistogramToPNG(String filePath) {
+        if (frame == null) {
+            System.err.println("Histogram frame not initialized");
+            return;
+        }
+
+        if (mainPanel.getComponentCount() > 1) {
+            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+            JFreeChart chart = chartPanel.getChart();
+
+            int width = chartPanel.getWidth();
+            int height = chartPanel.getHeight();
+
+            try {
+                ChartUtilities.saveChartAsPNG(new File(filePath), chart, SimulationGUI.WIDTH_OF_PNG_PICTURE, SimulationGUI.HEIGHT_OF_PNG_PICTURE);
+                System.out.println("Histogram saved to PNG successfully.");
+            } catch (IOException e) {
+                System.err.println("Error saving histogram to PNG: " + e.getMessage());
+            }
+        } else {
+            System.err.println("ChartPanel not found in mainPanel");
+        }
     }
 
     static void resetDataHistogram() {
@@ -1115,11 +1380,7 @@ public class ChargingSite {
     public static JFrame getHistogramFrame() {
         return frame;
     }
-
-
 }
-
-
 /*
     private int histogramCount = 0;
         private JFreeChart sitePowerChart;

@@ -83,6 +83,31 @@ public class ChargingSite {
 
     public static Color DARK_BLUE = new Color(0, 0, 139); // Темно-синій
     public static Color LIGHT_BLUE = new Color(173, 216, 230); // Світло-синій
+    public static Color lowBLUE = new Color(0, 127, 255);
+    public static Color highRED = new Color(255, 0, 127);
+    private static Color[] colors;
+
+    private static void initColors (int n) {
+        initColors(n, lowBLUE, highRED);
+    }
+    private static void initColors(int n, Color ci) {
+        colors = new Color[n];
+        for (int i = 0; i < n; i++) {
+            colors[i] = ci;
+        }
+    }
+    private static void initColors(int n, Color c1, Color c2) {
+        colors = new Color[n];
+        int R, G, B;
+        double p;
+        for (int i = 0; i < n; i++) {
+            p = (double) i / (n-1);
+            R = (int) Math.round((1-p) * c1.getRed() + p * c2.getRed());
+            G = (int) Math.round((1-p) * c1.getGreen() + p * c2.getGreen());
+            B = (int) Math.round((1-p) * c1.getBlue() + p * c2.getBlue());
+            colors[i] = new Color(R,G,B);
+        }
+    }
 
 
     public ChargingSite(SimulationParameters parameters) {
@@ -90,6 +115,7 @@ public class ChargingSite {
         this.numberOfChargingPoints = parameters.getNUMBER_OF_SERVERS();
         this.maxSitePower = parameters.getMaxSitePower();
         initializeChargingPoints();
+        initColors(parameters.getSIM_STEPS());
     }
 
     private void initializeChargingPoints() {
@@ -355,10 +381,12 @@ public class ChargingSite {
         }
     }
 
+
     public static void displayPowerOverTimeChart(List<TimePowerData> dataList, SimulationParameters parameters) {
         if (frame1 == null || chartPanel1 == null || dataset1 == null) {
             initializePowerOverTimeChart1();
         }
+        if (colors == null) initColors(parameters.getSIM_STEPS());
 
         double maxTime = parameters.getMaxEvents() / parameters.getMaxArrivalRate() / 100;
         double arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
@@ -370,23 +398,25 @@ public class ChargingSite {
             }
         }
 
-        double progress = (double) dataset1.getSeriesCount() / parameters.getSIM_STEPS();
+        /* double progress = (double) dataset1.getSeriesCount() / parameters.getSIM_STEPS();
         int R = 0;
         int G = (int) Math.floor(255 * progress);
         int B = 255;
+        */
         Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); //.createRegularCross(1, 1);.createDiamond(2.1f);
 
         dataset1.addSeries(series);
         XYPlot plot = (XYPlot) chartPanel1.getChart().getPlot();
 
-        // plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
+        //plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD); //would be nice but colouring malfunctions with that option
         plot.setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
         renderer.setSeriesLinesVisible(dataset1.getSeriesCount() - 1, false);
         renderer.setSeriesShapesVisible(dataset1.getSeriesCount() - 1, true);
         renderer.setSeriesShape(dataset1.getSeriesCount() - 1, cross);
-        plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R, G, B));
+        //plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R, G, B));
+        plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, colors[dataset1.getSeriesCount() - 1]);
 
         plot.getRangeAxis().setRange(0, parameters.MAX_SITE_POWER * 1.05);
 
@@ -687,14 +717,6 @@ public class ChargingSite {
 
     static JFrame frame2 = new JFrame("Site Power distribution histogram");
     private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
-    private static Color[] colors;
-
-    private static void initColors(int n, Color cini) {
-        colors = new Color[n];
-        for (int i = 0; i < n; i++) {
-            colors[i] = cini;
-        }
-    }
 
     public static void plotHistogram3D(double arrivalRate, ArrayList<Double> data, int numBins, SimulationParameters parameters) {
 
@@ -702,7 +724,8 @@ public class ChargingSite {
         double max = parameters.MAX_SITE_POWER;
         double binWidth = (max - min) / numBins;
         if (colors == null) {
-            initColors(parameters.getSIM_STEPS(),Color.BLACK);
+            //initColors(parameters.getSIM_STEPS(),Color.BLACK);
+            initColors(parameters.getSIM_STEPS(),new Color(0,0,255), new Color(255,0,127));
         }
 
         XYZSeries<String> series = new XYZSeries<>(String.format("%.1f EV/h", arrivalRate));
@@ -730,24 +753,20 @@ public class ChargingSite {
         chart.setLegendOrientation(Orientation.VERTICAL);
         chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
 
-
+/*
         double progress = (double) dataset2.getSeriesCount() / parameters.getSIM_STEPS();
         int R = 0;
         int G = (int) Math.floor(255 * progress);
         int B = 255;
         colors[seriesCounter] = new Color(R, G, B);
         //Color dynamicColor = new Color(R, G, B);
-
+*/
 
         XYZPlot plot3D = (XYZPlot) chart.getPlot();
         // plot3D.setRenderer(renderer);
         chart.setChartBoxColor(Color.white);
+        plot3D.getRenderer().setColors(colors);
 
-
-        //for (int i = 0; i < seriesCounter; i++) {
-            plot3D.getRenderer().setColors(colors);
-            //plot3D.getRenderer().setColorSource(xyzColors);
-        //}
 
         // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
         //XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);

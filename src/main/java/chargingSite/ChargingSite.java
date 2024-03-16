@@ -85,7 +85,7 @@ public class ChargingSite {
     public static Color LIGHT_BLUE = new Color(173, 216, 230); // Світло-синій
     public static Color lowBLUE = new Color(0, 127, 255);
     public static Color highRED = new Color(255, 0, 127);
-    private static Color[] colors;
+    private static Color[] colors; // colour array to be initialised with n = number of simulation steps
 
     private static void initColors (int n) {
         initColors(n, lowBLUE, highRED);

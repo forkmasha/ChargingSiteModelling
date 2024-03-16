@@ -50,6 +50,7 @@ import org.w3c.dom.Document;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -686,13 +687,23 @@ public class ChargingSite {
 
     static JFrame frame2 = new JFrame("Site Power distribution histogram");
     private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
+    private static Color[] colors;
+
+    private static void initColors(int n, Color cini) {
+        colors = new Color[n];
+        for (int i = 0; i < n; i++) {
+            colors[i] = cini;
+        }
+    }
 
     public static void plotHistogram3D(double arrivalRate, ArrayList<Double> data, int numBins, SimulationParameters parameters) {
 
         double min = 0;
         double max = parameters.MAX_SITE_POWER;
         double binWidth = (max - min) / numBins;
-
+        if (colors == null) {
+            initColors(parameters.getSIM_STEPS(),Color.BLACK);
+        }
 
         XYZSeries<String> series = new XYZSeries<>(String.format("%.1f EV/h", arrivalRate));
         int[] bins = new int[numBins];
@@ -714,144 +725,37 @@ public class ChargingSite {
         NumberAxis3D yAxis = new NumberAxis3D("Y-axis");
         NumberAxis3D zAxis = new NumberAxis3D("Z-axis");
 
-        XYZRenderer renderer = new XYZRenderer() {
-
-            XYZColorSource colorSource = new XYZColorSource() {
-                public Color getColor(int series, int item) {
-                    double progress = (double) series / (dataset2.getSeriesCount() - 1); // Від 0 до 1, враховуючи, що series від 0 до getSeriesCount() - 1
-
-
-                    int startR = 0;
-                    int startG = 0;
-                    int startB = 128;
-
-
-                    int endR = 173;
-                    int endG = 216;
-                    int endB = 230;
-
-
-                    int R = (int) (startR + (endR - startR) * progress);
-                    int G = (int) (startG + (endG - startG) * progress);
-                    int B = (int) (startB + (endB - startB) * progress);
-
-                    return new Color(R, G, B);
-                }
-
-
-                @Override
-                public Color getLegendColor(int i) {
-                    return null;
-                }
-
-                @Override
-                public void style(Color... colors) {
-
-                }
-            };
-
-            @Override
-            public XYZPlot getPlot() {
-                return null;
-            }
-
-            @Override
-            public void setPlot(XYZPlot xyzPlot) {
-            }
-
-            @Override
-            public XYZColorSource getColorSource() {
-                return colorSource;
-            }
-
-            @Override
-            public void setColorSource(XYZColorSource xyzColorSource) {
-                //this.colorSource = xyzColorSource;
-
-            }
-
-            @Override
-            public void setColors(Color... colors) {
-
-            }
-
-
-            @Override
-            public Range findXRange(XYZDataset xyzDataset) {
-                return null;
-            }
-
-            @Override
-            public Range findYRange(XYZDataset xyzDataset) {
-                return null;
-            }
-
-            @Override
-            public Range findZRange(XYZDataset xyzDataset) {
-                return null;
-            }
-
-            @Override
-            public ComposeType getComposeType() {
-                return null;
-            }
-
-            @Override
-            public void composeItem(XYZDataset xyzDataset, int i, int i1, World world, Dimension3D dimension3D, double v, double v1, double v2) {
-
-            }
-
-            @Override
-            public void composeAll(XYZPlot xyzPlot, World world, Dimension3D dimension3D, double v, double v1, double v2) {
-
-            }
-
-            @Override
-            public void addChangeListener(Renderer3DChangeListener renderer3DChangeListener) {
-
-            }
-
-            @Override
-            public void removeChangeListener(Renderer3DChangeListener renderer3DChangeListener) {
-
-            }
-
-            @Override
-            public void receive(ChartElementVisitor chartElementVisitor) {
-
-            }
-        };
-
 
         Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
         chart.setLegendOrientation(Orientation.VERTICAL);
         chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
 
 
-
-       double progress = (double) dataset2.getSeriesCount() / parameters.getSIM_STEPS();
+        double progress = (double) dataset2.getSeriesCount() / parameters.getSIM_STEPS();
         int R = 0;
         int G = (int) Math.floor(255 * progress);
         int B = 255;
-        Color dynamicColor = new Color(R, G, B);
-
-        XYZPlot plot3D =(XYZPlot)chart.getPlot();
-       // plot3D.setRenderer(renderer);
-
-        for (int i = 0;i<seriesCounter;i++){
-
-            plot3D.getRenderer().setColors(dynamicColor);
-      }
+        colors[seriesCounter] = new Color(R, G, B);
+        //Color dynamicColor = new Color(R, G, B);
 
 
-       // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
+        XYZPlot plot3D = (XYZPlot) chart.getPlot();
+        // plot3D.setRenderer(renderer);
+        chart.setChartBoxColor(Color.white);
+
+
+        //for (int i = 0; i < seriesCounter; i++) {
+            plot3D.getRenderer().setColors(colors);
+            //plot3D.getRenderer().setColorSource(xyzColors);
+        //}
+
+        // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
         //XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);
-    //--  XYZPlot plot =(XYZPlot)chart.getPlot();
-     //-- plot.getRenderer().setColors(Colors.getColors2());
-      //  plot.getRenderer().setColors(Colors.createFancyDarkColors());
-      //  plot.setRenderer(renderer);
-      //  renderer.getColorSource().getColor(1,1);
-
+        //--  XYZPlot plot =(XYZPlot)chart.getPlot();
+        //-- plot.getRenderer().setColors(Colors.getColors2());
+        //  plot.getRenderer().setColors(Colors.createFancyDarkColors());
+        //  plot.setRenderer(renderer);
+        //  renderer.getColorSource().getColor(1,1);
 
 
         Chart3DPanel chartPanel = new Chart3DPanel(chart);
@@ -862,8 +766,9 @@ public class ChargingSite {
             frame2.getContentPane().removeAll();
         }
 
+
         frame2.add(chartPanel);
-         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame2.setSize(1200, 720);
         frame2.validate();
         frame2.repaint();

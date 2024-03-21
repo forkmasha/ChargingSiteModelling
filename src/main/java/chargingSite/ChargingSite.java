@@ -2,55 +2,32 @@ package chargingSite;
 
 import com.orsoncharts.*;
 import com.orsoncharts.axis.NumberAxis3D;
-import com.orsoncharts.data.xyz.XYZDataset;
 import com.orsoncharts.data.xyz.XYZSeries;
 import com.orsoncharts.data.xyz.XYZSeriesCollection;
-import com.orsoncharts.graphics3d.Dimension3D;
-import com.orsoncharts.graphics3d.Point3D;
 import com.orsoncharts.graphics3d.ViewPoint3D;
-import com.orsoncharts.graphics3d.World;
 import com.orsoncharts.legend.LegendAnchor;
-import com.orsoncharts.plot.CategoryPlot3D;
 import com.orsoncharts.plot.XYZPlot;
-import com.orsoncharts.renderer.ColorScale;
-import com.orsoncharts.renderer.ComposeType;
-import com.orsoncharts.renderer.GradientColorScale;
-import com.orsoncharts.renderer.Renderer3DChangeListener;
-import com.orsoncharts.renderer.xyz.AbstractXYZRenderer;
-import com.orsoncharts.renderer.xyz.StandardXYZColorSource;
-import com.orsoncharts.renderer.xyz.XYZColorSource;
-import com.orsoncharts.renderer.xyz.XYZRenderer;
-import com.orsoncharts.util.Anchor2D;
+
 import com.orsoncharts.util.Orientation;
 import eventSimulation.EventSimulation;
 import exceptions.SitePowerExceededException;
-import org.apache.batik.dom.GenericDOMImplementation;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.*;
-import org.jfree.chart.renderer.PaintScale;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
-import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
-import org.jfree.data.statistics.HistogramType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.jfree.graphics2d.svg.SVGUtils;
 import org.jfree.util.ShapeUtilities;
-import org.jzy3d.plot3d.rendering.legends.overlay.Legend;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -575,21 +552,6 @@ public class ChargingSite {
     private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
     private static int seriesCounter = 0;
     public static JFrame frame;
-
-   /* public static void initializeHistogramFrame() {
-        frame = new JFrame("Site Power Distribution Histogram");
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                promptSaveOnCloseHistogram();
-            }
-        });
-
-        frame.setSize(getPreferredFrameSize());
-        frame.setLocation(getPreferredFrameLocation());
-        frame.setVisible(true);
-    }*/
    private static JPanel mainPanel;
    public static void initializeHistogramFrame() {
        frame = new JFrame("Site Power Distribution Histogram");
@@ -648,8 +610,9 @@ public class ChargingSite {
         }
 
         for (int i = 0; i < numBins; i++) {
+            String label = String.format("%.1f EV/h", parameters.getARRIVAL_RATE_STEP() * (1 + seriesCounter));
             dataset.addValue((double) bins[i] / data.size(),
-                    parameters.getARRIVAL_RATE_STEP() * (1 + seriesCounter) + " EV/h",
+                    label,
                     String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
         }
         seriesCounter++;
@@ -753,20 +716,9 @@ public class ChargingSite {
         chart.setLegendOrientation(Orientation.VERTICAL);
         chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
 
-/*
-        double progress = (double) dataset2.getSeriesCount() / parameters.getSIM_STEPS();
-        int R = 0;
-        int G = (int) Math.floor(255 * progress);
-        int B = 255;
-        colors[seriesCounter] = new Color(R, G, B);
-        //Color dynamicColor = new Color(R, G, B);
-*/
-
         XYZPlot plot3D = (XYZPlot) chart.getPlot();
-        // plot3D.setRenderer(renderer);
         chart.setChartBoxColor(Color.white);
         plot3D.getRenderer().setColors(colors);
-
 
         // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
         //XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);
@@ -776,7 +728,6 @@ public class ChargingSite {
         //  plot.setRenderer(renderer);
         //  renderer.getColorSource().getColor(1,1);
 
-
         Chart3DPanel chartPanel = new Chart3DPanel(chart);
         ViewPoint3D viewPoint = new ViewPoint3D(-0.775, -1.425, 35, 0);
         chartPanel.setViewPoint(viewPoint);
@@ -784,8 +735,6 @@ public class ChargingSite {
         if (frame2.getContentPane().getComponentCount() > 0) {
             frame2.getContentPane().removeAll();
         }
-
-
         frame2.add(chartPanel);
         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame2.setSize(1200, 720);
@@ -815,17 +764,17 @@ public class ChargingSite {
                     maxItemCount = itemCount;
                 }
             }
-//first line of csv file
+                //first line of csv file
             for (int column = 0; column < maxItemCount; column++) {
                 //  csvWriter.append("; ").append("Bin ").append(Integer.toString(column + 1));
                 double binWidth = simParameters.MAX_SITE_POWER / maxItemCount;
                 String binRange = column * binWidth + "-" + (column + 1) * binWidth;
-              //  String binRange = dataset.getColumnKey(column).toString();
+                //  String binRange = dataset.getColumnKey(column).toString();
                 csvWriter.append("; ").append(binRange);
             }
             csvWriter.append("\n");
 
-//following lines of csv file
+                //following lines of csv file
             for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
                 XYZSeries<String> series = dataset2.getSeries(seriesIndex);
                 csvWriter.append(series.getKey());

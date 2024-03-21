@@ -512,10 +512,9 @@ public class SimulationParameters {
 
 
     public void writeParameters2xml(JFrame frame, String filePath) {
-        // Створення об'єкта File безпосередньо з переданого шляху
+
         java.io.File fileToSave = new java.io.File(filePath);
 
-        // Перевірка та додавання розширення ".xml", якщо це необхідно
         if (!fileToSave.getPath().toLowerCase().endsWith(".xml")) {
             fileToSave = new java.io.File(fileToSave.getPath() + ".xml");
         }
@@ -562,34 +561,25 @@ public class SimulationParameters {
                 writer.write("        <MeanChargingDemand>" + MEAN_CHARGING_DEMAND + "</MeanChargingDemand>\n");
                 writer.write("        </EVParameters>\n");
 
-                if (getNUMBER_OF_CAR_TYPES() == 2) {
+                if (getNUMBER_OF_CAR_TYPES() >= 2) {
                     writer.write("        <EVParameters2>\n");
-                    writer.write("        <PercentageOfTheSecondCar>" + percentageOfCars2 + "</PercentageOfTheSecondCar>\n");
+                    writer.write("        <PercentageOfTheSecondCar>" + percentageOfCars2*100 + "</PercentageOfTheSecondCar>\n");
                     writer.write("        <BatteryCapacity2>" + batteryCapacity2 + "</BatteryCapacity2>\n");
                     writer.write("        <MeanChargingTime2>" + MEAN_SERVICE_TIME2 + "</MeanChargingTime2>\n");
                     writer.write("        <MaxEVChargingPower2>" + MAX_EV_POWER2 + "</MaxEVChargingPower2>\n");
                     writer.write("        <DemandDistributionType2>" + DEMAND_TYPE2.toString() + "</DemandDistributionType2>\n");
                     writer.write("        <MeanChargingDemand2>" + MEAN_CHARGING_DEMAND2 + "</MeanChargingDemand2>\n");
                     writer.write("        </EVParameters2>\n");
-                } else if (getNUMBER_OF_CAR_TYPES() == 3) {
-                    writer.write("        <EVParameters2>\n");
-                    writer.write("        <PercentageOfTheSecondCar>" + percentageOfCars2 + "</PercentageOfTheSecondCar>\n");
-                    writer.write("        <BatteryCapacity2>" + batteryCapacity2 + "</BatteryCapacity2>\n");
-                    writer.write("        <MeanChargingTime2>" + MEAN_SERVICE_TIME2 + "</MeanChargingTime2>\n");
-                    writer.write("        <MaxEVChargingPower2>" + MAX_EV_POWER2 + "</MaxEVChargingPower2>\n");
-                    writer.write("        <DemandDistributionType2>" + DEMAND_TYPE2.toString() + "</DemandDistributionType2>\n");
-                    writer.write("        <MeanChargingDemand2>" + MEAN_CHARGING_DEMAND2 + "</MeanChargingDemand2>\n");
-                    writer.write("        </EVParameters2>\n");
-
+                }
+                if (getNUMBER_OF_CAR_TYPES() == 3) {
                     writer.write("        <EVParameters3>\n");
-                    writer.write("        <PercentageOfTheThirdCar>" + percentageOfCars3 + "</PercentageOfTheThirdCar>\n");
+                    writer.write("        <PercentageOfTheThirdCar>" + percentageOfCars3*100 + "</PercentageOfTheThirdCar>\n");
                     writer.write("        <BatteryCapacity3>" + batteryCapacity3 + "</BatteryCapacity3>\n");
                     writer.write("        <MeanChargingTime3>" + MEAN_SERVICE_TIME3 + "</MeanChargingTime3>\n");
                     writer.write("        <MaxEVChargingPower3>" + MAX_EV_POWER3 + "</MaxEVChargingPower3>\n");
                     writer.write("        <DemandDistributionType3>" + DEMAND_TYPE3.toString() + "</DemandDistributionType3>\n");
                     writer.write("        <MeanChargingDemand3>" + MEAN_CHARGING_DEMAND3 + "</MeanChargingDemand3>\n");
                     writer.write("        </EVParameters3>\n");
-
                 }
 
                 writer.write("</SimulationParameters>\n");

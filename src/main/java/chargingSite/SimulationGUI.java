@@ -80,27 +80,35 @@ public class SimulationGUI {
         GraphicsEnvironment ge1 = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs1 = ge1.getScreenDevices();
 
-        for (GraphicsDevice gd : gs1) {
-            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
+        Rectangle largestBounds = null;
+        long maxArea = 0;
 
-            int frameWidth = (int) (bounds.width * 0.20);
-            int frameHeight = (int) (bounds.height * 0.9);
+        for (GraphicsDevice gd1 : gs1) {
+            Rectangle bounds = gd1.getDefaultConfiguration().getBounds();
+            long area = bounds.width * bounds.height;
+            if (area > maxArea) {
+                maxArea = area;
+                largestBounds = bounds;
+            }
+        }
 
+        if (largestBounds != null) {
+
+            int frameHeight = (int) (largestBounds.height * 0.85);
+            int frameWidth = (int) (largestBounds.width * 0.20);
 
             frame.setPreferredSize(new Dimension(frameWidth, frameHeight));
             frame.setSize(frameWidth, frameHeight);
 
-            int xPosition = bounds.x;
-            int yPosition = bounds.y + (bounds.height - frameHeight) / 2;
-            frame.setLocation(xPosition, yPosition);
 
+            int yPosition = (int) (largestBounds.y + (largestBounds.height * 0.02));
+            int xPosition = largestBounds.x + (largestBounds.width - frameWidth) / 2;
+
+            frame.setLocation(xPosition, yPosition);
         }
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
-
-        Rectangle largestBounds = null;
-        long maxArea = 0;
 
         int leftMarginInPixels = 30;
 
@@ -125,7 +133,7 @@ public class SimulationGUI {
 
         JSpinner numberOfClientTypes = createSpinner(1, 1, 3, 1);
 
-        JSpinner maxEvents = createSpinner(2500, 1, Integer.MAX_VALUE, 1);
+        JSpinner maxEvents = createSpinner(2500, 10, Integer.MAX_VALUE, 10);
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
         JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
@@ -193,8 +201,8 @@ public class SimulationGUI {
         AutoResizeButton runSimulation = new AutoResizeButton("Run Simulation");
         AutoResizeButton loadResults = new AutoResizeButton("Load Parameters");
         AutoResizeButton closeWindows = new AutoResizeButton("Close Windows");
-        loadResults.addActionListener(new ActionListener() {
-            @Override
+        /* loadResults.addActionListener(new ActionListener() {
+           @Override
             public void actionPerformed(ActionEvent e) {
                 loadResults.setBackground(LIGHT_KREM);
                 JFileChooser fileChooser = new JFileChooser();
@@ -221,8 +229,39 @@ public class SimulationGUI {
                     }
                 }
             }
-        });
+        });*/
+        loadResults.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadResults.setBackground(LIGHT_KREM);
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Select XML file with simulation parameters");
+                fileChooser.setAcceptAllFileFilterUsed(false);
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
+                fileChooser.addChoosableFileFilter(filter);
 
+                int result = fileChooser.showOpenDialog(frame);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+
+                    if (selectedFile.isFile() && selectedFile.getName().toLowerCase().endsWith(".xml")) {
+                        try {
+                            // Тут файл передається безпосередньо у метод, видалено зайвий JFileChooser
+                          /*  loadParametersFromXml(frame, selectedFile, numberOfSteps, maxArrivalRate, numberOfClientTypes, confLevel, arrivalType, maxArrivalRate, queueSize, queueingType, maxSitePower, numberOfServers, serviceType, maxPointPower,
+                                    batteryCapacity, meanServiceTime, maxEVPower, demandType, meanChargingDemand, percentageOfCars2, batteryCapacity2, meanServiceTime2, maxEVPower2, demandType2, meanChargingDemand2, percentageOfCars3, batteryCapacity3, meanServiceTime3, maxEVPower3, demandType3, meanChargingDemand3);*/
+                            loadParametersFromXml(frame, selectedFile, numberOfSteps,maxEvents, confLevel, numberOfClientTypes,arrivalType, maxArrivalRate, queueSize, queueingType, maxSitePower, numberOfServers, serviceType, maxPointPower,
+                                    batteryCapacity, meanServiceTime, maxEVPower, demandType, meanChargingDemand, percentageOfCars2, batteryCapacity2, meanServiceTime2, maxEVPower2, demandType2, meanChargingDemand2, percentageOfCars3, batteryCapacity3, meanServiceTime3, maxEVPower3, demandType3, meanChargingDemand3);
+                            //simulation.runSimulation();
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frame, "Failed to load parameters or start the simulation: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Please select a valid XML file.", "Invalid File", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
 
         JPanel procPanel = new JPanel();
 
@@ -277,10 +316,10 @@ public class SimulationGUI {
 
             simulation.getParameters().setBatteryCapacity(getSpinnerValueAsDouble(batteryCapacity));
 
-            double maxEVPowerValue2 = getSpinnerValueAsDouble(maxEVPower);
+            double maxEVPowerValue2 = getSpinnerValueAsDouble(maxEVPower2);
             double meanChargingDemandValue2 = getSpinnerValueAsDouble(meanChargingDemand2);
 
-            double maxEVPowerValue3 = getSpinnerValueAsDouble(maxEVPower);
+            double maxEVPowerValue3 = getSpinnerValueAsDouble(maxEVPower3);
             double meanChargingDemandValue3 = getSpinnerValueAsDouble(meanChargingDemand3);
 
             simulation.getParameters().setPercentageOfCars2(getSpinnerValueAsInt(percentageOfCars2));
@@ -668,7 +707,7 @@ public class SimulationGUI {
                                             {"ChargingSiteEnergyCharacteristics", "csv", "svg", "png"},
                                             {"PowerOverTimeChart", "csv", "svg", "png"},
                                             {"SitePowerDistributionHistogram", "csv", "svg", "png"},
-                                            {"SitePowerDistribution3DHistogram", "svg", "png","csv"},
+                                            {"SitePowerDistribution3DHistogram", "svg", "png", "csv"},
                                             {"SimulationParameters", "txt", "xml"}
                                     };
 
@@ -689,9 +728,8 @@ public class SimulationGUI {
                                                     simulation.site.savePowerOverTimeGraphToCSV(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramDataToCSV(fileToSave.getAbsolutePath());
-                                                }
-                                                else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
-                                                  //  simulation.site.saveHistogram3DToCSV(fileToSave.getAbsolutePath());
+                                                } else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
+                                                    //  simulation.site.saveHistogram3DToCSV(fileToSave.getAbsolutePath());
                                                     simulation.site.saveHistogramData3DToCSV(fileToSave.getAbsolutePath());
                                                 }
                                             } else if ("svg".equals(format)) {
@@ -704,7 +742,7 @@ public class SimulationGUI {
                                                 } else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToSVG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
-                                                   // simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
+                                                    // simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
                                                     simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
                                                 }
 
@@ -778,7 +816,7 @@ public class SimulationGUI {
                                     File fileToSave = fileChooser6.getSelectedFile();
 
                                     if ("csv".equals(selectedFormat6)) {
-                                      //  simulation.site.saveHistogram3DToCSV(fileToSave.getAbsolutePath());
+                                        //  simulation.site.saveHistogram3DToCSV(fileToSave.getAbsolutePath());
                                         try {
                                             simulation.site.saveHistogramData3DToCSV(fileToSave.getAbsolutePath());
                                         } catch (IOException ex) {
@@ -794,8 +832,7 @@ public class SimulationGUI {
                             }
                             break;
                     }
-                }
-                else {
+                } else {
                     JOptionPane.showMessageDialog(
                             frame,
                             "Please select an option to proceed with saving.",
@@ -836,7 +873,6 @@ public class SimulationGUI {
 
         Box verticalBox = Box.createVerticalBox();
         verticalBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
 
         //  JPanel procPanel = new JPanel();
         procPanel.setLayout(new GridBagLayout());
@@ -1354,7 +1390,7 @@ public class SimulationGUI {
         return frame;
     }
 
-    public static void loadParametersFromXml(JFrame frame, File selectedFile1) {
+    /*public static void loadParametersFromXml(JFrame frame, File selectedFile1) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select the simulation parameters file to load");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -1433,6 +1469,229 @@ public class SimulationGUI {
                 JOptionPane.showMessageDialog(frame, "Error loading parameters from file", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }*/
+   /* public static void loadParametersFromXml(JFrame frame, File selectedFile) {
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(selectedFile);
+            doc.getDocumentElement().normalize();
+            NodeList generalParamsList = doc.getElementsByTagName("GeneralParameters");
+
+            if (generalParamsList.getLength() > 0) {
+                Element generalParams = (Element) generalParamsList.item(0);
+                int numberOfSimulationSteps = Integer.parseInt(generalParams.getElementsByTagName("NumberOfSimulationSteps").item(0).getTextContent());
+                int maxEventsPerStep = Integer.parseInt(generalParams.getElementsByTagName("MaxEventsPerStep").item(0).getTextContent());
+                int confidenceIntervalLevel = Integer.parseInt(generalParams.getElementsByTagName("ConfidenceIntervalLevel").item(0).getTextContent());
+
+                simulation.getParameters().setSIM_STEPS(numberOfSimulationSteps);
+                simulation.getParameters().setMAX_EVENTS(maxEventsPerStep);
+                simulation.getParameters().setConfLevel(confidenceIntervalLevel);
+
+            }
+
+            NodeList siteParamsList = doc.getElementsByTagName("SiteParameters");
+            if (siteParamsList.getLength() > 0) {
+                Element siteParams = (Element) siteParamsList.item(0);
+                String arrivalDistributionType = siteParams.getElementsByTagName("ArrivalDistributionType").item(0).getTextContent();
+                double maxMeanArrivalRate = Double.parseDouble(siteParams.getElementsByTagName("MaxMeanArrivalRate").item(0).getTextContent());
+                int parkingSpace = Integer.parseInt(siteParams.getElementsByTagName("ParkingSpace").item(0).getTextContent());
+                String queueingType = siteParams.getElementsByTagName("QueueingType").item(0).getTextContent();
+                int maxSitePower = Integer.parseInt(siteParams.getElementsByTagName("MaxSitePower").item(0).getTextContent());
+
+                simulation.getParameters().setARRIVAL_TYPE(DistributionType.valueOf(arrivalDistributionType));
+                simulation.getParameters().setMAX_ARRIVAL_RATE(maxMeanArrivalRate);
+                simulation.getParameters().setQUEUE_SIZE(parkingSpace);
+                simulation.getParameters().setQUEUEING_TYPE(Queue.QueueingType.valueOf(queueingType));
+                simulation.getParameters().setMaxSitePower(maxSitePower);
+            }
+
+            NodeList chargingParamsList = doc.getElementsByTagName("ChargingParameters");
+            if (chargingParamsList.getLength() > 0) {
+                Element chargingParams = (Element) chargingParamsList.item(0);
+                int numberOfChargingPoints = Integer.parseInt(chargingParams.getElementsByTagName("NumberOfChargingPoints").item(0).getTextContent());
+                String serviceDistributionType = chargingParams.getElementsByTagName("ServiceDistributionType").item(0).getTextContent();
+                int maxPowerOfChargingPoint = Integer.parseInt(chargingParams.getElementsByTagName("MaxPowerOfChargingPoint").item(0).getTextContent());
+
+                simulation.getParameters().setNUMBER_OF_SERVERS(numberOfChargingPoints);
+                simulation.getParameters().setSERVICE_TYPE(DistributionType.valueOf(serviceDistributionType));
+                simulation.getParameters().setMaxPointPower(maxPowerOfChargingPoint);
+            }
+
+            NodeList evParamsList = doc.getElementsByTagName("EVParameters");
+            for (int temp = 0; temp < evParamsList.getLength(); temp++) {
+                Node nNode = evParamsList.item(temp);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element evParams = (Element) nNode;
+                    int numberOfEVTypes = Integer.parseInt(evParams.getElementsByTagName("NumberOfEVTypes").item(0).getTextContent());
+                    double batteryCapacity = Double.parseDouble(evParams.getElementsByTagName("BatteryCapacity").item(0).getTextContent());
+                    double meanChargingTime = Double.parseDouble(evParams.getElementsByTagName("MeanChargingTime").item(0).getTextContent());
+                    int maxEVChargingPower = Integer.parseInt(evParams.getElementsByTagName("MaxEVChargingPower").item(0).getTextContent());
+                    String demandDistributionType = evParams.getElementsByTagName("DemandDistributionType").item(0).getTextContent();
+                    double meanChargingDemand = Double.parseDouble(evParams.getElementsByTagName("MeanChargingDemand").item(0).getTextContent());
+
+                    simulation.getParameters().setNUMBER_OF_CAR_TYPES(numberOfEVTypes);
+                    simulation.getParameters().setBatteryCapacity(batteryCapacity);
+                    simulation.getParameters().setMEAN_SERVICE_TIME(meanChargingTime);
+                    simulation.getParameters().setMaxEvPower(maxEVChargingPower);
+                    simulation.getParameters().setDEMAND_TYPE(DistributionType.valueOf(demandDistributionType));
+                    simulation.getParameters().setMeanChargingDemand(meanChargingDemand);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Error loading parameters from file", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }*/
+
+    public static void loadParametersFromXml(JFrame frame, File selectedFile,
+                                             JSpinner numberOfSteps, JSpinner maxEvents, JComboBox<String> confLevel, JSpinner numberOfClientTypes,
+
+                                             JComboBox<String> arrivalType, JSpinner maxArrivalRate, JSpinner queueSize,
+                                             JComboBox<String> queueingType, JSpinner maxSitePower,
+
+                                             JSpinner numberOfServers, JComboBox<String> serviceType, JSpinner maxPointPower,
+
+                                             JSpinner batteryCapacity, JSpinner meanChargingTime, JSpinner maxEVchargingPower,
+                                             JComboBox<String> demandType, JSpinner meanChargingDemand,
+
+                                             JSpinner percentageOfCars2, JSpinner batteryCapacity2, JSpinner meanChargingTime2, JSpinner maxEVPower2,
+                                             JComboBox<String> demandType2, JSpinner meanChargingDemand2,
+
+                                             JSpinner percentageOfCars3, JSpinner batteryCapacity3, JSpinner meanChargingTime3, JSpinner maxEVPower3,
+                                             JComboBox<String> demandType3, JSpinner meanChargingDemand3
+    ) {
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(selectedFile);
+            doc.getDocumentElement().normalize();
+
+            NodeList generalParamsList = doc.getElementsByTagName("GeneralParameters");
+            if (generalParamsList.getLength() > 0 && generalParamsList.item(0) != null) {
+                Element generalParams = (Element) generalParamsList.item(0);
+
+                Node node = generalParams.getElementsByTagName("NumberOfSimulationSteps").item(0);
+                if (node != null) {
+                    double numberOfSimulationSteps = Double.parseDouble(node.getTextContent());
+                    numberOfSteps.setValue((int) Math.round(numberOfSimulationSteps));
+                }
+
+               int maxEventsPerStep = Integer.parseInt(generalParams.getElementsByTagName("MaxEventsPerStep").item(0).getTextContent());
+                maxEvents.setValue(maxEventsPerStep);
+
+                String confTypeValue = generalParams.getElementsByTagName("ConfidenceIntervalLevel").item(0).getTextContent();
+                confLevel.setSelectedItem(confTypeValue);
+
+                int numberOfEVTypes = Integer.parseInt(generalParams.getElementsByTagName("NumberOfEVTypes").item(0).getTextContent());
+                numberOfClientTypes.setValue(numberOfEVTypes);
+            }
+
+            NodeList siteParamsList = doc.getElementsByTagName("SiteParameters");
+            if (siteParamsList.getLength() > 0) {
+                Element siteParams = (Element) siteParamsList.item(0);
+
+                String arrivalTypeValue = siteParams.getElementsByTagName("ArrivalDistributionType").item(0).getTextContent();
+                arrivalType.setSelectedItem(arrivalTypeValue);
+
+                double maxMeanArrivalRate = Double.parseDouble(siteParams.getElementsByTagName("MaxMeanArrivalRate").item(0).getTextContent());
+                maxArrivalRate.setValue(maxMeanArrivalRate);
+
+                int parkingSpace = Integer.parseInt(siteParams.getElementsByTagName("ParkingSpace").item(0).getTextContent());
+                queueSize.setValue(parkingSpace);
+
+                int maxSitePower1 = Integer.parseInt(siteParams.getElementsByTagName("MaxSitePower").item(0).getTextContent());
+                maxSitePower.setValue(maxSitePower1);
+
+                String queueingTypeValue = siteParams.getElementsByTagName("QueueingType").item(0).getTextContent();
+                queueingType.setSelectedItem(queueingTypeValue);
+            }
+
+            NodeList chargingParamsList = doc.getElementsByTagName("ChargingParameters");
+            if (chargingParamsList.getLength() > 0) {
+                Element chargingParams = (Element) chargingParamsList.item(0);
+
+                int numberOfChargingPoints = Integer.parseInt(chargingParams.getElementsByTagName("NumberOfChargingPoints").item(0).getTextContent());
+                numberOfServers.setValue(numberOfChargingPoints);
+
+                String serviceTypeValue = chargingParams.getElementsByTagName("ServiceDistributionType").item(0).getTextContent();
+                serviceType.setSelectedItem(serviceTypeValue);
+
+                int maxPowerOfChargingPoints = Integer.parseInt(chargingParams.getElementsByTagName("MaxPowerOfChargingPoint").item(0).getTextContent());
+                maxPointPower.setValue(maxPowerOfChargingPoints);
+            }
+
+            NodeList EVParamsList = doc.getElementsByTagName("EVParameters");
+            if (EVParamsList.getLength() > 0) {
+                Element EVParams = (Element) EVParamsList.item(0);
+
+                double batteryCapacity1 = Double.parseDouble(EVParams.getElementsByTagName("BatteryCapacity").item(0).getTextContent());
+                batteryCapacity.setValue(batteryCapacity1);
+
+                double meanChargingTime1 = Double.parseDouble(EVParams.getElementsByTagName("MeanChargingTime").item(0).getTextContent());
+                meanChargingTime.setValue(meanChargingTime1);
+
+                double maxEVChargingPower = Double.parseDouble(EVParams.getElementsByTagName("MaxEVChargingPower").item(0).getTextContent());
+                maxEVchargingPower.setValue(maxEVChargingPower);
+
+                String demandTypeValue = EVParams.getElementsByTagName("DemandDistributionType").item(0).getTextContent();
+                demandType.setSelectedItem(demandTypeValue);
+
+                double meanChargingDemand1 = Double.parseDouble(EVParams.getElementsByTagName("MeanChargingDemand").item(0).getTextContent());
+                meanChargingDemand.setValue(meanChargingDemand1);
+            }
+
+            NodeList EVParamsList2 = doc.getElementsByTagName("EVParameters2");
+            if (EVParamsList2.getLength() > 0) {
+                Element EVParams2 = (Element) EVParamsList2.item(0);
+
+                double percentageOfEV2 = Double.parseDouble(EVParams2.getElementsByTagName("PercentageOfTheSecondCar").item(0).getTextContent());
+                percentageOfCars2.setValue((int) Math.round(percentageOfEV2 * 100));
+
+                double batteryCapacityEV2 = Double.parseDouble(EVParams2.getElementsByTagName("BatteryCapacity2").item(0).getTextContent());
+                batteryCapacity2.setValue(batteryCapacityEV2);
+
+                double meanChargingTimeEV2 = Double.parseDouble(EVParams2.getElementsByTagName("MeanChargingTime2").item(0).getTextContent());
+                meanChargingTime2.setValue(meanChargingTimeEV2);
+
+                double maxEVChargingPowerEV2 = Double.parseDouble(EVParams2.getElementsByTagName("MaxEVChargingPower2").item(0).getTextContent());
+                maxEVPower2.setValue(maxEVChargingPowerEV2);
+
+                String demandTypeValue2 = EVParams2.getElementsByTagName("DemandDistributionType2").item(0).getTextContent();
+                demandType2.setSelectedItem(demandTypeValue2);
+
+                double meanChargingDemandEV2 = Double.parseDouble(EVParams2.getElementsByTagName("MeanChargingDemand2").item(0).getTextContent());
+                meanChargingDemand2.setValue(meanChargingDemandEV2);
+            }
+
+            NodeList EVParamsList3 = doc.getElementsByTagName("EVParameters3");
+            if (EVParamsList3.getLength() > 0) {
+                Element EVParams3 = (Element) EVParamsList3.item(0);
+
+                double percentageOfEV3 = Double.parseDouble(EVParams3.getElementsByTagName("PercentageOfTheThirdCar").item(0).getTextContent());
+                percentageOfCars3.setValue((int) Math.round(percentageOfEV3 * 100));
+                // percentageOfCars3.setValue(percentageOfEV3);
+
+                double batteryCapacityEV3 = Double.parseDouble(EVParams3.getElementsByTagName("BatteryCapacity3").item(0).getTextContent());
+                batteryCapacity3.setValue(batteryCapacityEV3);
+
+                double meanChargingTimeEV3 = Double.parseDouble(EVParams3.getElementsByTagName("MeanChargingTime3").item(0).getTextContent());
+                meanChargingTime3.setValue(meanChargingTimeEV3);
+
+                double maxEVPower31 = Double.parseDouble(EVParams3.getElementsByTagName("MaxEVChargingPower3").item(0).getTextContent());
+                maxEVPower3.setValue(maxEVPower31);
+
+                String demandTypeValue3 = EVParams3.getElementsByTagName("DemandDistributionType3").item(0).getTextContent();
+                demandType3.setSelectedItem(demandTypeValue3);
+
+                double meanChargingDemandEV3 = Double.parseDouble(EVParams3.getElementsByTagName("MeanChargingDemand3").item(0).getTextContent());
+                meanChargingDemand3.setValue(meanChargingDemandEV3);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Error loading parameters from file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private static boolean isSecondCarPanelAdded(JPanel panel) {
@@ -1481,6 +1740,7 @@ public class SimulationGUI {
 
         return thirdCarPanel;
     }
+
 
     private static void addRowToPanel(JPanel panel, GridBagConstraints gbc, String labelText, JComponent component) {
         gbc.gridx = 0;
@@ -1660,6 +1920,7 @@ public class SimulationGUI {
                 }
             };
         }
+
     }
 
 

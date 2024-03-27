@@ -130,7 +130,6 @@ public class SimulationGUI {
         //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
         JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 0.1);
-
         JSpinner numberOfClientTypes = createSpinner(1, 1, 3, 1);
 
         JSpinner maxEvents = createSpinner(2500, 10, Integer.MAX_VALUE, 10);
@@ -705,7 +704,7 @@ public class SimulationGUI {
                                     String[][] fileInfo = {
                                             {"ChargingSiteQueueingCharacteristics", "csv", "svg", "png"},
                                             {"ChargingSiteEnergyCharacteristics", "csv", "svg", "png"},
-                                            {"PowerOverTimeChart", "csv", "svg", "png"},
+                                            {"PowerOverTimeChart", "csv", "png"},
                                             {"SitePowerDistributionHistogram", "csv", "svg", "png"},
                                             {"SitePowerDistribution3DHistogram", "svg", "png", "csv"},
                                             {"SimulationParameters", "txt", "xml"}
@@ -737,9 +736,10 @@ public class SimulationGUI {
                                                     simulation.saveQueueingCharacteristicsAsSVG(1200, 730, fileToSave);
                                                 } else if ("ChargingSiteEnergyCharacteristics".equals(baseName)) {
                                                     simulation.chargingMonitor.saveEnergyCharacteristicsGraphAsSVG(1200, 730, fileToSave);
-                                                } else if ("PowerOverTimeChart".equals(baseName)) {
-                                                    simulation.site.savePowerOverTimeToSVG(fileToSave.getAbsolutePath());
-                                                } else if ("SitePowerDistributionHistogram".equals(baseName)) {
+                                                } //else if ("PowerOverTimeChart".equals(baseName)) {
+                                                //    simulation.site.savePowerOverTimeToSVG(fileToSave.getAbsolutePath());
+                                               // }
+                                            else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToSVG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
                                                     // simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
@@ -1366,7 +1366,8 @@ public class SimulationGUI {
         JTextArea textArea = new JTextArea(10, 30); // 10 рядків, 30 символів в ширину
         textArea.setEditable(false); // Зробити текстове поле нередагованим
         JScrollPane scrollPane = new JScrollPane(textArea); // Додати прокрутку для текстового поля
-        frame.getContentPane().add(scrollPane, BorderLayout.CENTER); // Додати скрол до вмісту фрейму
+        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+      //  new ConsoleOutputCapturer(textArea);
 
         procPanel.setBackground(LIGHT_BLUE);
         verticalBox.add(jScrollPane);

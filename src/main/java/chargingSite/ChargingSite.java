@@ -6,6 +6,8 @@ import com.orsoncharts.data.xyz.XYZSeries;
 import com.orsoncharts.data.xyz.XYZSeriesCollection;
 import com.orsoncharts.graphics3d.ViewPoint3D;
 import com.orsoncharts.legend.LegendAnchor;
+import com.orsoncharts.legend.LegendBuilder;
+import com.orsoncharts.legend.StandardLegendBuilder;
 import com.orsoncharts.plot.XYZPlot;
 
 import com.orsoncharts.util.Orientation;
@@ -679,16 +681,17 @@ public class ChargingSite {
     }
 
     static JFrame frame2 = new JFrame("Site Power distribution histogram");
+    private static Chart3D chart;
+    private static boolean legendVisible = false;
     private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
 
     public static void plotHistogram3D(double arrivalRate, ArrayList<Double> data, int numBins, SimulationParameters parameters) {
-
         double min = 0;
         double max = parameters.MAX_SITE_POWER;
         double binWidth = (max - min) / numBins;
         if (colors == null) {
             //initColors(parameters.getSIM_STEPS(),Color.BLACK);
-            initColors(parameters.getSIM_STEPS(),new Color(0,0,255), new Color(255,0,127));
+            initColors(parameters.getSIM_STEPS(), new Color(0, 0, 255), new Color(255, 0, 127));
         }
 
         XYZSeries<String> series = new XYZSeries<>(String.format("%.1f EV/h", arrivalRate));
@@ -712,13 +715,16 @@ public class ChargingSite {
         NumberAxis3D zAxis = new NumberAxis3D("Z-axis");
 
 
-        Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+        //Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+        chart = Chart3DFactory.createXYZLineChart("Site Power Distribution Histogram", "", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+        updateLegendVisibility();
         chart.setLegendOrientation(Orientation.VERTICAL);
         chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
 
         XYZPlot plot3D = (XYZPlot) chart.getPlot();
         chart.setChartBoxColor(Color.white);
         plot3D.getRenderer().setColors(colors);
+        chart.setLegendBuilder(null);
 
         // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
         //XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);
@@ -734,13 +740,40 @@ public class ChargingSite {
 
         if (frame2.getContentPane().getComponentCount() > 0) {
             frame2.getContentPane().removeAll();
-        }
+        };
+
         frame2.add(chartPanel);
         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame2.setSize(1200, 720);
         frame2.validate();
         frame2.repaint();
         frame2.setVisible(true);
+        addLegendToggle();
+    }
+
+    private static void addLegendToggle() {
+        JToggleButton toggleButton = new JToggleButton("Toggle Legend");
+        toggleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                legendVisible = !legendVisible;
+                updateLegendVisibility();
+                frame2.repaint();
+            }
+        });
+
+        frame2.getContentPane().add(toggleButton, BorderLayout.SOUTH); // Додавання кнопки в нижню частину вікна
+    }
+
+    private static void updateLegendVisibility() {
+        if (chart != null) {
+            if (legendVisible) {
+                StandardLegendBuilder legendBuilder = new StandardLegendBuilder();
+                chart.setLegendBuilder(legendBuilder);
+            } else {
+                chart.setLegendBuilder(null);
+            }
+        }
     }
     static void resetData3DHistogram() {
         dataset2.removeAll();

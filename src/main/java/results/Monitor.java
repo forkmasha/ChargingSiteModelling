@@ -9,6 +9,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
@@ -222,13 +223,26 @@ public class Monitor extends Graph {
     }
 
     public void drawGraphEnergyCharacteristics(Simulation mySim) {
+        String kendallName = mySim.getKendallName();
+        int maxEvents = mySim.getParameters().getMAX_EVENTS();
 
-        String title = "Charging Site Energy Characteristics";
+        String title = "Charging site Energy Characteristics \n"
+                + kendallName + " Energy System"
+                + " (" + maxEvents + " samples per evaluation point)";
+
+        String[] titleParts = title.split("\n");
+
+        TextTitle textTitle = new TextTitle(titleParts[0]);
+        textTitle.setFont(new Font("Arial", Font.BOLD, 24));
+
+        TextTitle textSubtitle = new TextTitle(titleParts[1]);
+        textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
+
         XYSeriesCollection dataset = new XYSeriesCollection();
         mySim.chargingMonitor.addGraphsEnergyCharacteristics(dataset);
 
-        MyChart = createXYLineChart(
-                title,
+        JFreeChart MyChart = createXYLineChart(
+                "",
                 "Arrival Rate [1/h]",
                 "Mean and Std [kW/server, kWh/car]",
                 dataset,
@@ -237,6 +251,9 @@ public class Monitor extends Graph {
                 true,
                 false
         );
+
+        MyChart.addSubtitle(textTitle);
+        MyChart.addSubtitle(textSubtitle);
         XYPlot plot = MyChart.getXYPlot();
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();

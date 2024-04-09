@@ -161,7 +161,8 @@ public class Simulation extends Graph {
 
 
             // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
-            plotHistogram3D(stepCounter*parameters.getARRIVAL_RATE_STEP() , mySystem.getChargingSite().getSitePower1(), 20, parameters);
+            double nBins = parameters.getMAX_EVENTS()/99.99;
+            plotHistogram3D(stepCounter*parameters.getARRIVAL_RATE_STEP() , mySystem.getChargingSite().getSitePower1(),(int) Math.ceil(nBins), parameters);
             plotHistogram(mySystem.getChargingSite().getSitePower1(), 20, parameters);
 
 
@@ -268,7 +269,7 @@ public class Simulation extends Graph {
 
     public void drawGraphQueueingCharacteristics() {   // D/D/5/10 Queueing System
 
-        String title = "Charging Site Queueing Characteristics \n"
+        String title = "Charging site Queueing Characteristics \n"
                 + this.getKendallName() + " Queueing System"
                 + " (" + parameters.getMAX_EVENTS() + " samples per evaluation point)";
 
@@ -393,7 +394,7 @@ public class Simulation extends Graph {
         chartPanel.setRangeZoomable(true);
         chartPanel.setMouseWheelEnabled(true);
 
-        JFrame frame = new JFrame("Charging Site Queueing Characteristics");
+        JFrame frame = new JFrame("Charging site Queueing Characteristics");
         queueingCharacteristicsFrame = frame;
         Simulation.addWindow(frame);
 

@@ -6,7 +6,6 @@ import com.orsoncharts.data.xyz.XYZSeries;
 import com.orsoncharts.data.xyz.XYZSeriesCollection;
 import com.orsoncharts.graphics3d.ViewPoint3D;
 import com.orsoncharts.legend.LegendAnchor;
-import com.orsoncharts.legend.LegendBuilder;
 import com.orsoncharts.legend.StandardLegendBuilder;
 import com.orsoncharts.plot.XYZPlot;
 
@@ -227,9 +226,9 @@ public class ChargingSite {
 
         dataset1 = new XYSeriesCollection();
         JFreeChart chart = ChartFactory.createXYLineChart(
-                "Power over Time Chart",
-                "Time",
-                "Power",
+                "Charging site Power over Time",
+                "Time [h]",
+                "Power [kW]",
                 dataset1,
                 PlotOrientation.VERTICAL,
                 true,
@@ -556,7 +555,7 @@ public class ChargingSite {
     public static JFrame frame;
    private static JPanel mainPanel;
    public static void initializeHistogramFrame() {
-       frame = new JFrame("Site Power Distribution Histogram");
+       frame = new JFrame("Charging site Power Histogram");
        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
        frame.addWindowListener(new WindowAdapter() {
            @Override
@@ -622,7 +621,7 @@ public class ChargingSite {
 
     private static JFreeChart createHistogramChart() {
         JFreeChart chart = ChartFactory.createBarChart3D(
-                "Site Power Distribution Histogram",
+                "Charging site Power Histogram",
                 "Site Power Intervals",
                 "Probability",
                 dataset,
@@ -680,7 +679,7 @@ public class ChargingSite {
         return new Point(frameX, frameY);
     }
 
-    static JFrame frame2 = new JFrame("Site Power distribution histogram");
+    static JFrame frame2 = new JFrame("Charging site Power Histogram");
     private static Chart3D chart;
     private static boolean legendVisible = false;
     private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
@@ -714,9 +713,8 @@ public class ChargingSite {
         NumberAxis3D yAxis = new NumberAxis3D("Y-axis");
         NumberAxis3D zAxis = new NumberAxis3D("Z-axis");
 
-
         //Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
-        chart = Chart3DFactory.createXYZLineChart("Site Power Distribution Histogram", "", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+       chart = Chart3DFactory.createXYZLineChart("Charging site Power Histogram", "", dataset2, "Site Power [kW]", "Arrival Rate [EV/h]", "Probability Mass");
         updateLegendVisibility();
         chart.setLegendOrientation(Orientation.VERTICAL);
         chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
@@ -725,6 +723,9 @@ public class ChargingSite {
         chart.setChartBoxColor(Color.white);
         plot3D.getRenderer().setColors(colors);
         chart.setLegendBuilder(null);
+        Font titleFont = new Font("Arial", Font.BOLD, 24);
+        chart.setTitle("Charging site power Histogram",titleFont,Color.black);
+        chart.setTitleAnchor(TitleAnchor.TOP_CENTER);
 
         // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
         //XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);
@@ -735,7 +736,7 @@ public class ChargingSite {
         //  renderer.getColorSource().getColor(1,1);
 
         Chart3DPanel chartPanel = new Chart3DPanel(chart);
-        ViewPoint3D viewPoint = new ViewPoint3D(-0.775, -1.425, 35, 0);
+        ViewPoint3D viewPoint = new ViewPoint3D(-0.775, -1.425, calculateOptimalViewAngleForLargestScreen(), 0); //-0.775, -1.425, 35, 0); //45/70
         chartPanel.setViewPoint(viewPoint);
 
         if (frame2.getContentPane().getComponentCount() > 0) {
@@ -744,13 +745,77 @@ public class ChargingSite {
 
         frame2.add(chartPanel);
         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame2.setSize(1200, 720);
+        //frame2.setSize(1200, 720);
+        adjustFrameToScreen();
         frame2.validate();
+        addLegendToggle();
         frame2.repaint();
         frame2.setVisible(true);
-        addLegendToggle();
     }
 
+
+    private static double calculateOptimalViewAngleForLargestScreen() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] screens = ge.getScreenDevices();
+
+        double maxDiagonal = 0;
+        Dimension maxScreenSize = new Dimension();
+
+        for (GraphicsDevice screen : screens) {
+            Rectangle bounds = screen.getDefaultConfiguration().getBounds();
+            double screenWidth = bounds.getWidth();
+            double screenHeight = bounds.getHeight();
+            double diagonal = Math.sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
+
+            if (diagonal > maxDiagonal) {
+                maxDiagonal = diagonal;
+                maxScreenSize.setSize(screenWidth, screenHeight);
+            }
+        }
+        double screenDiagonal = Math.sqrt(maxScreenSize.width * maxScreenSize.width + maxScreenSize.height * maxScreenSize.height) / Toolkit.getDefaultToolkit().getScreenResolution();
+        double angleAdjustmentPerInch;
+        if (screenDiagonal < 17) {
+            angleAdjustmentPerInch = -15.0 / 5.0;
+        } else {
+
+            angleAdjustmentPerInch = -2.0 / 5.0;
+        }
+        double baseAngle = 45;
+        double diagonalDifference = screenDiagonal - 24;
+        double angle = baseAngle + diagonalDifference * angleAdjustmentPerInch;
+
+        return angle;
+    }
+
+    public static void adjustFrameToScreen() {
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] allDevices = env.getScreenDevices();
+        double maxArea = 0;
+        Rectangle largestBounds = null;
+
+        for (GraphicsDevice screen : allDevices) {
+            Rectangle bounds = screen.getDefaultConfiguration().getBounds();
+            double area = bounds.getWidth() * bounds.getHeight();
+            if (area > maxArea) {
+                maxArea = area;
+                largestBounds = bounds;
+            }
+        }
+
+        if (largestBounds != null) {
+            int frameWidth = (int) (largestBounds.width * 0.33);
+            int frameHeight = (int) (largestBounds.height * 0.47);
+            frame2.setSize(frameWidth, frameHeight);
+
+            int xPosition = largestBounds.x + largestBounds.width - frameWidth;
+            int yPosition = largestBounds.y + largestBounds.height - frameHeight;
+
+            yPosition -= frameHeight * 0.13;
+            xPosition -= frameWidth * 0.05;
+
+            frame2.setLocation(xPosition, yPosition);
+        }
+    }
     private static void addLegendToggle() {
         JToggleButton toggleButton = new JToggleButton("Toggle Legend");
         toggleButton.addActionListener(new ActionListener() {

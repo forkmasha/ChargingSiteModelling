@@ -366,7 +366,7 @@ public class ChargingSite {
         }
         if (colors == null) initColors(parameters.getSIM_STEPS());
 
-        double maxTime = parameters.getMaxEvents() / parameters.getMaxArrivalRate() / 100;
+        double maxTime = 1 + 25 * parameters.getMaxArrivalRate() / parameters.getMaxEvents();
         double arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
 
         XYSeries series = new XYSeries(String.format("%.1f EV/h", arrivalRate));

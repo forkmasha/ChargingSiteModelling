@@ -248,7 +248,7 @@ public class SimulationGUI {
                             // Тут файл передається безпосередньо у метод, видалено зайвий JFileChooser
                           /*  loadParametersFromXml(frame, selectedFile, numberOfSteps, maxArrivalRate, numberOfClientTypes, confLevel, arrivalType, maxArrivalRate, queueSize, queueingType, maxSitePower, numberOfServers, serviceType, maxPointPower,
                                     batteryCapacity, meanServiceTime, maxEVPower, demandType, meanChargingDemand, percentageOfCars2, batteryCapacity2, meanServiceTime2, maxEVPower2, demandType2, meanChargingDemand2, percentageOfCars3, batteryCapacity3, meanServiceTime3, maxEVPower3, demandType3, meanChargingDemand3);*/
-                            loadParametersFromXml(frame, selectedFile, numberOfSteps,maxEvents, confLevel, numberOfClientTypes,arrivalType, maxArrivalRate, queueSize, queueingType, maxSitePower, numberOfServers, serviceType, maxPointPower,
+                            loadParametersFromXml(frame, selectedFile, numberOfSteps, maxEvents, confLevel, numberOfClientTypes, arrivalType, maxArrivalRate, queueSize, queueingType, maxSitePower, numberOfServers, serviceType, maxPointPower,
                                     batteryCapacity, meanServiceTime, maxEVPower, demandType, meanChargingDemand, percentageOfCars2, batteryCapacity2, meanServiceTime2, maxEVPower2, demandType2, meanChargingDemand2, percentageOfCars3, batteryCapacity3, meanServiceTime3, maxEVPower3, demandType3, meanChargingDemand3);
                             //simulation.runSimulation();
                         } catch (Exception ex) {
@@ -426,7 +426,7 @@ public class SimulationGUI {
 
                 @Override
                 protected void done() {
-                    gifLabel.setVisible(false);
+                   gifLabel.setVisible(false);
                 }
             };
 
@@ -738,8 +738,8 @@ public class SimulationGUI {
                                                     simulation.chargingMonitor.saveEnergyCharacteristicsGraphAsSVG(1200, 730, fileToSave);
                                                 } //else if ("PowerOverTimeChart".equals(baseName)) {
                                                 //    simulation.site.savePowerOverTimeToSVG(fileToSave.getAbsolutePath());
-                                               // }
-                                            else if ("SitePowerDistributionHistogram".equals(baseName)) {
+                                                // }
+                                                else if ("SitePowerDistributionHistogram".equals(baseName)) {
                                                     simulation.site.saveHistogramToSVG(fileToSave.getAbsolutePath());
                                                 } else if ("SitePowerDistribution3DHistogram".equals(baseName)) {
                                                     // simulation.site.saveHistogram3DToSVG(fileToSave.getAbsolutePath());
@@ -1367,7 +1367,7 @@ public class SimulationGUI {
         textArea.setEditable(false); // Зробити текстове поле нередагованим
         JScrollPane scrollPane = new JScrollPane(textArea); // Додати прокрутку для текстового поля
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-      //  new ConsoleOutputCapturer(textArea);
+        //  new ConsoleOutputCapturer(textArea);
 
         procPanel.setBackground(LIGHT_BLUE);
         verticalBox.add(jScrollPane);
@@ -1578,7 +1578,7 @@ public class SimulationGUI {
                     numberOfSteps.setValue((int) Math.round(numberOfSimulationSteps));
                 }
 
-               int maxEventsPerStep = Integer.parseInt(generalParams.getElementsByTagName("MaxEventsPerStep").item(0).getTextContent());
+                int maxEventsPerStep = Integer.parseInt(generalParams.getElementsByTagName("MaxEventsPerStep").item(0).getTextContent());
                 maxEvents.setValue(maxEventsPerStep);
 
                 String confTypeValue = generalParams.getElementsByTagName("ConfidenceIntervalLevel").item(0).getTextContent();

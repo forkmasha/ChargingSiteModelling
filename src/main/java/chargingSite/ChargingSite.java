@@ -282,57 +282,6 @@ public class ChargingSite {
         frame1.setVisible(true);
     }
 
-
-  /*  public static void initializePowerOverTimeChart1() {
-
-        frame1 = new JFrame();
-        frame1.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame1.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                promptSaveOnClosePowerOverTime();
-            }
-        });
-
-        dataset1 = new XYSeriesCollection();
-        JFreeChart chart = ChartFactory.createXYLineChart(
-                "Power over Time Chart",
-                "Time",
-                "Power",
-                dataset1,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-
-        chartPanel1 = new ChartPanel(chart);
-        frame1.add(chartPanel1);
-
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs = ge.getScreenDevices();
-
-        GraphicsDevice largestScreen = gs[0];
-        Rectangle largestBounds = largestScreen.getDefaultConfiguration().getBounds();
-        for (GraphicsDevice gd : gs) {
-            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
-            if (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight()) {
-                largestScreen = gd;
-                largestBounds = bounds;
-            }
-        }
-
-        int frameWidth = (int) (largestBounds.width * 0.325);
-        int frameHeight = (int) (largestBounds.height * 0.47);
-
-        int offsetX = (int) (largestBounds.width * 0.015);
-
-        frame1.setSize(frameWidth, frameHeight);
-        frame1.setLocation(largestBounds.x + largestBounds.width - frameWidth - offsetX, largestBounds.y);
-
-        frame1.setVisible(true);
-    }*/
-
     private static void promptSaveOnClosePowerOverTime() {
         Object[] options = {"Save", "Cancel", "Close"};
         int choice = JOptionPane.showOptionDialog(frame1, "Do you want to save changes or close?", "Save or Close",
@@ -1005,108 +954,6 @@ public class ChargingSite {
         }
     }
 
-
-    /* public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
-        double min = 0; //Collections.min(data);
-        double max = parameters.MAX_SITE_POWER; //Collections.max(data);
-        double binWidth = (max - min) / numBins;
-
-        int[] bins = new int[numBins];
-        for (double value : data) {
-            int binIndex = (int) ((value - min) / binWidth);
-            if (binIndex == numBins) {
-                binIndex--;
-            }
-            bins[binIndex]++;
-        }
-
-        for (int i = 0; i < numBins; i++) {
-            dataset.addValue((double) bins[i] / data.size(),
-                    "" + parameters.getARRIVAL_RATE_STEP() * (1 + seriesCounter) + " EV/h",
-                    String.format("%.2f - %.2f", min + i * binWidth, min + (i + 1) * binWidth));
-        }
-
-        JFreeChart chart = ChartFactory.createBarChart3D("Site Power Distribution Histogram", "Site Power Intervals", "Probability", dataset, PlotOrientation.VERTICAL, true, true, false);
-
-        CategoryPlot plot = chart.getCategoryPlot();
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setSeriesPaint(seriesCounter, getRandomColor());
-
-        seriesCounter++;
-
-        ChartPanel chartPanel = new ChartPanel(chart);
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice largestScreen = null;
-        Rectangle largestBounds = new Rectangle();
-        for (GraphicsDevice gd : ge.getScreenDevices()) {
-            Rectangle bounds = gd.getDefaultConfiguration().getBounds();
-            if ((largestScreen == null) || (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight())) {
-                largestScreen = gd;
-                largestBounds = bounds;
-            }
-        }
-
-        int frameWidth = (int) (largestBounds.width * 0.32);
-        int frameHeight = (int) (largestBounds.height * 0.44);
-        int frameX = (int) (largestBounds.x + largestBounds.width - frameWidth - (largestBounds.width * 0.02));
-        int frameY = (int) (largestBounds.y + largestBounds.height - frameHeight - largestBounds.height * 0.09);
-
-        chartPanel.setPreferredSize(new Dimension(frameWidth, frameHeight));
-
-        // chartPanel.setPreferredSize(new Dimension(640, 590));
-        chartPanel.setMouseWheelEnabled(true);
-        chartPanel.setDomainZoomable(true);
-        chartPanel.setRangeZoomable(true);
-        chartPanel.setPopupMenu(null);
-
-
-        CategoryAxis domainAxis = plot.getDomainAxis();
-        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
-
-          if (frame == null) {
-            frame = new JFrame("Site Power Distribution Histogram");
-            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            frame.getContentPane().add(chartPanel);
-            frame.pack();
-            frame.setLocation(frameX, frameY);
-            frame.setVisible(true);
-            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            frame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    promptSaveOnCloseHistogram();
-                }
-            });
-
-        } else {
-            frame.getContentPane().removeAll();
-            frame.getContentPane().add(chartPanel);
-            frame.revalidate();
-            frame.repaint();
-        }*/
-
-       /* if (frame == null) {
-           frame = new JFrame("Site Power Distribution Histogram");
-           frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-           frame.getContentPane().add(panel);
-           frame.pack();
-           frame.setLocation(frameX, frameY);
-           frame.setVisible(true);
-           frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-           frame.addWindowListener(new WindowAdapter() {
-               @Override
-               public void windowClosing(WindowEvent e) {
-                   promptSaveOnCloseHistogram();
-               }
-           });
-       } else {
-           frame.getContentPane().removeAll();
-           frame.getContentPane().add(panel);
-           frame.revalidate();
-           frame.repaint();
-       }*/
-    //}
-
     private static void promptSaveOnCloseHistogram() {
         Object[] options = {"Save", "Cancel", "Close"};
         int choice = JOptionPane.showOptionDialog(frame, "Do you want to save changes or close?", "Save or Close",
@@ -1302,24 +1149,6 @@ public class ChargingSite {
         System.err.println("ChartPanel not found");
     }
 
-    /* public static void saveHistogramToPNG(String filePath) {
-        try {
-
-            int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
-            int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
-
-            if (frame != null && frame.getContentPane().getComponentCount() > 0 && frame.getContentPane().getComponent(0) instanceof ChartPanel) {
-                ChartPanel chartPanel = (ChartPanel) frame.getContentPane().getComponent(0);
-                JFreeChart chart = chartPanel.getChart();
-                ChartUtilities.saveChartAsPNG(new File(filePath), chart, width, height);
-            } else {
-                System.err.println("Chart not found or frame is not initialized.");
-            }
-        } catch (IOException e) {
-            System.err.println("Problem occurred while saving the chart to PNG.");
-            e.printStackTrace();
-        }
-    }*/
     public static void saveHistogramToPNG(String filePath) {
         if (frame == null) {
             System.err.println("Histogram frame not initialized");
@@ -1348,155 +1177,17 @@ public class ChargingSite {
         dataset.clear();
         seriesCounter = 0;
     }
+
+    static void reset3DDataHistogram() {
+        dataset2.removeAll();
+        seriesCounter = 0;
+
+    }
     public static JFrame getHistogramFrame() {
         return frame;
     }
+
+    public static JFrame get3dHistogramFrame() {
+        return frame2;
+    }
 }
-/*
-    private int histogramCount = 0;
-        private JFreeChart sitePowerChart;
-    private ChartPanel chartPanel;
-    private JFrame chartFrame;
-    private boolean isChartInitialized = false;
-    private int seriesCount = 0;
-    private CombinedDomainXYPlot histogramPlot;
-
-    private HistogramDataset histogramDataset = null;
-    public void addSitePower3DHistogram(XYSeries series, double arrivalRate) {
-        double[] samples = convertXYSeriesToDoubleArray(series);
-
-        double[] filteredSamples = DoubleStream.of(samples)
-                .filter(value -> value != 0)
-                .toArray();
-
-        if (filteredSamples.length > 0) {
-            if (histogramDataset == null) {
-                histogramDataset = new HistogramDataset();
-                histogramDataset.setType(HistogramType.SCALE_AREA_TO_1);
-            }
-
-            String seriesTitle = "Series " + (++histogramCount);
-            histogramDataset.addSeries(seriesTitle, filteredSamples, 15); // Додавання серії до існуючого датасету
-
-            if (!isChartInitialized) {
-                initializeHistogram();
-            }
-
-            if (isChartInitialized) {
-                JFreeChart histogramChart = ChartFactory.createHistogram(
-                        "Histogram", "Value", "Frequency",
-                        histogramDataset, PlotOrientation.VERTICAL, true, true, false);
-
-                XYPlot plot = (XYPlot) histogramChart.getPlot();
-                XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
-
-                int[] seriesOrder = getSeriesOrder(histogramDataset);
-
-                int backgroundSeries = seriesOrder[seriesOrder.length - 1];
-                renderer.setSeriesPaint(backgroundSeries, Color.WHITE);
-                renderer.setSeriesOutlinePaint(backgroundSeries, Color.BLACK);
-
-                for (int i = 0; i < seriesOrder.length - 1; i++) {
-                    int seriesIndex = seriesOrder[i];
-                    Color color = generateTransparentColor();
-                    renderer.setSeriesPaint(seriesIndex, color);
-                    renderer.setSeriesOutlinePaint(seriesIndex, Color.BLACK);
-                }
-
-                if (histogramPlot.getSubplots().size() == 0) {
-                    histogramPlot.add(plot);
-                } else {
-                    histogramPlot.setDataset(histogramDataset);
-                    histogramPlot.setRenderer(renderer);
-                }
-
-                chartFrame.validate();
-                chartFrame.repaint();
-            }
-
-        } else {
-            System.out.println("No non-zero data available for histogram.");
-        }
-    }
-
-    private void initializeHistogram() {
-        histogramPlot = new CombinedDomainXYPlot(new NumberAxis("Values"));
-        histogramPlot.setGap(10.0);
-
-        sitePowerChart = new JFreeChart("Site Power Distribution Histograms",
-                JFreeChart.DEFAULT_TITLE_FONT, histogramPlot, true);
-
-        chartPanel = new ChartPanel(sitePowerChart);
-        chartFrame = new JFrame("Histograms");
-        chartFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        chartFrame.setSize(800, 600);
-        chartFrame.setContentPane(chartPanel);
-        chartFrame.setVisible(true);
-
-        isChartInitialized = true;
-    }
-
-    public void addSitePowerGraph() {
-        initializeSitePowerGraph();
-
-        Color color = generateUniqueColor(seriesCount);
-
-        XYSeries newSeries = new XYSeries("Series " + seriesCount);
-        for (int i = 0; i < sitePowerSeries.getItemCount(); i++) {
-            newSeries.add(sitePowerSeries.getX(i), sitePowerSeries.getY(i));
-        }
-        sitePowerSeries.clear();
-
-        XYSeriesCollection dataset = (XYSeriesCollection) sitePowerChart.getXYPlot().getDataset();
-        dataset.addSeries(newSeries);
-
-        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) sitePowerChart.getXYPlot().getRenderer();
-        renderer.setSeriesPaint(seriesCount, color);
-
-        seriesCount++;
-
-        sitePowerChart.getXYPlot().setRenderer(renderer);
-        sitePowerChart.fireChartChanged();
-        sitePowerSeries.clear();
-    }
-
-    private Color generateUniqueColor(int seriesIndex) {
-        Random rand = new Random(seriesIndex);
-        float r = rand.nextFloat();
-        float g = rand.nextFloat();
-        float b = rand.nextFloat();
-        return new Color(r, g, b);
-    }
-
-    private Color generateTransparentColor() {
-        Random rand = new Random();
-        int r = rand.nextInt(256);
-        int g = rand.nextInt(256);
-        int b = rand.nextInt(256);
-        int alpha = 100;
-        return new Color(r, g, b, alpha);
-    }
-
-
-    private void initializeSitePowerGraph() {
-        if (!isChartInitialized) {
-            XYSeriesCollection dataset = new XYSeriesCollection(sitePowerSeries);
-            sitePowerChart = ChartFactory.createXYLineChart(
-                    "Site Power vs Time",
-                    "Time",
-                    "Site Power",
-                    dataset,
-                    PlotOrientation.VERTICAL,
-                    true, true, false);
-
-            chartPanel = new ChartPanel(sitePowerChart);
-            chartFrame = new JFrame();
-            chartFrame.setContentPane(chartPanel);
-            chartFrame.setTitle("Site Power Graph");
-            chartFrame.setSize(600, 400);
-            chartFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            chartFrame.setVisible(true);
-
-            isChartInitialized = true;
-        }
-    }*/

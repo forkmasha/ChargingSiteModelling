@@ -30,8 +30,7 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static chargingSite.ChargingSite.clearPowerOverTimeDataset1;
-import static chargingSite.ChargingSite.resetDataHistogram;
+import static chargingSite.ChargingSite.*;
 
 public class SimulationGUI {
     private static final Color LIGHT_PINK = new Color(255, 182, 193);
@@ -1275,36 +1274,6 @@ public class SimulationGUI {
         EVParametersGbc3.gridx = 0;
         procPanel.add(EVParametersPanel3, EVParametersGbc3);
 
-        /* closeWindows.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                JFrame histogramFrame = ChargingSite.getHistogramFrame();
-                if (histogramFrame != null) {
-                    histogramFrame.dispose();
-                }
-
-                JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
-                if (powerOverTimeFrame != null) {
-                    powerOverTimeFrame.dispose();
-                }
-
-                if (Simulation.queueingCharacteristicsFrame != null) {
-                    Simulation.queueingCharacteristicsFrame.dispose();
-                    Simulation.queueingCharacteristicsFrame = null;
-                }
-
-                JFrame frame = Monitor.getEnergyCharacteristicsFrame();
-                if (frame != null) {
-                    frame.dispose();
-                    Monitor.energyCharacteristicsFrame = null;
-
-                }
-
-                closeWindows.setBackground(BLUE);
-            }
-        });*/
-
         closeWindows.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1323,13 +1292,16 @@ public class SimulationGUI {
 
                     JFrame histogramFrame = ChargingSite.getHistogramFrame();
                     if (histogramFrame != null) {
-                        //  histogramFrame.dispose();
                         resetDataHistogram();
+                    }
+
+                    JFrame histogram3DFrame = ChargingSite.get3dHistogramFrame();
+                    if (histogram3DFrame != null) {
+                        resetData3DHistogram();
                     }
 
                     JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
                     if (powerOverTimeFrame != null) {
-                        // powerOverTimeFrame.dispose();
                         clearPowerOverTimeDataset1();
                     }
 
@@ -1350,6 +1322,11 @@ public class SimulationGUI {
                     JFrame histogramFrame = ChargingSite.getHistogramFrame();
                     if (histogramFrame != null) {
                         histogramFrame.dispose();
+                    }
+
+                    JFrame histogram3DFrame = ChargingSite.get3dHistogramFrame();
+                    if (histogram3DFrame != null) {
+                        histogram3DFrame.dispose();
                     }
 
                     JFrame powerOverTimeFrame = ChargingSite.getPowerOverTimeFrame();
@@ -1390,160 +1367,6 @@ public class SimulationGUI {
         frame.setResizable(false);
         return frame;
     }
-
-    /*public static void loadParametersFromXml(JFrame frame, File selectedFile1) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Select the simulation parameters file to load");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        int result = fileChooser.showOpenDialog(frame);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            try {
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(selectedFile);
-                doc.getDocumentElement().normalize();
-
-                NodeList generalParamsList = doc.getElementsByTagName("GeneralParameters");
-                if (generalParamsList.getLength() > 0) {
-                    Element generalParams = (Element) generalParamsList.item(0);
-                    int numberOfSimulationSteps = Integer.parseInt(generalParams.getElementsByTagName("NumberOfSimulationSteps").item(0).getTextContent());
-                    int maxEventsPerStep = Integer.parseInt(generalParams.getElementsByTagName("MaxEventsPerStep").item(0).getTextContent());
-                    int confidenceIntervalLevel = Integer.parseInt(generalParams.getElementsByTagName("ConfidenceIntervalLevel").item(0).getTextContent());
-
-                    simulation.getParameters().setSIM_STEPS(numberOfSimulationSteps);
-                    simulation.getParameters().setMAX_EVENTS(maxEventsPerStep);
-                    simulation.getParameters().setConfLevel(confidenceIntervalLevel);
-                }
-
-                NodeList siteParamsList = doc.getElementsByTagName("SiteParameters");
-                if (siteParamsList.getLength() > 0) {
-                    Element siteParams = (Element) siteParamsList.item(0);
-                    String arrivalDistributionType = siteParams.getElementsByTagName("ArrivalDistributionType").item(0).getTextContent();
-                    double maxMeanArrivalRate = Double.parseDouble(siteParams.getElementsByTagName("MaxMeanArrivalRate").item(0).getTextContent());
-                    int parkingSpace = Integer.parseInt(siteParams.getElementsByTagName("ParkingSpace").item(0).getTextContent());
-                    String queueingType = siteParams.getElementsByTagName("QueueingType").item(0).getTextContent();
-                    int maxSitePower = Integer.parseInt(siteParams.getElementsByTagName("MaxSitePower").item(0).getTextContent());
-
-                    simulation.getParameters().setARRIVAL_TYPE(DistributionType.valueOf(arrivalDistributionType));
-                    simulation.getParameters().setMAX_ARRIVAL_RATE(maxMeanArrivalRate);
-                    simulation.getParameters().setQUEUE_SIZE(parkingSpace);
-                    simulation.getParameters().setQUEUEING_TYPE(Queue.QueueingType.valueOf(queueingType));
-                    simulation.getParameters().setMaxSitePower(maxSitePower);
-                }
-
-                NodeList chargingParamsList = doc.getElementsByTagName("ChargingParameters");
-                if (chargingParamsList.getLength() > 0) {
-                    Element chargingParams = (Element) chargingParamsList.item(0);
-                    int numberOfChargingPoints = Integer.parseInt(chargingParams.getElementsByTagName("NumberOfChargingPoints").item(0).getTextContent());
-                    String serviceDistributionType = chargingParams.getElementsByTagName("ServiceDistributionType").item(0).getTextContent();
-                    int maxPowerOfChargingPoint = Integer.parseInt(chargingParams.getElementsByTagName("MaxPowerOfChargingPoint").item(0).getTextContent());
-
-                    simulation.getParameters().setNUMBER_OF_SERVERS(numberOfChargingPoints);
-                    simulation.getParameters().setSERVICE_TYPE(DistributionType.valueOf(serviceDistributionType));
-                    simulation.getParameters().setMaxPointPower(maxPowerOfChargingPoint);
-                }
-
-                NodeList evParamsList = doc.getElementsByTagName("EVParameters");
-                for (int temp = 0; temp < evParamsList.getLength(); temp++) {
-                    Node nNode = evParamsList.item(temp);
-                    if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                        Element evParams = (Element) nNode;
-                        int numberOfEVTypes = Integer.parseInt(evParams.getElementsByTagName("NumberOfEVTypes").item(0).getTextContent());
-                        double batteryCapacity = Double.parseDouble(evParams.getElementsByTagName("BatteryCapacity").item(0).getTextContent());
-                        double meanChargingTime = Double.parseDouble(evParams.getElementsByTagName("MeanChargingTime").item(0).getTextContent());
-                        int maxEVChargingPower = Integer.parseInt(evParams.getElementsByTagName("MaxEVChargingPower").item(0).getTextContent());
-                        String demandDistributionType = evParams.getElementsByTagName("DemandDistributionType").item(0).getTextContent();
-                        double meanChargingDemand = Double.parseDouble(evParams.getElementsByTagName("MeanChargingDemand").item(0).getTextContent());
-
-                        simulation.getParameters().setNUMBER_OF_CAR_TYPES(numberOfEVTypes);
-                        simulation.getParameters().setBatteryCapacity(batteryCapacity);
-                        simulation.getParameters().setMEAN_SERVICE_TIME(meanChargingTime);
-                        simulation.getParameters().setMaxEvPower(maxEVChargingPower);
-                        simulation.getParameters().setDEMAND_TYPE(DistributionType.valueOf(demandDistributionType));
-                        simulation.getParameters().setMeanChargingDemand(meanChargingDemand);
-                    }
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(frame, "Error loading parameters from file", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }*/
-   /* public static void loadParametersFromXml(JFrame frame, File selectedFile) {
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(selectedFile);
-            doc.getDocumentElement().normalize();
-            NodeList generalParamsList = doc.getElementsByTagName("GeneralParameters");
-
-            if (generalParamsList.getLength() > 0) {
-                Element generalParams = (Element) generalParamsList.item(0);
-                int numberOfSimulationSteps = Integer.parseInt(generalParams.getElementsByTagName("NumberOfSimulationSteps").item(0).getTextContent());
-                int maxEventsPerStep = Integer.parseInt(generalParams.getElementsByTagName("MaxEventsPerStep").item(0).getTextContent());
-                int confidenceIntervalLevel = Integer.parseInt(generalParams.getElementsByTagName("ConfidenceIntervalLevel").item(0).getTextContent());
-
-                simulation.getParameters().setSIM_STEPS(numberOfSimulationSteps);
-                simulation.getParameters().setMAX_EVENTS(maxEventsPerStep);
-                simulation.getParameters().setConfLevel(confidenceIntervalLevel);
-
-            }
-
-            NodeList siteParamsList = doc.getElementsByTagName("SiteParameters");
-            if (siteParamsList.getLength() > 0) {
-                Element siteParams = (Element) siteParamsList.item(0);
-                String arrivalDistributionType = siteParams.getElementsByTagName("ArrivalDistributionType").item(0).getTextContent();
-                double maxMeanArrivalRate = Double.parseDouble(siteParams.getElementsByTagName("MaxMeanArrivalRate").item(0).getTextContent());
-                int parkingSpace = Integer.parseInt(siteParams.getElementsByTagName("ParkingSpace").item(0).getTextContent());
-                String queueingType = siteParams.getElementsByTagName("QueueingType").item(0).getTextContent();
-                int maxSitePower = Integer.parseInt(siteParams.getElementsByTagName("MaxSitePower").item(0).getTextContent());
-
-                simulation.getParameters().setARRIVAL_TYPE(DistributionType.valueOf(arrivalDistributionType));
-                simulation.getParameters().setMAX_ARRIVAL_RATE(maxMeanArrivalRate);
-                simulation.getParameters().setQUEUE_SIZE(parkingSpace);
-                simulation.getParameters().setQUEUEING_TYPE(Queue.QueueingType.valueOf(queueingType));
-                simulation.getParameters().setMaxSitePower(maxSitePower);
-            }
-
-            NodeList chargingParamsList = doc.getElementsByTagName("ChargingParameters");
-            if (chargingParamsList.getLength() > 0) {
-                Element chargingParams = (Element) chargingParamsList.item(0);
-                int numberOfChargingPoints = Integer.parseInt(chargingParams.getElementsByTagName("NumberOfChargingPoints").item(0).getTextContent());
-                String serviceDistributionType = chargingParams.getElementsByTagName("ServiceDistributionType").item(0).getTextContent();
-                int maxPowerOfChargingPoint = Integer.parseInt(chargingParams.getElementsByTagName("MaxPowerOfChargingPoint").item(0).getTextContent());
-
-                simulation.getParameters().setNUMBER_OF_SERVERS(numberOfChargingPoints);
-                simulation.getParameters().setSERVICE_TYPE(DistributionType.valueOf(serviceDistributionType));
-                simulation.getParameters().setMaxPointPower(maxPowerOfChargingPoint);
-            }
-
-            NodeList evParamsList = doc.getElementsByTagName("EVParameters");
-            for (int temp = 0; temp < evParamsList.getLength(); temp++) {
-                Node nNode = evParamsList.item(temp);
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element evParams = (Element) nNode;
-                    int numberOfEVTypes = Integer.parseInt(evParams.getElementsByTagName("NumberOfEVTypes").item(0).getTextContent());
-                    double batteryCapacity = Double.parseDouble(evParams.getElementsByTagName("BatteryCapacity").item(0).getTextContent());
-                    double meanChargingTime = Double.parseDouble(evParams.getElementsByTagName("MeanChargingTime").item(0).getTextContent());
-                    int maxEVChargingPower = Integer.parseInt(evParams.getElementsByTagName("MaxEVChargingPower").item(0).getTextContent());
-                    String demandDistributionType = evParams.getElementsByTagName("DemandDistributionType").item(0).getTextContent();
-                    double meanChargingDemand = Double.parseDouble(evParams.getElementsByTagName("MeanChargingDemand").item(0).getTextContent());
-
-                    simulation.getParameters().setNUMBER_OF_CAR_TYPES(numberOfEVTypes);
-                    simulation.getParameters().setBatteryCapacity(batteryCapacity);
-                    simulation.getParameters().setMEAN_SERVICE_TIME(meanChargingTime);
-                    simulation.getParameters().setMaxEvPower(maxEVChargingPower);
-                    simulation.getParameters().setDEMAND_TYPE(DistributionType.valueOf(demandDistributionType));
-                    simulation.getParameters().setMeanChargingDemand(meanChargingDemand);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Error loading parameters from file", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }*/
 
     public static void loadParametersFromXml(JFrame frame, File selectedFile,
                                              JSpinner numberOfSteps, JSpinner maxEvents, JComboBox<String> confLevel, JSpinner numberOfClientTypes,

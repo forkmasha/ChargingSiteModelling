@@ -241,7 +241,7 @@ public class Monitor extends Graph {
         XYSeriesCollection dataset = new XYSeriesCollection();
         mySim.chargingMonitor.addGraphsEnergyCharacteristics(dataset);
 
-        JFreeChart MyChart = createXYLineChart(
+        MyChart = createXYLineChart(
                 "",
                 "Arrival Rate [1/h]",
                 "Mean and Std [kW/server, kWh/car]",
@@ -457,7 +457,7 @@ public class Monitor extends Graph {
         }
     }
 
-    public void saveEnergyCharacteristicsGraphAsSVG(int wi, int hi, File svgFile) throws IOException {
+     public void saveEnergyCharacteristicsGraphAsSVG(int wi, int hi, File svgFile) throws IOException {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -470,6 +470,8 @@ public class Monitor extends Graph {
             svgGenerator.stream(writer, true);
         }
     }
+
+
     public void saveEnergyCharacteristicsGraphToPNG(String filePath) {
         try {
             int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;

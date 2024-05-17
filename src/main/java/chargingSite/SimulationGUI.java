@@ -53,8 +53,8 @@ public class SimulationGUI {
     public static int WIDTH_OF_PNG_PICTURE = 2400;
     public static int HEIGHT_OF_PNG_PICTURE = 1560;
 
-    public static int WIDTH_OF_SVG_PICTURE = 1200;
-    public static int HEIGHT_OF_SVG_PICTURE = 730;
+    public static int WIDTH_OF_SVG_PICTURE = 800;
+    public static int HEIGHT_OF_SVG_PICTURE = 520;
 
     private static Simulation simulation;
     private static SimulationParameters parameters;
@@ -128,33 +128,33 @@ public class SimulationGUI {
 
         //JSpinner minArrivalRate = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
         JSpinner numberOfSteps = createSpinner(50, 0, Integer.MAX_VALUE, 1);
-        JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner maxArrivalRate = createSpinner(25.0, 0.0, Double.MAX_VALUE, 5);
         JSpinner numberOfClientTypes = createSpinner(1, 1, 3, 1);
 
         JSpinner maxEvents = createSpinner(2500, 100, Integer.MAX_VALUE, 100);
         JSpinner numberOfServers = createSpinner(5, 1, Integer.MAX_VALUE, 1);
         JSpinner queueSize = createSpinner(10, 1, Integer.MAX_VALUE, 1);
-        JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.1);
+        JSpinner meanServiceTime = createSpinner(0.5, 0.0, Double.MAX_VALUE, 0.25);
         JSpinner meanChargingDemand = createSpinner(0.8, 0.0, 1.0, 0.1);
         JSpinner batteryCapacity = createSpinner(60.0, 0.0, 200.0, 5);
-        JSpinner maxEVPower = createSpinner(150, 1.0, Double.MAX_VALUE, 1);
+        JSpinner maxEVPower = createSpinner(150, 1.5, Double.MAX_VALUE, 10);
         JSpinner percentageOfCars = createSpinner(100, 1, 100, 1);
 
-        JSpinner percentageOfCars2 = createSpinner(50, 1, 100, 10);
-        JSpinner meanServiceTime2 = createSpinner(0.75, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner maxEVPower2 = createSpinner(250, 1.0, Double.MAX_VALUE, 1);
+        JSpinner percentageOfCars2 = createSpinner(20, 1, 100, 10);
+        JSpinner meanServiceTime2 = createSpinner(0.75, 0.0, Double.MAX_VALUE, 0.25);
+        JSpinner maxEVPower2 = createSpinner(250, 1.5, Double.MAX_VALUE, 10);
         JSpinner meanChargingDemand2 = createSpinner(0.7, 0.0, 1.0, 0.1);
         JSpinner batteryCapacity2 = createSpinner(90.0, 0.0, 200.0, 5);
 
         JSpinner percentageOfCars3 = createSpinner(30, 1, 100, 10);
-        JSpinner meanServiceTime3 = createSpinner(0.25, 0.0, Double.MAX_VALUE, 0.1);
-        JSpinner maxEVPower3 = createSpinner(50, 1.0, Double.MAX_VALUE, 1);
+        JSpinner meanServiceTime3 = createSpinner(0.25, 0.0, Double.MAX_VALUE, 0.25);
+        JSpinner maxEVPower3 = createSpinner(50, 1.5, Double.MAX_VALUE, 10);
         JSpinner meanChargingDemand3 = createSpinner(0.9, 0.0, 1.0, 0.1);
         JSpinner batteryCapacity3 = createSpinner(15.0, 0.0, 200.0, 5);
 
 
-        JSpinner maxSitePower = createSpinner(300, 1.0, Double.MAX_VALUE, 1);
-        JSpinner maxPointPower = createSpinner(100, 1.0, Double.MAX_VALUE, 1);
+        JSpinner maxSitePower = createSpinner(300, 1.0, Double.MAX_VALUE, 50);
+        JSpinner maxPointPower = createSpinner(100, 1.0, Double.MAX_VALUE, 10);
 
 
         String[] queueingTypes = {"FIFO", "LIFO", "RANDOM"};

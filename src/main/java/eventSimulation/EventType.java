@@ -4,5 +4,7 @@ public enum EventType {
     ARRIVAL,
     DEPARTURE,
     QUEUEING,
-    BLOCKING
+    BLOCKING,
+    CLOCK,
+    INTERRUPT
 }

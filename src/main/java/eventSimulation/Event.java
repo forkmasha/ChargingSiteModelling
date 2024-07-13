@@ -3,23 +3,32 @@ package eventSimulation;
 import queueingSystem.Client;
 
 public class Event {
-    private double execTime;
     private static int eventCounter = 0;
+    private static final int NumberOfEventsLimit = 10000000;
     private final int myIndex;
-    private Client client;
-    private EventType eventType;
+    private final double execTime;
+    private final Client client;
+    private final EventType eventType;
 
     public Event(double time, EventType type, Client client) {
         this.execTime = time;
         myIndex = eventCounter++;
         EventSimulation.eventStack.addEvent(this);
-        if (eventCounter > 10000000) {
-            System.out.println("Number of generated events exceeds 10.000.000");
+        if (eventCounter > NumberOfEventsLimit) {
+            System.out.println("Number of generated events exceeds "+NumberOfEventsLimit);
             System.exit(-100);
         }
         this.eventType = type;
         this.client = client;
         if (client == null) System.out.println("Error: no client for " + type.name() + " event " + eventCounter + " at time " + time + " !");
+    }
+    public Event(double time, EventType type) {
+        this.execTime = time;
+        myIndex = eventCounter++;
+        // myIndex = -1; // no 'real' event
+        EventSimulation.eventStack.addEvent(this);
+        this.eventType = type;
+        this.client = null;
     }
     // public void setClient(Client client) {
     //    this.client = client;

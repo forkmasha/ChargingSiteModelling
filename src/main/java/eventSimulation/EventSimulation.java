@@ -49,6 +49,8 @@ public class EventSimulation {
     public static void run(Client[] myClients) {
         EventSimulation.reset();
         Event.resetEventCounter();
+        new Event(EventProcessor.tick, EventType.CLOCK);
+        numberOfEvents++;
         for(Client myClient : myClients) {
             //Event initialEvent =
             new Event(0.0, EventType.ARRIVAL, myClient);

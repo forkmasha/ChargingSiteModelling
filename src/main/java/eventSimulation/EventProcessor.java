@@ -3,19 +3,23 @@ package eventSimulation;
 import chargingSite.ElectricVehicle;
 import queueingSystem.Server;
 
+import static eventSimulation.EventType.CLOCK;
+
 public class EventProcessor {
     Event nextEvent;
     Server nextServer;
     ElectricVehicle chargedVehicle;
-    double tick = 0.05;
+    static double tick = 1.0/60;
     static double deltaTime = 0;
-    static int i, j, k, q = 0;
+    static int i, j, k, q, t = 0;
+    double timeSinceLastRealEvent = 0;
 
     public static void reset() {
         i = 0;
         j = 0;
         k = 0;
         q = 0;
+        t = 0;
         deltaTime = 0;
     }
 
@@ -27,6 +31,14 @@ public class EventProcessor {
             System.out.println("Warning: negative time between events " + deltaTime + " occurred and is reset to zero!");
             deltaTime = 0;
         }
+        //reset DeltaTime to time since last 'real' event execution
+        if(event.getEventType()==CLOCK) {
+            timeSinceLastRealEvent += deltaTime;
+        } else {
+            deltaTime += timeSinceLastRealEvent;
+            timeSinceLastRealEvent = 0;
+        }
+
         if (event.getClient() != null) {
             //for (Server next : event.getClient().getSystem().getServers()) {
             for (int i=0; i<event.getClient().getSystem().getServers().size();i++) {
@@ -63,7 +75,22 @@ public class EventProcessor {
                     System.out.println("ERROR: Unknown EventType cannot be handled!");
             }
         } else {
-            System.out.println("Warning: Events' client is NULL");
+            switch (event.getEventType()) {
+                case CLOCK:
+                    t++;
+                    if(EventSimulation.eventStack.events.size() > 1) { // there is at least one real event
+                        nextEvent = new Event(EventSimulation.getCurrentTime() + tick, CLOCK);
+                    }
+                    //do something -> record system states...
+
+                    break;
+                case INTERRUPT:
+                    System.out.println("An INTERRUPT occurred!");
+                    System.exit(-200);
+                    break;
+                default:
+                    System.out.println("ERROR: Unknown EventType cannot be handled!L");
+            }
         }
         if(i % 1000 == 0){
             System.out.print("."); //System.exit(1);
@@ -74,7 +101,7 @@ public class EventProcessor {
     }
 
     public void printCounters() {
-        System.out.print("EventCounters: " + i + "/" + j + "/" + q + "/" + k);
+        System.out.print("EventCounters: " + i + "/" + j + "/" + q + "/" + k + "/" + t );
         System.out.println("\t BlockingRate: " + ((double) k)/i);
     }
 }

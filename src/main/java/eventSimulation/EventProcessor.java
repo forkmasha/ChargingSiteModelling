@@ -9,6 +9,7 @@ public class EventProcessor {
     Event nextEvent;
     Server nextServer;
     ElectricVehicle chargedVehicle;
+    static double timeScale = 1.0;
     static double tick = 1.0/60;
     static double deltaTime = 0;
     static int i, j, k, q, t = 0;
@@ -37,6 +38,7 @@ public class EventProcessor {
         } else {
             deltaTime += timeSinceLastRealEvent;
             timeSinceLastRealEvent = 0;
+            timeScale = event.getClient().getSystem().getMeanInterArrivalTime();
         }
 
         if (event.getClient() != null) {
@@ -79,10 +81,9 @@ public class EventProcessor {
                 case CLOCK:
                     t++;
                     if(EventSimulation.eventStack.events.size() > 1) { // there is at least one real event
-                        nextEvent = new Event(EventSimulation.getCurrentTime() + tick, CLOCK);
+                        nextEvent = new Event(EventSimulation.getCurrentTime() + tick, CLOCK, event.getSimulation());
                     }
-                    //do something -> record system states...
-
+                    event.getSimulation().executeClockTick(timeScale);
                     break;
                 case INTERRUPT:
                     System.out.println("An INTERRUPT occurred!");

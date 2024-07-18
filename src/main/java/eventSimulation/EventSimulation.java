@@ -1,6 +1,7 @@
 package eventSimulation;
 
 import queueingSystem.Client;
+import chargingSite.Simulation;
 
 
 public class EventSimulation {
@@ -46,11 +47,9 @@ public class EventSimulation {
     public static EventStack eventStack = new EventStack();
 
     //public static QueueingSystem system = new QueueingSystem();
-    public static void run(Client[] myClients) {
+    public static void run(Client[] myClients, Simulation mySim) {
         EventSimulation.reset();
         Event.resetEventCounter();
-        new Event(EventProcessor.tick, EventType.CLOCK);
-        numberOfEvents++;
         for(Client myClient : myClients) {
             //Event initialEvent =
             new Event(0.0, EventType.ARRIVAL, myClient);
@@ -58,6 +57,8 @@ public class EventSimulation {
             //initialEvent.setClient(myClient);
             numberOfEvents++;
         }
+        new Event(EventProcessor.tick, EventType.CLOCK, mySim);
+        numberOfEvents++;
         //maxEvents = 1000;
         while (!eventStack.isEmpty()) {
             eventProcessor.processEvent(eventStack.getNextEvent());

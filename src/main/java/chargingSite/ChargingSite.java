@@ -121,6 +121,18 @@ public class ChargingSite {
     public void checkPower() {
         getSitePower();
     }
+    public void executeClockTick(double timeScale) {
+        //do something -> record system states...
+        double power = getSitePower();
+        // sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
+        //if (!isFirstValue && (EventSimulation.getCurrentTime() != previousTime || power != previousSitePower)) {
+            dataList.add(new TimePowerData(EventSimulation.getCurrentTime()*timeScale, power));
+            addSitePower(power);
+        //}
+        //previousTime = EventSimulation.getCurrentTime();
+        //previousSitePower = power;
+        //isFirstValue = false;
+    }
 
     public double getSitePower() {
         double sitePower = 0;
@@ -139,17 +151,6 @@ public class ChargingSite {
                 throw new SitePowerExceededException("Site power " + sitePower + " is greater than the set maximum " + maxSitePower + " !");
             }
         }
-        // sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
-
-        if (!isFirstValue && (EventSimulation.getCurrentTime() != previousTime || sitePower != previousSitePower)) {
-            dataList.add(new TimePowerData(EventSimulation.getCurrentTime(), sitePower));
-            addSitePower(sitePower);
-        }
-
-        previousTime = EventSimulation.getCurrentTime();
-        previousSitePower = sitePower;
-        isFirstValue = false;
-
         return sitePower;
     }
 

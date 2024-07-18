@@ -103,6 +103,10 @@ public class Simulation extends Graph {
         return parameters.getKendallName();
     }
 
+    public void executeClockTick(double timeScale) {
+        site.executeClockTick(timeScale);
+    } //do something -> record system states...
+
     public void runSimulation() {
 
         resetData3DHistogram();
@@ -149,7 +153,7 @@ public class Simulation extends Graph {
             myFirstClients[0] = new Client(0.0, ElectricVehicle.createRandomCar(parameters), mySystem);
             //myFirstClients[i] = new Client(0.0, AVERAGE_SERVICE_TIME, SERVICE_TYPE[i], mySystem);  // set service time per client
             //}
-            EventSimulation.run(myFirstClients);
+            EventSimulation.run(myFirstClients,this);
 
             // add the site powers of the current run to the existing graph (if not possible draw one and ask what to do (save and continue / discard and continue))
             //  mySystem.getChargingSite().addSitePowerGraph(SitePowerGraph);

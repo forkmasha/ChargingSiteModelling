@@ -334,7 +334,6 @@ public class QueueingSystem {
         }
     }
 
-
     public void setQueueSize(int queueSize) {
         this.queueSize = queueSize;
         //this.myQueue = new Queue(queueSize);

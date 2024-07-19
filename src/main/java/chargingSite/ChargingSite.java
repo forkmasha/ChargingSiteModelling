@@ -126,8 +126,9 @@ public class ChargingSite {
         double power = getSitePower();
         // sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
         //if (!isFirstValue && (EventSimulation.getCurrentTime() != previousTime || power != previousSitePower)) {
-            dataList.add(new TimePowerData(EventSimulation.getCurrentTime()*timeScale, power));
-            addSitePower(power);
+        dataList.add(new TimePowerData(EventSimulation.getCurrentTime(), power));
+        //dataList.add(new TimePowerData(EventSimulation.getCurrentTime()*timeScale, power));
+        addSitePower(power);
         //}
         //previousTime = EventSimulation.getCurrentTime();
         //previousSitePower = power;

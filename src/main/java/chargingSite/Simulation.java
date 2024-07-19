@@ -166,13 +166,20 @@ public class Simulation extends Graph {
 
             // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
             double nBins = parameters.getMAX_EVENTS()/99.99;
-            plotHistogram3D(stepCounter*parameters.getARRIVAL_RATE_STEP() , mySystem.getChargingSite().getSitePower1(),(int) Math.ceil(nBins), parameters);
-            plotHistogram(mySystem.getChargingSite().getSitePower1(), 20, parameters);
+            plotHistogram3D(
+                    stepCounter*parameters.getARRIVAL_RATE_STEP(),
+                    mySystem.getChargingSite().getSitePower1(),
+                    (int) Math.ceil(nBins),
+                    parameters);
+            plotHistogram(
+                    mySystem.getChargingSite().getSitePower1(),
+                    20,
+                    parameters);
 
-
-            mySystem.getChargingSite().displayPowerOverTimeChart(dataList, parameters);
-
-
+            //mySystem.getChargingSite().displayPowerOverTimeChart(dataList, parameters);
+            System.out.println("Number of SitePower samples: "
+                            + mySystem.getChargingSite().getSitePower1().size()
+                            + " and data-points:" + dataList.size() + "\n");
 
             // mySystem.getChargingSite().visualizeSitePower();
             //  mySystem.getChargingSite().displayChart();
@@ -253,6 +260,7 @@ public class Simulation extends Graph {
 
         chargingMonitor.drawGraphEnergyCharacteristics(this);
 
+        mySystem.getChargingSite().displayPowerOverTimeChart(dataList, parameters);
 
         //plotHistogram(mySystem.getChargingSite().getSitePower1(), 15);
     }

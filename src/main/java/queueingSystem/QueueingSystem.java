@@ -142,6 +142,7 @@ public class QueueingSystem {
         amountsCharged.clear();
         sitePowers.clear();
         chargingDeviations.clear();
+        site.resetPowerRecords();
         Client.resetClientCounter();
     }
 

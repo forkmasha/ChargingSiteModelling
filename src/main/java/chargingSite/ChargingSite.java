@@ -103,6 +103,11 @@ public class ChargingSite {
         }
     }
 
+    public void resetPowerRecords() {
+        sitePowerSeries.clear();
+        sitePower1.clear();
+        dataList.clear();
+    }
     public ChargingPoint getChargingPoint(int index) {
         return this.chargingPoints.get(index);
     }
@@ -126,8 +131,8 @@ public class ChargingSite {
         double power = getSitePower();
         // sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
         //if (!isFirstValue && (EventSimulation.getCurrentTime() != previousTime || power != previousSitePower)) {
-        dataList.add(new TimePowerData(EventSimulation.getCurrentTime(), power));
-        //dataList.add(new TimePowerData(EventSimulation.getCurrentTime()*timeScale, power));
+        //dataList.add(new TimePowerData(EventSimulation.getCurrentTime(), power));
+        dataList.add(new TimePowerData(EventSimulation.getCurrentTime()*timeScale, power));
         addSitePower(power);
         //}
         //previousTime = EventSimulation.getCurrentTime();

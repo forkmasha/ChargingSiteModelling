@@ -200,8 +200,7 @@ public class ElectricVehicle {
         this.energyCharged = 0.0;
     }
 
-    public void updateChargingPower() {
-        // double newChargingPower = this.chargingPower;
+    public void updateChargingPower() {        ;
         if (this.chargingPower < 0) {
             throw new NegativeChargingPowerException("Negative charging power prior update!");
         }
@@ -220,42 +219,19 @@ public class ElectricVehicle {
             if (this.chargingPower < 0) {
                 throw new NegativeChargingPowerException("Negative charging power for SoC in 0.2 .. 0.8!");
             }
-        } else { // adjust charging power to current state of charge
+        } else {
             this.chargingPower = this.batteryCapacity * (0.5 + 2.5 * stateOfCharge / 0.2);
             if (this.chargingPower < 0) {
                 throw new NegativeChargingPowerException("Negative charging power for SoC < 0.2!");
             }
         }
-
-        //System.out.println("batteryCapacity = " + this.batteryCapacity);
-        //System.out.println("stateOfCharge = " + this.stateOfCharge);
-        //System.out.println("chargingPower = " + this.chargingPower);
-
-        // limit charging power to max possible per charging point
         this.chargingPower = this.getChargingPoint().checkPower(this.chargingPower);
 
-        /*double maxChargingPointPower = this.getChargingPoint().getMaxPower();
-        if (this.chargingPower>maxChargingPointPower) {  // limit charging power to max possible per charging point
-            this.chargingPower = maxChargingPointPower;
-            if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after PointLimiting!");}
-        }*/
-
-        // limit charging power to max possible for charging site
-        // -> does it for all cars currently charged, adjusting the chargingPower if needed
         this.getSiteModel().getChargingSite().checkPower();
 
-        //double maxChargingSitePower = this.getSiteModel().getChargingSite().getMaxSitePower();
-        //if (sitePower>maxChargingSitePower) {  // limit charging power to max possible for charging site
-        //    this.scaleChargingPower(maxChargingSitePower/sitePower);
-        //    if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after SiteLimiting!");}
-        //}
-
-        // limit charging power to maximum specified for the ElectricVehicle
         if (this.chargingPower > this.maxPower) {
             this.chargingPower = this.maxPower;
         }
-
-        // looking for negative charging power (error)
         if (this.chargingPower < 0 || this.stateOfCharge < 0) {
             String errorMessage = "updateChargingPower ERROR: " + this.id +
                     ": SoC = " + this.stateOfCharge +
@@ -263,9 +239,6 @@ public class ElectricVehicle {
             logger.severe(errorMessage);
             throw new ChargingPowerUpdateException(errorMessage);
         }
-
-        //if(this.chargingPower>maxChargingSitePower/getSiteModel().getNumberOfServers()) {
-        //    System.out.println("ERROR1: Charging power " + this.chargingPower + "is bigger than maximum currently available " + sitePower + " !");}
 
         this.getChargingPoint().setCurrentPower(this.chargingPower);
     }

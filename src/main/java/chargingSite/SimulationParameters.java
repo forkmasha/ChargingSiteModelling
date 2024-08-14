@@ -422,7 +422,7 @@ public class SimulationParameters {
         return meanWaitingTime;
     }
 
-    public void writeParameters2txt(JFrame frame, String filePath) {
+    public void saveParametersAsTxt(String filePath) {
 
         java.io.File fileToSave = new java.io.File(filePath);
 
@@ -511,7 +511,7 @@ public class SimulationParameters {
         }
 
 
-    public void writeParameters2xml(JFrame frame, String filePath) {
+    public void saveParametersAsXml(String filePath) {
 
         java.io.File fileToSave = new java.io.File(filePath);
 

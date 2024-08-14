@@ -2,6 +2,7 @@ package chargingSite;
 
 public class SimulationApp {
     public static void main(String[] args) {
-        SimulationGUI.runSimulationGUI();
+        SimulationGUI simulationGUI = new SimulationGUI();
+        simulationGUI.runSimulationGUI();
     }
 }

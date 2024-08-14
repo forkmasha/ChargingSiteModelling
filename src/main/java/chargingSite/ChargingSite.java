@@ -41,7 +41,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-
 public class ChargingSite {
     private ArrayList<ChargingPoint> chargingPoints = new ArrayList<>();
     private int numberOfChargingPoints;
@@ -65,28 +64,29 @@ public class ChargingSite {
     public static Color highRED = new Color(255, 0, 127);
     private static Color[] colors; // colour array to be initialised with n = number of simulation steps
 
-    private static void initColors (int n) {
+    private static void initColors(int n) {
         initColors(n, lowBLUE, highRED);
     }
+
     private static void initColors(int n, Color ci) {
         colors = new Color[n];
         for (int i = 0; i < n; i++) {
             colors[i] = ci;
         }
     }
+
     private static void initColors(int n, Color c1, Color c2) {
         colors = new Color[n];
         int R, G, B;
         double p;
         for (int i = 0; i < n; i++) {
-            p = (double) i / (n-1);
-            R = (int) Math.round((1-p) * c1.getRed() + p * c2.getRed());
-            G = (int) Math.round((1-p) * c1.getGreen() + p * c2.getGreen());
-            B = (int) Math.round((1-p) * c1.getBlue() + p * c2.getBlue());
-            colors[i] = new Color(R,G,B);
+            p = (double) i / (n - 1);
+            R = (int) Math.round((1 - p) * c1.getRed() + p * c2.getRed());
+            G = (int) Math.round((1 - p) * c1.getGreen() + p * c2.getGreen());
+            B = (int) Math.round((1 - p) * c1.getBlue() + p * c2.getBlue());
+            colors[i] = new Color(R, G, B);
         }
     }
-
 
     public ChargingSite(SimulationParameters parameters) {
         this.simParameters = parameters;
@@ -108,13 +108,15 @@ public class ChargingSite {
         sitePower1.clear();
         dataList.clear();
     }
+
     public ChargingPoint getChargingPoint(int index) {
         return this.chargingPoints.get(index);
     }
 
     public ChargingPoint getIdleChargingPoint(PlugType plugType) {
         for (ChargingPoint next : chargingPoints) {
-            if (next.getChargedCar() == null) return next; // && next.getPlugTypes().contains(plugType)
+            if (next.getChargedCar() == null)
+                return next; // && next.getPlugTypes().contains(plugType)
         }
         return null;
     }
@@ -126,18 +128,20 @@ public class ChargingSite {
     public void checkPower() {
         getSitePower();
     }
+
     public void executeClockTick(double timeScale) {
-        //do something -> record system states...
+        // do something -> record system states...
         double power = getSitePower();
         // sitePowerSeries.add(EventSimulation.getCurrentTime(), sitePower);
-        //if (!isFirstValue && (EventSimulation.getCurrentTime() != previousTime || power != previousSitePower)) {
-        //dataList.add(new TimePowerData(EventSimulation.getCurrentTime(), power));
-        dataList.add(new TimePowerData(EventSimulation.getCurrentTime()*timeScale, power));
+        // if (!isFirstValue && (EventSimulation.getCurrentTime() != previousTime ||
+        // power != previousSitePower)) {
+        // dataList.add(new TimePowerData(EventSimulation.getCurrentTime(), power));
+        dataList.add(new TimePowerData(EventSimulation.getCurrentTime() * timeScale, power));
         addSitePower(power);
-        //}
-        //previousTime = EventSimulation.getCurrentTime();
-        //previousSitePower = power;
-        //isFirstValue = false;
+        // }
+        // previousTime = EventSimulation.getCurrentTime();
+        // previousSitePower = power;
+        // isFirstValue = false;
     }
 
     public double getSitePower() {
@@ -149,12 +153,14 @@ public class ChargingSite {
             i++;
         }
         if (i > numberOfChargingPoints) {
-            throw new IllegalStateException("<ChargingSite>.getSitePower summed over " + i + " chargingPoints > " + this.numberOfChargingPoints + " configured!");
+            throw new IllegalStateException("<ChargingSite>.getSitePower summed over " + i + " chargingPoints > "
+                    + this.numberOfChargingPoints + " configured!");
         }
         if (sitePower > maxSitePower) {
             sitePower = scaleChargingPower(maxSitePower / sitePower);
             if (sitePower - maxSitePower > 0.0001) {
-                throw new SitePowerExceededException("Site power " + sitePower + " is greater than the set maximum " + maxSitePower + " !");
+                throw new SitePowerExceededException(
+                        "Site power " + sitePower + " is greater than the set maximum " + maxSitePower + " !");
             }
         }
         return sitePower;
@@ -174,7 +180,8 @@ public class ChargingSite {
 
         for (ChargingPoint next : chargingPoints) {
             ElectricVehicle car = next.getChargedCar();
-            if (car != null) newSitePower += car.scaleChargingPower(scale);
+            if (car != null)
+                newSitePower += car.scaleChargingPower(scale);
         }
         return newSitePower;
     }
@@ -182,7 +189,6 @@ public class ChargingSite {
     public XYSeries getSitePowerSeries() {
         return sitePowerSeries;
     }
-
 
     private double[] convertXYSeriesToDoubleArray(XYSeries series) {
         double[] data = new double[series.getItemCount()];
@@ -216,7 +222,6 @@ public class ChargingSite {
         return seriesOrder;
     }
 
-
     static JFrame frame1;
     private static ChartPanel chartPanel1;
     private static XYSeriesCollection dataset1;
@@ -240,15 +245,12 @@ public class ChargingSite {
                 PlotOrientation.VERTICAL,
                 true,
                 true,
-                false
-        );
+                false);
         chart.getLegend().setVisible(false);
         chartPanel1 = new ChartPanel(chart);
 
-
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(chartPanel1, BorderLayout.CENTER);
-
 
         JButton toggleLegendButton = new JButton("Toggle Legend");
         toggleLegendButton.addActionListener(new ActionListener() {
@@ -290,7 +292,7 @@ public class ChargingSite {
     }
 
     private static void promptSaveOnClosePowerOverTime() {
-        Object[] options = {"Save", "Cancel", "Close"};
+        Object[] options = { "Save", "Cancel", "Close" };
         int choice = JOptionPane.showOptionDialog(frame1, "Do you want to save changes or close?", "Save or Close",
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
@@ -315,15 +317,16 @@ public class ChargingSite {
         }
     }
 
-
     public static void displayPowerOverTimeChart(List<TimePowerData> dataList, SimulationParameters parameters) {
         if (frame1 == null || chartPanel1 == null || dataset1 == null) {
             initializePowerOverTimeChart1();
         }
-        if (colors == null) initColors(parameters.getSIM_STEPS());
+        if (colors == null)
+            initColors(parameters.getSIM_STEPS());
 
         double maxTime = 1 + 25 * parameters.getMaxArrivalRate() / parameters.getMaxEvents();
-        double arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
+        double arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate()
+                / parameters.getSimSteps();
 
         XYSeries series = new XYSeries(String.format("%.1f EV/h", arrivalRate));
         for (TimePowerData data : dataList) {
@@ -332,24 +335,29 @@ public class ChargingSite {
             }
         }
 
-        /* double progress = (double) dataset1.getSeriesCount() / parameters.getSIM_STEPS();
-        int R = 0;
-        int G = (int) Math.floor(255 * progress);
-        int B = 255;
-        */
-        Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); //.createRegularCross(1, 1);.createDiamond(2.1f);
+        /*
+         * double progress = (double) dataset1.getSeriesCount() /
+         * parameters.getSIM_STEPS();
+         * int R = 0;
+         * int G = (int) Math.floor(255 * progress);
+         * int B = 255;
+         */
+        Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); // .createRegularCross(1,
+        // 1);.createDiamond(2.1f);
 
         dataset1.addSeries(series);
         XYPlot plot = (XYPlot) chartPanel1.getChart().getPlot();
 
-        //plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD); //would be nice but colouring malfunctions with that option
+        // plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD); //would be nice
+        // but colouring malfunctions with that option
         plot.setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
         renderer.setSeriesLinesVisible(dataset1.getSeriesCount() - 1, false);
         renderer.setSeriesShapesVisible(dataset1.getSeriesCount() - 1, true);
         renderer.setSeriesShape(dataset1.getSeriesCount() - 1, cross);
-        //plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R, G, B));
+        // plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R,
+        // G, B));
         plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, colors[dataset1.getSeriesCount() - 1]);
 
         plot.getRangeAxis().setRange(0, parameters.MAX_SITE_POWER * 1.05);
@@ -358,8 +366,9 @@ public class ChargingSite {
     }
 
     private static void showPowerOverTimeSaveOptions() {
-        Object[] saveOptions = {"CSV", "SVG", "PNG"};
-        int formatChoice = JOptionPane.showOptionDialog(frame1, "Choose the format to save the chart:", "Save Chart Format",
+        Object[] saveOptions = { "CSV", "SVG", "PNG" };
+        int formatChoice = JOptionPane.showOptionDialog(frame1, "Choose the format to save the chart:",
+                "Save Chart Format",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, saveOptions, saveOptions[0]);
 
         if (formatChoice == JOptionPane.CLOSED_OPTION) {
@@ -398,11 +407,10 @@ public class ChargingSite {
                 fileToSave = new File(fileToSave.getAbsolutePath() + fileExtension);
             }
 
-
             try {
                 switch (formatChoice) {
                     case 0:
-                        savePowerOverTimeGraphToCSV(fileToSave.getAbsolutePath());
+                        savePowerOverTimeGraphAsCSV(fileToSave.getAbsolutePath());
                         break;
                     case 1:
                         savePowerOverTimeToSVG(fileToSave.getAbsolutePath(), width, height);
@@ -412,17 +420,17 @@ public class ChargingSite {
                         break;
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(frame1, "Error saving file: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame1, "Error saving file: " + e.getMessage(), "Save Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-
 
     private static String formatDouble(DecimalFormat df, Double value) {
         return df.format(value);
     }
 
-    public static void savePowerOverTimeGraphToCSV(String filePath) {
+    public static void savePowerOverTimeGraphAsCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.####################");
         df.setDecimalSeparatorAlwaysShown(false);
 
@@ -455,8 +463,8 @@ public class ChargingSite {
     }
 
     public static void savePowerOverTimeToSVG(String filePath) {
-        int width = SimulationGUI.WIDTH_OF_SVG_PICTURE;
-        int height = SimulationGUI.HEIGHT_OF_SVG_PICTURE;
+        int width = DefaultPictureSizes.SVG_WIDTH;
+        int height = DefaultPictureSizes.SVG_HEIGTH;
         SVGGraphics2D g2 = new SVGGraphics2D(width, height);
         Rectangle r = new Rectangle(0, 0, width, height);
         chartPanel1.getChart().draw(g2, r);
@@ -479,11 +487,11 @@ public class ChargingSite {
         }
     }
 
-    public static void savePowerOverTimeGraphToPNG(String filePath) {
+    public void savePowerOverTimeGraphAsPNG(String filePath) {
         if (chartPanel1 != null && chartPanel1.getChart() != null) {
             try {
-                int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
-                int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+                int width = DefaultPictureSizes.PNG_WIDTH;
+                int height = DefaultPictureSizes.PNG_HEIGTH;
                 File outFile = new File(filePath);
                 ChartUtils.saveChartAsPNG(outFile, chartPanel1.getChart(), width, height);
             } catch (Exception e) {
@@ -509,51 +517,52 @@ public class ChargingSite {
     private static DefaultCategoryDataset dataset = new DefaultCategoryDataset();
     private static int seriesCounter = 0;
     public static JFrame frame;
-   private static JPanel mainPanel;
-   public static void initializeHistogramFrame() {
-       frame = new JFrame("Charging site Power Histogram");
-       frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-       frame.addWindowListener(new WindowAdapter() {
-           @Override
-           public void windowClosing(WindowEvent e) {
-               promptSaveOnCloseHistogram();
-           }
-       });
-       mainPanel = new JPanel(new BorderLayout());
-       frame.setContentPane(mainPanel);
+    private static JPanel mainPanel;
 
-       JButton toggleLegendButton = new JButton("Toggle Legend");
-       toggleLegendButton.addActionListener(e -> {
+    public static void initializeHistogramFrame() {
+        frame = new JFrame("Charging site Power Histogram");
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                promptSaveOnCloseHistogram();
+            }
+        });
+        mainPanel = new JPanel(new BorderLayout());
+        frame.setContentPane(mainPanel);
 
-           ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
-           JFreeChart chart = chartPanel.getChart();
-           chart.getLegend().setVisible(!chart.getLegend().isVisible());
-           chartPanel.repaint();
-       });
-       mainPanel.add(toggleLegendButton, BorderLayout.SOUTH);
+        JButton toggleLegendButton = new JButton("Toggle Legend");
+        toggleLegendButton.addActionListener(e -> {
 
-       frame.setSize(getPreferredFrameSize());
-       frame.setLocation(getPreferredFrameLocation());
-       frame.setVisible(true);
-   }
+            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+            JFreeChart chart = chartPanel.getChart();
+            chart.getLegend().setVisible(!chart.getLegend().isVisible());
+            chartPanel.repaint();
+        });
+        mainPanel.add(toggleLegendButton, BorderLayout.SOUTH);
 
-   public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
-       if (frame == null) {
-           initializeHistogramFrame();
-       }
-       updateDataset(data, numBins, parameters);
-       JFreeChart chart = createHistogramChart();
+        frame.setSize(getPreferredFrameSize());
+        frame.setLocation(getPreferredFrameLocation());
+        frame.setVisible(true);
+    }
 
-       ChartPanel chartPanel = new ChartPanel(chart);
-       configureChartPanel(chartPanel);
+    public static void plotHistogram(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
+        if (frame == null) {
+            initializeHistogramFrame();
+        }
+        updateDataset(data, numBins, parameters);
+        JFreeChart chart = createHistogramChart();
 
-       if (mainPanel.getComponentCount() > 1) {
-           mainPanel.remove(1);
-       }
-       mainPanel.add(chartPanel, BorderLayout.CENTER);
-       mainPanel.revalidate();
-       mainPanel.repaint();
-   }
+        ChartPanel chartPanel = new ChartPanel(chart);
+        configureChartPanel(chartPanel);
+
+        if (mainPanel.getComponentCount() > 1) {
+            mainPanel.remove(1);
+        }
+        mainPanel.add(chartPanel, BorderLayout.CENTER);
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
 
     private static void updateDataset(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
         double min = 0;
@@ -623,14 +632,16 @@ public class ChargingSite {
         Rectangle largestBounds = new Rectangle();
         for (GraphicsDevice gd : ge.getScreenDevices()) {
             Rectangle bounds = gd.getDefaultConfiguration().getBounds();
-            if ((largestBounds.isEmpty()) || (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth() * largestBounds.getHeight())) {
+            if ((largestBounds.isEmpty()) || (bounds.getWidth() * bounds.getHeight() > largestBounds.getWidth()
+                    * largestBounds.getHeight())) {
                 largestBounds = bounds;
             }
         }
         Dimension frameSize = getPreferredFrameSize();
         int frameX = (int) (largestBounds.x + largestBounds.width - frameSize.width - (largestBounds.width * 0.016));
 
-        int frameY = (int) (largestBounds.y + (largestBounds.height - frameSize.height) * 0.5 + largestBounds.height * 0.205);
+        int frameY = (int) (largestBounds.y + (largestBounds.height - frameSize.height) * 0.5
+                + largestBounds.height * 0.205);
 
         return new Point(frameX, frameY);
     }
@@ -640,12 +651,13 @@ public class ChargingSite {
     private static boolean legendVisible = false;
     private static XYZSeriesCollection<String> dataset2 = new XYZSeriesCollection<>();
 
-    public static void plotHistogram3D(double arrivalRate, ArrayList<Double> data, int numBins, SimulationParameters parameters) {
+    public static void plotHistogram3D(double arrivalRate, ArrayList<Double> data, int numBins,
+                                       SimulationParameters parameters) {
         double min = 0;
         double max = parameters.MAX_SITE_POWER;
         double binWidth = (max - min) / numBins;
         if (colors == null) {
-            //initColors(parameters.getSIM_STEPS(),Color.BLACK);
+            // initColors(parameters.getSIM_STEPS(),Color.BLACK);
             initColors(parameters.getSIM_STEPS(), new Color(0, 0, 255), new Color(255, 0, 127));
         }
 
@@ -669,8 +681,10 @@ public class ChargingSite {
         NumberAxis3D yAxis = new NumberAxis3D("Y-axis");
         NumberAxis3D zAxis = new NumberAxis3D("Z-axis");
 
-        //Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
-       chart = Chart3DFactory.createXYZLineChart("Charging site Power Histogram", "", dataset2, "Site Power [kW]", "Arrival Rate [EV/h]", "Probability Mass");
+        // Chart3D chart = Chart3DFactory.createXYZLineChart("XYZ Chart", "Chart
+        // description", dataset2, "Site Power", "Arrival Rate", "Probability Mass");
+        chart = Chart3DFactory.createXYZLineChart("Charging site Power Histogram", "", dataset2, "Site Power [kW]",
+                "Arrival Rate [EV/h]", "Probability Mass");
         updateLegendVisibility();
         chart.setLegendOrientation(Orientation.VERTICAL);
         chart.setLegendAnchor(LegendAnchor.TOP_RIGHT);
@@ -680,35 +694,39 @@ public class ChargingSite {
         plot3D.getRenderer().setColors(colors);
         chart.setLegendBuilder(null);
         Font titleFont = new Font("Arial", Font.BOLD, 24);
-        chart.setTitle("Charging site power Histogram",titleFont,Color.black);
+        chart.setTitle("Charging site power Histogram", titleFont, Color.black);
         chart.setTitleAnchor(TitleAnchor.TOP_CENTER);
 
-        // CategoryPlot3D plot =  (CategoryPlot3D)chart.getPlot();
-        //XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);
-        //--  XYZPlot plot =(XYZPlot)chart.getPlot();
-        //-- plot.getRenderer().setColors(Colors.getColors2());
-        //  plot.getRenderer().setColors(Colors.createFancyDarkColors());
-        //  plot.setRenderer(renderer);
-        //  renderer.getColorSource().getColor(1,1);
+        // CategoryPlot3D plot = (CategoryPlot3D)chart.getPlot();
+        // XYZPlot plot =new XYZPlot (dataset2, renderer, xAxis, yAxis, zAxis);
+        // -- XYZPlot plot =(XYZPlot)chart.getPlot();
+        // -- plot.getRenderer().setColors(Colors.getColors2());
+        // plot.getRenderer().setColors(Colors.createFancyDarkColors());
+        // plot.setRenderer(renderer);
+        // renderer.getColorSource().getColor(1,1);
 
         Chart3DPanel chartPanel = new Chart3DPanel(chart);
-        ViewPoint3D viewPoint = new ViewPoint3D(-0.775, -1.425, calculateOptimalViewAngleForLargestScreen(), 0); //-0.775, -1.425, 35, 0); //45/70
+        ViewPoint3D viewPoint = new ViewPoint3D(-0.775, -1.425, calculateOptimalViewAngleForLargestScreen(), 0); // -0.775,
+        // -1.425,
+        // 35,
+        // 0);
+        // //45/70
         chartPanel.setViewPoint(viewPoint);
 
         if (frame2.getContentPane().getComponentCount() > 0) {
             frame2.getContentPane().removeAll();
-        };
+        }
+        ;
 
         frame2.add(chartPanel);
         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //frame2.setSize(1200, 720);
+        // frame2.setSize(1200, 720);
         adjustFrameToScreen();
         frame2.validate();
         addLegendToggle();
         frame2.repaint();
         frame2.setVisible(true);
     }
-
 
     private static double calculateOptimalViewAngleForLargestScreen() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -728,7 +746,9 @@ public class ChargingSite {
                 maxScreenSize.setSize(screenWidth, screenHeight);
             }
         }
-        double screenDiagonal = Math.sqrt(maxScreenSize.width * maxScreenSize.width + maxScreenSize.height * maxScreenSize.height) / Toolkit.getDefaultToolkit().getScreenResolution();
+        double screenDiagonal = Math
+                .sqrt(maxScreenSize.width * maxScreenSize.width + maxScreenSize.height * maxScreenSize.height)
+                / Toolkit.getDefaultToolkit().getScreenResolution();
         double angleAdjustmentPerInch;
         if (screenDiagonal < 17) {
             angleAdjustmentPerInch = -15.0 / 5.0;
@@ -772,6 +792,7 @@ public class ChargingSite {
             frame2.setLocation(xPosition, yPosition);
         }
     }
+
     private static void addLegendToggle() {
         JToggleButton toggleButton = new JToggleButton("Toggle Legend");
         toggleButton.addActionListener(new ActionListener() {
@@ -796,57 +817,61 @@ public class ChargingSite {
             }
         }
     }
+
     static void resetData3DHistogram() {
         dataset2.removeAll();
         seriesCounter = 0;
     }
 
-
-    public static void saveHistogramData3DToCSV(String filePath) throws IOException {
+    public void saveHistogram3DAsCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.######################");
         df.setDecimalSeparatorAlwaysShown(false);
 
-        try (FileWriter csvWriter = new FileWriter(filePath)) {
-            csvWriter.append("Arrival Rate");
+        try {
+            try (FileWriter csvWriter = new FileWriter(filePath)) {
+                csvWriter.append("Arrival Rate");
 
-            int seriesCount = dataset2.getSeriesCount();
+                int seriesCount = dataset2.getSeriesCount();
 
-            int maxItemCount = 0;
-            for (int i = 0; i < seriesCount; i++) {
-                int itemCount = dataset2.getSeries(i).getItemCount();
-                if (itemCount > maxItemCount) {
-                    maxItemCount = itemCount;
+                int maxItemCount = 0;
+                for (int i = 0; i < seriesCount; i++) {
+                    int itemCount = dataset2.getSeries(i).getItemCount();
+                    if (itemCount > maxItemCount) {
+                        maxItemCount = itemCount;
+                    }
                 }
-            }
-                //first line of csv file
-            for (int column = 0; column < maxItemCount; column++) {
-                //  csvWriter.append("; ").append("Bin ").append(Integer.toString(column + 1));
-                double binWidth = simParameters.MAX_SITE_POWER / maxItemCount;
-                String binRange = column * binWidth + "-" + (column + 1) * binWidth;
-                //  String binRange = dataset.getColumnKey(column).toString();
-                csvWriter.append("; ").append(binRange);
-            }
-            csvWriter.append("\n");
-
-                //following lines of csv file
-            for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                XYZSeries<String> series = dataset2.getSeries(seriesIndex);
-                csvWriter.append(series.getKey());
-
-                for (int itemIndex = 0; itemIndex < series.getItemCount(); itemIndex++) {
-                    double zValue = series.getZValue(itemIndex);
-
-                    csvWriter.append(";").append(formatDouble(df, zValue));
+                // first line of csv file
+                for (int column = 0; column < maxItemCount; column++) {
+                    // csvWriter.append("; ").append("Bin ").append(Integer.toString(column + 1));
+                    double binWidth = simParameters.MAX_SITE_POWER / maxItemCount;
+                    String binRange = column * binWidth + "-" + (column + 1) * binWidth;
+                    // String binRange = dataset.getColumnKey(column).toString();
+                    csvWriter.append("; ").append(binRange);
                 }
                 csvWriter.append("\n");
+
+                // following lines of csv file
+                for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+                    XYZSeries<String> series = dataset2.getSeries(seriesIndex);
+                    csvWriter.append(series.getKey());
+
+                    for (int itemIndex = 0; itemIndex < series.getItemCount(); itemIndex++) {
+                        double zValue = series.getZValue(itemIndex);
+
+                        csvWriter.append(";").append(formatDouble(df, zValue));
+                    }
+                    csvWriter.append("\n");
+                }
+                csvWriter.flush();
             }
-            csvWriter.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-
-    public static void saveHistogram3DToPNG(String filePath) {
-        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+    public void saveHistogram3DAsPNG(String filePath) {
+        if (frame2.getContentPane().getComponentCount() > 0
+                && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
             Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
             int originalWidth = chartPanel.getWidth();
             int originalHeight = chartPanel.getHeight();
@@ -873,7 +898,8 @@ public class ChargingSite {
     }
 
     public static void saveHistogram3DToPNG(String filePath, int width, int height) {
-        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+        if (frame2.getContentPane().getComponentCount() > 0
+                && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
             Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
 
             // Використання заданих параметрів ширини та висоти для створення зображення
@@ -922,8 +948,9 @@ public class ChargingSite {
         }
     }
 
-    public static void saveHistogram3DToSVG(String filePath) {
-        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+    public void saveHistogram3DAsSVG(String filePath) {
+        if (frame2.getContentPane().getComponentCount() > 0
+                && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
             Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
 
             int width = 1200;
@@ -944,7 +971,8 @@ public class ChargingSite {
     }
 
     public static void saveHistogram3DToSVG(String filePath, int width, int height) {
-        if (frame2.getContentPane().getComponentCount() > 0 && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
+        if (frame2.getContentPane().getComponentCount() > 0
+                && frame2.getContentPane().getComponent(0) instanceof Chart3DPanel) {
             Chart3DPanel chartPanel = (Chart3DPanel) frame2.getContentPane().getComponent(0);
 
             SVGGraphics2D g2 = new SVGGraphics2D(width, height);
@@ -962,7 +990,7 @@ public class ChargingSite {
     }
 
     private static void promptSaveOnCloseHistogram() {
-        Object[] options = {"Save", "Cancel", "Close"};
+        Object[] options = { "Save", "Cancel", "Close" };
         int choice = JOptionPane.showOptionDialog(frame, "Do you want to save changes or close?", "Save or Close",
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
@@ -974,7 +1002,7 @@ public class ChargingSite {
                 break;
             case JOptionPane.CANCEL_OPTION:
                 frame.setVisible(false);
-                //frame.dispose();
+                // frame.dispose();
                 break;
             default:
                 break;
@@ -989,10 +1017,10 @@ public class ChargingSite {
         return new Color(r, g, b);
     }
 
-
     private static void showSaveOptionsHistogram() {
-        Object[] saveOptions = {"CSV", "SVG", "PNG"};
-        int formatChoice = JOptionPane.showOptionDialog(frame, "Choose the format to save the chart:", "Save Chart Format",
+        Object[] saveOptions = { "CSV", "SVG", "PNG" };
+        int formatChoice = JOptionPane.showOptionDialog(frame, "Choose the format to save the chart:",
+                "Save Chart Format",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, saveOptions, saveOptions[0]);
 
         if (formatChoice == JOptionPane.CLOSED_OPTION) {
@@ -1033,14 +1061,15 @@ public class ChargingSite {
 
             try {
                 if (formatChoice == 0) {
-                    saveHistogramDataToCSV(fileToSave.getAbsolutePath());
+                    saveHistogramAsCSV(fileToSave.getAbsolutePath());
                 } else if (formatChoice == 1) {
                     saveHistogramToSVG(fileToSave.getAbsolutePath(), width, height);
                 } else if (formatChoice == 2) {
                     saveHistogramToPNG(fileToSave.getAbsolutePath(), width, height);
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(frame, "Error saving file: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Error saving file: " + e.getMessage(), "Save Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -1055,13 +1084,10 @@ public class ChargingSite {
             ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
             JFreeChart chart = chartPanel.getChart();
 
-
             SVGGraphics2D g2 = new SVGGraphics2D(width, height);
             Rectangle2D chartArea = new Rectangle2D.Double(0, 0, width, height);
 
-
             chart.draw(g2, chartArea);
-
 
             File svgFile = new File(filePath);
             try {
@@ -1074,7 +1100,8 @@ public class ChargingSite {
             System.err.println("ChartPanel not found in mainPanel");
         }
     }
-    public static void saveHistogramToSVG(String filePath) {
+
+    public void saveHistogramAsSVG(String filePath) {
 
         if (frame == null) {
             System.err.println("Histogram frame not initialized");
@@ -1084,8 +1111,8 @@ public class ChargingSite {
             ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
             JFreeChart chart = chartPanel.getChart();
 
-            SVGGraphics2D g2 = new SVGGraphics2D(SimulationGUI.WIDTH_OF_SVG_PICTURE, SimulationGUI.HEIGHT_OF_SVG_PICTURE);
-            Rectangle2D chartArea = new Rectangle2D.Double(0, 0, SimulationGUI.WIDTH_OF_SVG_PICTURE, SimulationGUI.HEIGHT_OF_SVG_PICTURE);
+            SVGGraphics2D g2 = new SVGGraphics2D(DefaultPictureSizes.SVG_WIDTH, DefaultPictureSizes.SVG_HEIGTH);
+            Rectangle2D chartArea = new Rectangle2D.Double(0, 0, DefaultPictureSizes.SVG_WIDTH, DefaultPictureSizes.SVG_HEIGTH);
 
             chart.draw(g2, chartArea);
 
@@ -1101,35 +1128,38 @@ public class ChargingSite {
         }
     }
 
-
-    public static void saveHistogramDataToCSV(String filePath) throws IOException {
+    public static void saveHistogramAsCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.######################");
         df.setDecimalSeparatorAlwaysShown(false);
 
-        FileWriter csvWriter = new FileWriter(filePath);
-        csvWriter.append("Arrival Rate");
+        try {
+            FileWriter csvWriter = new FileWriter(filePath);
+            csvWriter.append("Arrival Rate");
 
-        // Отримання кількості рядів та стовпців даних
-        int seriesCount = dataset.getRowCount();
-        int columnCount = dataset.getColumnCount();
+            // Отримання кількості рядів та стовпців даних
+            int seriesCount = dataset.getRowCount();
+            int columnCount = dataset.getColumnCount();
 
-        for (int column = 0; column < columnCount; column++) {
-            String binRange = dataset.getColumnKey(column).toString();
-            csvWriter.append("; ").append(binRange);
-        }
-        csvWriter.append("\n");
-        for (int series = 0; series < seriesCount; series++) {
-            double arrivalRate = (series + 1) * simParameters.getARRIVAL_RATE_STEP();
-            csvWriter.append(formatDouble(df, arrivalRate));
             for (int column = 0; column < columnCount; column++) {
-                Number probability = dataset.getValue(series, column);
-                csvWriter.append(";").append(formatDouble(df, probability.doubleValue()));
+                String binRange = dataset.getColumnKey(column).toString();
+                csvWriter.append("; ").append(binRange);
             }
             csvWriter.append("\n");
-        }
+            for (int series = 0; series < seriesCount; series++) {
+                double arrivalRate = (series + 1) * simParameters.getARRIVAL_RATE_STEP();
+                csvWriter.append(formatDouble(df, arrivalRate));
+                for (int column = 0; column < columnCount; column++) {
+                    Number probability = dataset.getValue(series, column);
+                    csvWriter.append(";").append(formatDouble(df, probability.doubleValue()));
+                }
+                csvWriter.append("\n");
+            }
 
-        csvWriter.flush();
-        csvWriter.close();
+            csvWriter.flush();
+            csvWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void saveHistogramToPNG(String filePath, int width, int height) {
@@ -1156,7 +1186,7 @@ public class ChargingSite {
         System.err.println("ChartPanel not found");
     }
 
-    public static void saveHistogramToPNG(String filePath) {
+    public void saveHistogramAsPNG(String filePath) {
         if (frame == null) {
             System.err.println("Histogram frame not initialized");
             return;
@@ -1170,7 +1200,8 @@ public class ChargingSite {
             int height = chartPanel.getHeight();
 
             try {
-                ChartUtilities.saveChartAsPNG(new File(filePath), chart, SimulationGUI.WIDTH_OF_PNG_PICTURE, SimulationGUI.HEIGHT_OF_PNG_PICTURE);
+                ChartUtilities.saveChartAsPNG(new File(filePath), chart, DefaultPictureSizes.PNG_WIDTH,
+                        DefaultPictureSizes.PNG_HEIGTH);
                 System.out.println("Histogram saved to PNG successfully.");
             } catch (IOException e) {
                 System.err.println("Error saving histogram to PNG: " + e.getMessage());
@@ -1190,6 +1221,7 @@ public class ChargingSite {
         seriesCounter = 0;
 
     }
+
     public static JFrame getHistogramFrame() {
         return frame;
     }

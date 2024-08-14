@@ -1,9 +1,11 @@
 package results;
 
+import chargingSite.DefaultPictureSizes;
 import chargingSite.Simulation;
 import chargingSite.SimulationGUI;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -358,7 +360,7 @@ public class Monitor extends Graph {
         energyCharacteristicsFrame = frame;
         frame.setContentPane(chartPanel);
         frame.pack();
-       // frame.setLocation(largestBounds.x + xOffset, yOffset);
+        // frame.setLocation(largestBounds.x + xOffset, yOffset);
         frame.setLocation(largestBounds.x + xOffset, yOffset);
         frame.setVisible(true);
         chartPanel.repaint();
@@ -430,7 +432,7 @@ public class Monitor extends Graph {
                 if (fileExtension.equals(".svg")) {
                     saveEnergyCharacteristicsGraphAsSVG(MyChart, fileToSave.getAbsolutePath(), width, height);
                 } else if (fileExtension.equals(".csv")) {
-                    saveEnergyCharacteristicsGraphToCSV(fileToSave.getAbsolutePath());
+                    saveEnergyCharacteristicsGraphAsCSV(fileToSave.getAbsolutePath());
                 } else if (fileExtension.equals(".png")) {
                     saveEnergyCharacteristicsGraphToPNG(MyChart, fileToSave.getAbsolutePath(), width, height);
                 }
@@ -457,7 +459,7 @@ public class Monitor extends Graph {
         }
     }
 
-     public void saveEnergyCharacteristicsGraphAsSVG(int wi, int hi, File svgFile) throws IOException {
+    public void saveEnergyCharacteristicsGraphAsSVG(int wi, int hi, File svgFile) {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -466,16 +468,20 @@ public class Monitor extends Graph {
 
         MyChart.draw(svgGenerator, new Rectangle2D.Double(0, 0, wi, hi));
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
-            svgGenerator.stream(writer, true);
+        try {
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
+                svgGenerator.stream(writer, true);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
 
-    public void saveEnergyCharacteristicsGraphToPNG(String filePath) {
+    public void saveEnergyCharacteristicsGraphAsPNG(String filePath) {
         try {
-            int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
-            int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+            int width = DefaultPictureSizes.PNG_WIDTH;
+            int height = DefaultPictureSizes.PNG_HEIGTH;
             File PNGFile = new File(filePath);
             ChartUtilities.saveChartAsPNG(PNGFile, MyChart, width, height);
         } catch (IOException e) {
@@ -494,7 +500,7 @@ public class Monitor extends Graph {
     private String formatDouble(DecimalFormat df, Double value) {
         return df.format(value);
     }
-    public void saveEnergyCharacteristicsGraphToCSV(String filePath) {
+    public void saveEnergyCharacteristicsGraphAsCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.####################");
         df.setDecimalSeparatorAlwaysShown(false);
         try (FileWriter writer = new FileWriter(filePath)) {
@@ -536,13 +542,9 @@ public class Monitor extends Graph {
             boolean inputValid = getUserInput() && chooseFile();
 
             if (inputValid) {
-                try {
-                    int imageWidth = Integer.parseInt(getWidthField().getText());
-                    int imageHeight = Integer.parseInt(getHeightField().getText());
-                    saveEnergyCharacteristicsGraphAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                }
+                int imageWidth = Integer.parseInt(getWidthField().getText());
+                int imageHeight = Integer.parseInt(getHeightField().getText());
+                saveEnergyCharacteristicsGraphAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
             }
         } else if (formatResult == JOptionPane.NO_OPTION) {
             JFileChooser csvFileChooser = new JFileChooser();
@@ -556,7 +558,7 @@ public class Monitor extends Graph {
                 if (!csvFilePath.endsWith(".csv")) {
                     csvFilePath += ".csv";
                 }
-                saveEnergyCharacteristicsGraphToCSV(csvFilePath);
+                saveEnergyCharacteristicsGraphAsCSV(csvFilePath);
             }
         }
     }

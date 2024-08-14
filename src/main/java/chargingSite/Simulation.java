@@ -4,6 +4,7 @@ import distributions.Distribution;
 import eventSimulation.*;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -85,7 +86,7 @@ public class Simulation extends Graph {
         return parameters.getMMnNwaitingTime(rho);
     }
 
-    public void saveQueueingCharacteristicsAsSVG(int wi, int hi, File svgFile) throws IOException {
+    public void saveQueueingCharacteristicsAsSVG(int wi, int hi, File svgFile) {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -94,8 +95,12 @@ public class Simulation extends Graph {
 
         MyChart.draw(svgGenerator, new Rectangle2D.Double(0, 0, wi, hi));
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
-            svgGenerator.stream(writer, true);
+        try {
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
+                svgGenerator.stream(writer, true);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -178,8 +183,8 @@ public class Simulation extends Graph {
 
             //mySystem.getChargingSite().displayPowerOverTimeChart(dataList, parameters);
             System.out.println("Number of SitePower samples: "
-                            + mySystem.getChargingSite().getSitePower1().size()
-                            + " and data-points:" + dataList.size() + "\n");
+                    + mySystem.getChargingSite().getSitePower1().size()
+                    + " and data-points:" + dataList.size() + "\n");
 
             // mySystem.getChargingSite().visualizeSitePower();
             //  mySystem.getChargingSite().displayChart();
@@ -506,7 +511,7 @@ public class Simulation extends Graph {
                 } else if (fileExtension.equals(".png")) {
                     saveQueueingCharacteristicsGraphToPNG(fileToSave.getAbsolutePath(), width, height);
                 } else if (fileExtension.equals(".csv")) {
-                    saveQueueingCharacteristicsToCSV(fileToSave.getAbsolutePath());
+                    saveQueueingCharacteristicsAsCSV(fileToSave.getAbsolutePath());
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(frame, "Error saving file: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
@@ -537,17 +542,17 @@ public class Simulation extends Graph {
             System.err.println("Problem occurred creating chart PNG: " + e.getMessage());
         }
     }
-    public void saveQueueingCharacteristicsGraphToPNG(String filePath) {
+    public void saveQueueingCharacteristicsAsPNG(String filePath) {
         try {
-            int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
-            int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+            int width = DefaultPictureSizes.PNG_WIDTH;
+            int height = DefaultPictureSizes.PNG_HEIGTH;
             File PNGFile = new File(filePath);
             ChartUtilities.saveChartAsPNG(PNGFile, MyChart, width, height);
         } catch (IOException e) {
             System.err.println("Problem occurred creating chart PNG.");
         }
     }
-    public void saveQueueingCharacteristicsToCSV(String filePath) {
+    public void saveQueueingCharacteristicsAsCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.####################");
         df.setDecimalSeparatorAlwaysShown(false);
 
@@ -603,13 +608,9 @@ public class Simulation extends Graph {
 
             boolean inputValid = getUserInput() && chooseFile();
             if (inputValid) {
-                try {
-                    int imageWidth = Integer.parseInt(getWidthField().getText());
-                    int imageHeight = Integer.parseInt(getHeightField().getText());
-                    saveQueueingCharacteristicsAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                }
+                int imageWidth = Integer.parseInt(getWidthField().getText());
+                int imageHeight = Integer.parseInt(getHeightField().getText());
+                saveQueueingCharacteristicsAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
             }
         } else if (formatResult == JOptionPane.NO_OPTION) {
             JFileChooser csvFileChooser = new JFileChooser();
@@ -623,9 +624,8 @@ public class Simulation extends Graph {
                 if (!csvFilePath.endsWith(".csv")) {
                     csvFilePath += ".csv";
                 }
-                saveQueueingCharacteristicsToCSV(csvFilePath);
+                saveQueueingCharacteristicsAsCSV(csvFilePath);
             }
         }
     }
-
 }

@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
+
+
 public class Graph {
     private String chosenFile;
     private final JTextField widthField;

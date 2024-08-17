@@ -123,7 +123,7 @@ public class QueueingSystem {
     public Distribution getArrivalTimeDistribution() {
         return arrivalTimeDistribution;
     }
-
+    public Double getBlockingRate() {return blockingRate;}
     public Double getEquilibriumArrivalRate() {
         return numberOfServers / meanInterArrivalTime;
     }

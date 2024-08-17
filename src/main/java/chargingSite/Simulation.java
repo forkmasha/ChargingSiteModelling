@@ -60,6 +60,7 @@ public class Simulation extends Graph {
     private final Times meanQueueingTimes = new Times("ArrivalRate", "MeanQueueingTime");
     private final Times meanSystemTimes = new Times("ArrivalRate", "MeanSystemTime");
     private final XYSeries analyticWaitingTimes = new XYSeries("Value");
+    private final XYSeries blockingProbabilities = new XYSeries("Value");
 
     //----------------private Monitor meanEnergyCharged = new Monitor();// collect mean, std, confidence
 
@@ -168,6 +169,9 @@ public class Simulation extends Graph {
             // XYSeries series = mySystem.getChargingSite().getSitePowerSeries();
             // mySystem.getChargingSite().addSitePower3DHistogram(series, arrivalRate);
 
+            // add encountered blocking probability to an XYSeries that can be drawn
+            blockingProbabilities.add(arrivalRate,
+                   EventSimulation.getBlockingRate());
 
             // Histogram.generateHistogram(25, mySystem.getSitePowers(), null,"Site Power Histogram @ " + stepCounter);
             double nBins = parameters.getMAX_EVENTS()/99.99;
@@ -305,6 +309,7 @@ public class Simulation extends Graph {
         meanQueueingTimes.addGraphs(dataset);
         //analyticWaitingTimes.addGraphs(dataset);
         dataset.addSeries(analyticWaitingTimes);
+        dataset.addSeries(blockingProbabilities);
 
         MyChart = createXYLineChart(
                 "",
@@ -369,6 +374,12 @@ public class Simulation extends Graph {
         renderer.setSeriesPaint(++i, Color.black);
         renderer.setSeriesStroke(i, new BasicStroke(0.6f));
         renderer.setSeriesShape(i, ShapeUtilities.createDiagonalCross(0.75f, 0.75f));
+        plot.setRenderer(renderer);
+
+        // draw blocking probabilities of M/M/n/N queueing system
+        renderer.setSeriesPaint(++i, Color.magenta.darker());
+        renderer.setSeriesStroke(i, new BasicStroke(1.8f));
+        renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(1.5f, 1.5f));
         plot.setRenderer(renderer);
 
         // Add legend

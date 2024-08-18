@@ -347,7 +347,10 @@ public class Simulation extends Graph {
             yAxis.setRange(0, 3);
         }
         //plot.setRangeAxis(0, yAxis); // yAxis is already the one with index 0 received from plot.getRangeAxis()
-        NumberAxis yAxis2 = new NumberAxis("blocking probability");
+        NumberAxis yAxis2 = new NumberAxis("Blocking Probability");
+        yAxis2.setLabelFont(new Font("Arial", Font.BOLD, 12));
+        yAxis2.setLabelAngle(Math.toRadians(180));
+        yAxis2.setLabelPaint(Color.magenta.darker().darker());
         yAxis2.setRange(0, 1);
         plot.setRangeAxis(1, yAxis2);
 

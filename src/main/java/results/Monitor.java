@@ -135,7 +135,7 @@ public class Monitor extends Graph {
         confidencesChargingDeviation.add(calc.getConfidenceInterval(source.getChargingDeviations(), confLevel));
     }
 
-    public void addGraphsEnergyCharacteristics(XYSeriesCollection dataset) {
+    public void addGraphsEnergyCharacteristics(XYSeriesCollection dataset, XYSeriesCollection dataset2) {
 
         XYSeries meanSeries = new XYSeries("Mean");
         XYSeries stdSeries = new XYSeries("Std");
@@ -184,18 +184,18 @@ public class Monitor extends Graph {
             confBars[i].add(step, mean + conf);
             dataset.addSeries(confBars[i]);
 
-            meanSitePowersSeries.add(step, meanSP / source.getNumberOfServers());
-            stdSitePowersSeries.add(step, stdSP / source.getNumberOfServers());
-            maxSitePowersSeries.add(step, maxSP / source.getNumberOfServers());
-            confBarsSitePowerSeries[i].add(step, (meanSP - confSP) / source.getNumberOfServers());
-            confBarsSitePowerSeries[i].add(step, (meanSP + confSP) / source.getNumberOfServers());
-            dataset.addSeries(confBarsSitePowerSeries[i]);
-
             meanChargingDeviationSeries.add(step, meanCD); //WHY 0.5*?
             stdChargingDeviationSeries.add(step, stdCD);
             confBarsChargingDeviation[i].add(step, (meanCD - confCD));
             confBarsChargingDeviation[i].add(step, (meanCD + confCD));
             dataset.addSeries(confBarsChargingDeviation[i]);
+
+            meanSitePowersSeries.add(step, meanSP); // / source.getNumberOfServers());
+            stdSitePowersSeries.add(step, stdSP); // / source.getNumberOfServers());
+            maxSitePowersSeries.add(step, maxSP); // / source.getNumberOfServers());
+            confBarsSitePowerSeries[i].add(step, (meanSP - confSP)); // / source.getNumberOfServers());
+            confBarsSitePowerSeries[i].add(step, (meanSP + confSP)); // / source.getNumberOfServers());
+            dataset2.addSeries(confBarsSitePowerSeries[i]);
         }
 
         dataset.addSeries(meanSeries);
@@ -203,12 +203,12 @@ public class Monitor extends Graph {
         dataset.addSeries(max90Series);
         dataset.addSeries(min10Series);
 
-        dataset.addSeries(meanSitePowersSeries);
-        dataset.addSeries(stdSitePowersSeries);
-        dataset.addSeries(maxSitePowersSeries);
-
         dataset.addSeries(meanChargingDeviationSeries);
         dataset.addSeries(stdChargingDeviationSeries);
+
+        dataset2.addSeries(meanSitePowersSeries);
+        dataset2.addSeries(stdSitePowersSeries);
+        dataset2.addSeries(maxSitePowersSeries);
     }
 
     public static JFrame energyCharacteristicsFrame;
@@ -229,7 +229,7 @@ public class Monitor extends Graph {
         int maxEvents = mySim.getParameters().getMAX_EVENTS();
 
         String title = "Charging site Energy Characteristics \n"
-                + kendallName + " Energy System"
+                + kendallName + " Charging Site Model"
                 + " (" + maxEvents + " samples per evaluation point)";
 
         String[] titleParts = title.split("\n");
@@ -241,12 +241,13 @@ public class Monitor extends Graph {
         textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
 
         XYSeriesCollection dataset = new XYSeriesCollection();
-        mySim.chargingMonitor.addGraphsEnergyCharacteristics(dataset);
+        XYSeriesCollection dataset2 = new XYSeriesCollection();
+        mySim.chargingMonitor.addGraphsEnergyCharacteristics(dataset,dataset2);
 
         MyChart = createXYLineChart(
                 "",
                 "Arrival Rate [1/h]",
-                "Mean and Std [kW/server, kWh/car]",
+                "Mean and Std [kWh/EV]",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true,
@@ -257,15 +258,30 @@ public class Monitor extends Graph {
         MyChart.addSubtitle(textTitle);
         MyChart.addSubtitle(textSubtitle);
         XYPlot plot = MyChart.getXYPlot();
-        NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
+        plot.setDataset(0, dataset);
+        plot.setDataset(1, dataset2);
+
+        NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        plot.setRangeAxis(0, yAxis);
+        NumberAxis yAxis2 = new NumberAxis("Site Power [kW]");
+        yAxis2.setRange(0, 1.01 * mySim.getParameters().MAX_SITE_POWER);
+        yAxis2.setLabelFont(new Font("Arial", Font.BOLD, 12));
+        yAxis2.setLabelPaint(Color.magenta.darker().darker());
+        yAxis2.setLabelAngle(Math.toRadians(180));
+        plot.setRangeAxis(1, yAxis2);
+
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        plot.setRenderer(0,renderer);
+        XYLineAndShapeRenderer renderer2 = new XYLineAndShapeRenderer();
+        plot.setRenderer(1,renderer2);
+
+        plot.mapDatasetToRangeAxis(0, 0);
+        plot.mapDatasetToRangeAxis(1, 1);
 
         int i = 0;
-        while (i < 3 * mySim.getParameters().getSIM_STEPS()) {
+        while (i < 2 * mySim.getParameters().getSIM_STEPS()) {
             renderer.setSeriesPaint(i, Color.BLUE);
-            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
-            i++;
-            renderer.setSeriesPaint(i, Color.MAGENTA);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
             renderer.setSeriesPaint(i, Color.RED);
@@ -281,28 +297,31 @@ public class Monitor extends Graph {
         renderer.setSeriesShape(i++, ShapeUtilities.createDownTriangle(2.25f));
         renderer.setSeriesPaint(i, Color.BLUE);
         renderer.setSeriesShape(i++, ShapeUtilities.createUpTriangle(2.25f));
-        plot.setRenderer(renderer);
-
-
-        renderer.setSeriesPaint(i, Color.MAGENTA);
-        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
-        renderer.setSeriesPaint(i, Color.MAGENTA);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
-
-        renderer.setSeriesPaint(i, Color.MAGENTA);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDownTriangle(1.75f));
-
 
         renderer.setSeriesPaint(i, Color.RED);
         renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
         renderer.setSeriesPaint(i, Color.RED);
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
+        i = 0;
+        Color powerColor = Color.MAGENTA.darker();
+        while (i < mySim.getParameters().getSIM_STEPS()) {
+            renderer2.setSeriesPaint(i, powerColor);
+            renderer2.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
+            i++;
+        }
+        renderer2.setSeriesPaint(i, powerColor);
+        renderer2.setSeriesStroke(i++, new BasicStroke(2.4f));
+        renderer2.setSeriesPaint(i, powerColor);
+        renderer2.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
+
+        renderer2.setSeriesPaint(i, powerColor);
+        renderer2.setSeriesShape(i++, ShapeUtilities.createDownTriangle(1.75f));
 
         LegendItemCollection legendItems = new LegendItemCollection();
         legendItems.add(new LegendItem("Energy per charged EV", Color.BLUE));
-        legendItems.add(new LegendItem("EV Charging Deviation", Color.RED));
-        legendItems.add(new LegendItem("Average Power per Charging Point", Color.MAGENTA));
+        legendItems.add(new LegendItem("EV-charging deviation", Color.RED));
+        legendItems.add(new LegendItem("Site Power Demand", powerColor));
 
 
         LegendItemSource source = () -> legendItems;

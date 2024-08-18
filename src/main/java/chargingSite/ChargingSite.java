@@ -64,18 +64,19 @@ public class ChargingSite {
     public static Color highRED = new Color(255, 0, 127);
     private static Color[] colors; // colour array to be initialised with n = number of simulation steps
 
-    private static void initColors(int n) {
-        initColors(n, lowBLUE, highRED);
+    private static Color[] initColors(int n) {
+        return initColors(n, lowBLUE, highRED);
     }
 
-    private static void initColors(int n, Color ci) {
+    private static Color[]  initColors(int n, Color ci) {
         colors = new Color[n];
         for (int i = 0; i < n; i++) {
             colors[i] = ci;
         }
+        return colors;
     }
 
-    private static void initColors(int n, Color c1, Color c2) {
+    private static Color[] initColors(int n, Color c1, Color c2) {
         colors = new Color[n];
         int R, G, B;
         double p;
@@ -86,6 +87,7 @@ public class ChargingSite {
             B = (int) Math.round((1 - p) * c1.getBlue() + p * c2.getBlue());
             colors[i] = new Color(R, G, B);
         }
+        return colors;
     }
 
     public ChargingSite(SimulationParameters parameters) {
@@ -336,7 +338,7 @@ public class ChargingSite {
             initializePowerOverTimeChart1();
         }
         if (colors == null)
-            initColors(parameters.getSIM_STEPS());
+            colors = initColors(parameters.getSIM_STEPS());
         /*
          * double progress = (double) dataset1.getSeriesCount() /
          * parameters.getSIM_STEPS();
@@ -369,13 +371,13 @@ public class ChargingSite {
         // plot.setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
-        renderer.setSeriesLinesVisible(dataset1.getSeriesCount() - 1, false);
-        renderer.setSeriesShapesVisible(dataset1.getSeriesCount() - 1, true);
-        renderer.setSeriesShape(dataset1.getSeriesCount() - 1, cross);
-        // plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, new Color(R,
-        // G, B));
-        plot.getRenderer().setSeriesPaint(dataset1.getSeriesCount() - 1, colors[dataset1.getSeriesCount() - 1]);
-
+        for(int i = 0 ; i < dataset1.getSeriesCount(); i++ ) {
+            renderer.setSeriesLinesVisible(i, false);
+            renderer.setSeriesShapesVisible(i, true);
+            renderer.setSeriesShape(i, cross);
+            // plot.getRenderer().setSeriesPaint(i, new Color(R, G, B));
+            plot.getRenderer().setSeriesPaint(i, colors[i]);
+        }
         plot.getRangeAxis().setRange(0, parameters.MAX_SITE_POWER * 1.05);
 
         frame1.repaint();

@@ -317,16 +317,11 @@ public class ChargingSite {
         }
     }
 
-    public static void displayPowerOverTimeChart(List<TimePowerData> dataList, SimulationParameters parameters) {
-        if (frame1 == null || chartPanel1 == null || dataset1 == null) {
-            initializePowerOverTimeChart1();
-        }
-        if (colors == null)
-            initColors(parameters.getSIM_STEPS());
-
-        double maxTime = 1 + 25 * parameters.getMaxArrivalRate() / parameters.getMaxEvents();
-        double arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate()
-                / parameters.getSimSteps();
+    public static void composePowerOverTimeChart(List<TimePowerData> dataList, SimulationParameters parameters) {
+        double maxTime;
+        maxTime = 1 + 25 * parameters.getMaxArrivalRate() / parameters.getMaxEvents();
+        double arrivalRate;
+        arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
 
         XYSeries series = new XYSeries(String.format("%.1f EV/h", arrivalRate));
         for (TimePowerData data : dataList) {
@@ -334,7 +329,14 @@ public class ChargingSite {
                 series.add(data.getTime(), data.getPower());
             }
         }
-
+        dataset1.addSeries(series);
+    }
+    public static void displayPowerOverTimeChart(List<TimePowerData> dataList, SimulationParameters parameters) {
+        if (frame1 == null || chartPanel1 == null || dataset1 == null) {
+            initializePowerOverTimeChart1();
+        }
+        if (colors == null)
+            initColors(parameters.getSIM_STEPS());
         /*
          * double progress = (double) dataset1.getSeriesCount() /
          * parameters.getSIM_STEPS();
@@ -342,15 +344,29 @@ public class ChargingSite {
          * int G = (int) Math.floor(255 * progress);
          * int B = 255;
          */
-        Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); // .createRegularCross(1,
+
+        /* this part needs to be done step-by-step - moved to separate method (see above)
+        double maxTime;
+        maxTime = 1 + 25 * parameters.getMaxArrivalRate() / parameters.getMaxEvents();
+        double arrivalRate;
+        arrivalRate = (dataset1.getSeriesCount() + 1) * parameters.getMaxArrivalRate() / parameters.getSimSteps();
+
+        XYSeries series = new XYSeries(String.format("%.1f EV/h", arrivalRate));
+        for (TimePowerData data : dataList) {
+            if (data.getTime() > maxTime && data.getTime() <= 2 * maxTime) {
+                series.add(data.getTime(), data.getPower());
+            }
+        }
+        dataset1.addSeries(series); // end of new composePowerOverTimeChart (see above)
+        */
+          Shape cross = ShapeUtilities.createDiagonalCross(2.1f, 0.15f); // .createRegularCross(1,
         // 1);.createDiamond(2.1f);
 
-        dataset1.addSeries(series);
         XYPlot plot = (XYPlot) chartPanel1.getChart().getPlot();
 
-        // plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD); //would be nice
-        // but colouring malfunctions with that option
-        plot.setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
+        plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD); //would be nice
+        // but colouring malfunctions with that option - because previous got overdrawn... <- should no more occur
+        // plot.setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
         renderer.setSeriesLinesVisible(dataset1.getSeriesCount() - 1, false);

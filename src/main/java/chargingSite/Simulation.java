@@ -10,6 +10,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -263,6 +264,8 @@ public class Simulation extends Graph {
                     + " Clients done: " + Client.getClientCounter()
             );
 
+            mySystem.getChargingSite().composePowerOverTimeChart(dataList, parameters);
+
             arrivalRate += parameters.getARRIVAL_RATE_STEP();
         }
         drawGraphQueueingCharacteristics();
@@ -303,13 +306,14 @@ public class Simulation extends Graph {
         textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
 
         XYSeriesCollection dataset = new XYSeriesCollection();
+        XYSeriesCollection dataset2 = new XYSeriesCollection();
 
         meanSystemTimes.addGraphs(dataset);
         meanServiceTimes.addGraphs(dataset);
         meanQueueingTimes.addGraphs(dataset);
         //analyticWaitingTimes.addGraphs(dataset);
         dataset.addSeries(analyticWaitingTimes);
-        dataset.addSeries(blockingProbabilities);
+        dataset2.addSeries(blockingProbabilities);
 
         MyChart = createXYLineChart(
                 "",
@@ -326,8 +330,15 @@ public class Simulation extends Graph {
         MyChart.addSubtitle(textSubtitle);
 
         XYPlot plot = MyChart.getXYPlot();
+        plot.setDataset(0, dataset);
+        plot.setDataset(1, dataset2);
+
         NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        plot.setRenderer(0, renderer);
+        XYLineAndShapeRenderer renderer2 = new XYLineAndShapeRenderer();
+        //XYSplineRenderer renderer2 = new XYSplineRenderer();
+        plot.setRenderer(1, renderer2);
 
         NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
         if (parameters.getAVERAGE_SERVICE_TIME() > 0) {
@@ -335,6 +346,13 @@ public class Simulation extends Graph {
         } else {
             yAxis.setRange(0, 3);
         }
+        //plot.setRangeAxis(0, yAxis); // yAxis is already the one with index 0 received from plot.getRangeAxis()
+        NumberAxis yAxis2 = new NumberAxis("blocking probability");
+        yAxis2.setRange(0, 1);
+        plot.setRangeAxis(1, yAxis2);
+
+        plot.mapDatasetToRangeAxis(0, 0);
+        plot.mapDatasetToRangeAxis(1, 1);
 
         int i = 0;
         while (i < parameters.getSIM_STEPS()) {
@@ -368,19 +386,16 @@ public class Simulation extends Graph {
         renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
         renderer.setSeriesPaint(i, Color.red);
         renderer.setSeriesShape(i, ShapeUtilities.createDiamond(0.75f));
-        plot.setRenderer(renderer);
 
         // draw analytic calculated waiting time of M/M/n/N queueing system
         renderer.setSeriesPaint(++i, Color.black);
-        renderer.setSeriesStroke(i, new BasicStroke(0.6f));
+        renderer.setSeriesStroke(i, new BasicStroke(1.8f));
         renderer.setSeriesShape(i, ShapeUtilities.createDiagonalCross(0.75f, 0.75f));
-        plot.setRenderer(renderer);
 
         // draw blocking probabilities of M/M/n/N queueing system
-        renderer.setSeriesPaint(++i, Color.magenta.darker());
-        renderer.setSeriesStroke(i, new BasicStroke(1.8f));
-        renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(1.5f, 1.5f));
-        plot.setRenderer(renderer);
+        renderer2.setSeriesPaint(0, Color.magenta.darker());
+        renderer2.setSeriesStroke(0, new BasicStroke(1.8f));
+        renderer2.setSeriesShape(0, ShapeUtilities.createRegularCross(1.5f, 1.5f));
 
         // Add legend
         LegendItemSource legendItemSource = new LegendItemSource() {

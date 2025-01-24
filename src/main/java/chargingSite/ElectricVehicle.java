@@ -9,6 +9,7 @@ import exceptions.NegativeChargingPowerException;
 import exceptions.NegativeSoCduration;
 import queueingSystem.QueueingSystem;
 import queueingSystem.Server;
+import simulationParameters.SimulationParameters;
 
 import java.util.logging.Logger;
 
@@ -39,8 +40,7 @@ public class ElectricVehicle {
 
     public ElectricVehicle(SimulationParameters simParameters, String model, double meanServiceTime, double maxPower, DistributionType demandDistributionType, double batteryCapacity) {
         this.parameters = simParameters;
-        this.id = model + "_" + (int) UniformDistribution.createSample(500); // + "_" + System.currentTimeMillis();
-        // this.id = model + "_" + UUID.randomUUID();
+        this.id = model + "_" + (int) UniformDistribution.createSample(500);
         this.model = model;
         this.meanServiceTime = meanServiceTime;
         this.maxPower = maxPower;
@@ -70,10 +70,10 @@ public class ElectricVehicle {
         double th1, th2 = 1;
         String model = "testCar";
 
-        if (simParameters.getNUMBER_OF_CAR_TYPES() <= 1) {
+        if (simParameters.getNumberOfCarTypes() <= 1) {
             simParameters.setPercentageOfCars(1);
-            return new ElectricVehicle(simParameters, model, simParameters.getMEAN_SERVICE_TIME(), simParameters.getMaxEvPower(),simParameters.getDEMAND_TYPE(), simParameters.getBatteryCapacity());
-        } else if (simParameters.getNUMBER_OF_CAR_TYPES() <= 2) {
+            return new ElectricVehicle(simParameters, model, simParameters.getMeanServiceTime(), simParameters.getMaxEvPower(),simParameters.getDemandType(), simParameters.getBatteryCapacity());
+        } else if (simParameters.getNumberOfCarTypes() <= 2) {
             if (simParameters.getPercentageOfCars2() >= 1) simParameters.setPercentageOfCars(1 - simParameters.getPercentageOfCars2()/100);
             else simParameters.setPercentageOfCars(1 - simParameters.getPercentageOfCars2());
         } else {
@@ -81,16 +81,16 @@ public class ElectricVehicle {
                 simParameters.setPercentageOfCars(1 - (simParameters.getPercentageOfCars2() + simParameters.getPercentageOfCars3())/100);
             else simParameters.setPercentageOfCars(1 - simParameters.getPercentageOfCars2() - simParameters.getPercentageOfCars3());
         }
-        if (simParameters.getNUMBER_OF_CAR_TYPES() > 2) {
+        if (simParameters.getNumberOfCarTypes() > 2) {
             th2 = simParameters.getPercentageOfCars() + simParameters.getPercentageOfCars2();
         }
         th1 = simParameters.getPercentageOfCars();
         if (chooser > th2) {
-            return new ElectricVehicle(simParameters, model+'3', simParameters.getMEAN_SERVICE_TIME3(), simParameters.getMaxEvPower3(),simParameters.getDEMAND_TYPE3(), simParameters.getBatteryCapacity3());
+            return new ElectricVehicle(simParameters, model+'3', simParameters.getMeanServiceTime3(), simParameters.getMaxEvPower3(),simParameters.getDemandType3(), simParameters.getBatteryCapacity3());
         } else if (chooser > th1) {
-            return new ElectricVehicle(simParameters, model+'2', simParameters.getMEAN_SERVICE_TIME2(), simParameters.getMaxEvPower2(), simParameters.getDEMAND_TYPE2(), simParameters.getBatteryCapacity2());
+            return new ElectricVehicle(simParameters, model+'2', simParameters.getMeanServiceTime2(), simParameters.getMaxEvPower2(), simParameters.getDemandType2(), simParameters.getBatteryCapacity2());
         } else {
-            return new ElectricVehicle(simParameters, model+'1', simParameters.getMEAN_SERVICE_TIME(), simParameters.getMaxEvPower(), simParameters.getDEMAND_TYPE(),simParameters.getBatteryCapacity());
+            return new ElectricVehicle(simParameters, model+'1', simParameters.getMeanServiceTime(), simParameters.getMaxEvPower(), simParameters.getDemandType(),simParameters.getBatteryCapacity());
         }
     }
 
@@ -158,7 +158,6 @@ public class ElectricVehicle {
             this.chargingPower = 0;
             return;
         }
-        //this.updateChargingPower(sitePower);
         double ChargingPowerAtBeginOfInterval = this.chargingPower;
         this.updateChargingPower();
         double chargedEnergy = duration * (ChargingPowerAtBeginOfInterval + this.chargingPower) / 2;
@@ -166,7 +165,6 @@ public class ElectricVehicle {
             logger.warning("Charged Energy is negative!");
             throw new NegativeChargedEnergyException("Charged Energy is negative!");
         }
-        //if(chargingPower<0) {System.out.println("ERROR: Negative charging power!"); System.exit(1);}
         if (this.stateOfCharge + chargedEnergy / this.batteryCapacity > 1) {
             chargedEnergy = (1 - this.stateOfCharge) * this.batteryCapacity;
             this.chargingPower = 0;
@@ -177,7 +175,6 @@ public class ElectricVehicle {
         if (this.meanServiceTime <= 0 && this.stateOfCharge >= 1) {
             // calculate charging performance (this.chargeDemand * this.batteryCapacity - this.chargedEnergy) and store it for statistical evaluation
             this.siteModel.instantDeparture(this.getMyServer().getClient());
-            // System.out.println("Car finished service (charging) because the battery is full.");
         }
 
         // tracking down negative SoC...
@@ -187,21 +184,13 @@ public class ElectricVehicle {
                     ", chargedEnergy = " + chargedEnergy + ", SoC = " + stateOfCharge);
             throw new NegativeSoCduration("Negative SoC duration!");
         }
-        /* if(this.energyCharged<0) {
-            System.out.println("duration = " + duration);
-            System.out.println("chargingPower = " + chargingPower);
-            System.out.println("chargedEnergy = " + chargedEnergy);
-            System.out.println("ERROR: EnergyCharged became negative !");
-            System.exit(1);
-        } */
     }
 
     public void resetEnergyCharged() {
         this.energyCharged = 0.0;
     }
 
-    public void updateChargingPower() {
-        // double newChargingPower = this.chargingPower;
+    public void updateChargingPower() {        ;
         if (this.chargingPower < 0) {
             throw new NegativeChargingPowerException("Negative charging power prior update!");
         }
@@ -220,42 +209,19 @@ public class ElectricVehicle {
             if (this.chargingPower < 0) {
                 throw new NegativeChargingPowerException("Negative charging power for SoC in 0.2 .. 0.8!");
             }
-        } else { // adjust charging power to current state of charge
+        } else {
             this.chargingPower = this.batteryCapacity * (0.5 + 2.5 * stateOfCharge / 0.2);
             if (this.chargingPower < 0) {
                 throw new NegativeChargingPowerException("Negative charging power for SoC < 0.2!");
             }
         }
-
-        //System.out.println("batteryCapacity = " + this.batteryCapacity);
-        //System.out.println("stateOfCharge = " + this.stateOfCharge);
-        //System.out.println("chargingPower = " + this.chargingPower);
-
-        // limit charging power to max possible per charging point
         this.chargingPower = this.getChargingPoint().checkPower(this.chargingPower);
 
-        /*double maxChargingPointPower = this.getChargingPoint().getMaxPower();
-        if (this.chargingPower>maxChargingPointPower) {  // limit charging power to max possible per charging point
-            this.chargingPower = maxChargingPointPower;
-            if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after PointLimiting!");}
-        }*/
-
-        // limit charging power to max possible for charging site
-        // -> does it for all cars currently charged, adjusting the chargingPower if needed
         this.getSiteModel().getChargingSite().checkPower();
 
-        //double maxChargingSitePower = this.getSiteModel().getChargingSite().getMaxSitePower();
-        //if (sitePower>maxChargingSitePower) {  // limit charging power to max possible for charging site
-        //    this.scaleChargingPower(maxChargingSitePower/sitePower);
-        //    if(this.chargingPower<0) {System.out.println("ERROR: Negative charging power after SiteLimiting!");}
-        //}
-
-        // limit charging power to maximum specified for the ElectricVehicle
         if (this.chargingPower > this.maxPower) {
             this.chargingPower = this.maxPower;
         }
-
-        // looking for negative charging power (error)
         if (this.chargingPower < 0 || this.stateOfCharge < 0) {
             String errorMessage = "updateChargingPower ERROR: " + this.id +
                     ": SoC = " + this.stateOfCharge +
@@ -263,9 +229,6 @@ public class ElectricVehicle {
             logger.severe(errorMessage);
             throw new ChargingPowerUpdateException(errorMessage);
         }
-
-        //if(this.chargingPower>maxChargingSitePower/getSiteModel().getNumberOfServers()) {
-        //    System.out.println("ERROR1: Charging power " + this.chargingPower + "is bigger than maximum currently available " + sitePower + " !");}
 
         this.getChargingPoint().setCurrentPower(this.chargingPower);
     }

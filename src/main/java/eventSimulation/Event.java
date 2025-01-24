@@ -28,21 +28,11 @@ public class Event {
     public Event(double time, EventType type, Simulation simulation) {
         this.execTime = time;
         myIndex = eventCounter++;
-        // myIndex = -1; // no 'real' event
         EventSimulation.eventStack.addEvent(this);
         this.simulation = simulation;
         this.eventType = type;
         this.client = null;
     }
-    // public void setClient(Client client) {
-    //    this.client = client;
-    //}
-    // public void setEventType(EventType eventType) {
-    //    this.eventType = eventType;
-    //}
-    //public void setExecTime(double execTime) {
-    //    this.execTime = execTime;
-    //}
     public double getExecTime() {
         return execTime;
     }

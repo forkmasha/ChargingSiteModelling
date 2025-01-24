@@ -48,7 +48,6 @@ public class Histogram {
         dataset.setType(HistogramType.SCALE_AREA_TO_1);
         dataset.addSeries("Histogram", samples, bins);
         JFreeChart chart = ChartFactory.createHistogram(distributionName, "Values", "Probability Mass", dataset, PlotOrientation.VERTICAL, true, true, false);
-        XYPlot plot = (XYPlot) chart.getPlot();
         if (pdf!=null) addPDFToHistogram(chart, pdf);
 
         // Set colors and transparency for each series

@@ -1,7 +1,5 @@
 package results;
 
-import org.jfree.data.xy.XYDataset;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -120,9 +118,6 @@ public class Statistics {
         return percentile;
     }
 
-    // private double calculate10percentile(List<Double> values)
-    // private double calculate90percentile(List<Double> values)
-
     private double calculateConfidenceInterval(List<Double> values, int level) {
         if (values.size() < 2) {
             return Double.MAX_VALUE; // infinite
@@ -239,10 +234,9 @@ public class Statistics {
                 {1000, 1.282, 1.646, 1.962, 2.334, 2.581}, // line for 106 to 1000
                 {1001, 1.282, 1.645, 1.960, 2.330, 2.576}, // line for 1000+
         };
-        double mean = calculateMean(values);
+
         double stdDev = calculateStandardDeviation(values);
         double zScore = 100;
-        //int level = 95;
         int levelID = 0;
 
         switch (level) {
@@ -265,23 +259,7 @@ public class Statistics {
         }
         // other calculation of the zScore [https://stackoverflow.com/questions/21730285/calculating-t-inverse]
         // needs: import org.apache.commons.math3.distribution.TDistribution; but apache.commons not accessible?
-        /*TDistribution t = new TDistribution(degreeOfFreedom);
-        double zScore = t.inverseCumulativeProbability(0.5+level/200); // (1-(1-level/100)/2)
-        */
         double marginOfError = (zScore * stdDev) / Math.sqrt(values.size());
-        double lowerBound = mean - marginOfError;
-        double upperBound = mean + marginOfError;
-
         return marginOfError;
-    }
-
-    private XYDataset calculateHistogram(List<Double> values, double maxValue, int bins) {
-        System.out.println("The method calculateHistogram is yet not implemented!");
-        System.exit(404); // every modern programmer will virtually kill you for using this command.
-        XYDataset histogram;
-
-        histogram = null; // to be implemented when needed...
-
-        return histogram;
     }
 }

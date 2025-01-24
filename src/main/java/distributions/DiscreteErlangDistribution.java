@@ -20,10 +20,8 @@ public class DiscreteErlangDistribution extends Distribution {
     }
 
     public double getSample(double mean) {
-        //Random random = new Random();
         double sample = 0;
         for (int i = 0; i < level; i++) {
-            //sample += exponentialDistribution(mean / slice - 1);
             sample += ExponentialDistribution.createSample(mean / slice);
         }
         sample = slice * (0.5 + Math.floor(sample / level));
@@ -32,7 +30,6 @@ public class DiscreteErlangDistribution extends Distribution {
     }
 
     public static double createSample(int level, double mean, double slice) {
-        //Random random = new Random();
         double sample = 0;
         for (int i = 0; i < level; i++) {
             sample += exponentialDistribution(mean / slice);
@@ -49,7 +46,6 @@ public class DiscreteErlangDistribution extends Distribution {
         }
         return samples;
     }
-
 
     public double[][] getPDF(double mean, double xMax) {
         int numBins = 1000; // Adjust the number of bins as needed

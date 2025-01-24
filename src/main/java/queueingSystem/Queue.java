@@ -7,11 +7,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class Queue {
-    public enum QueueingType {
-        FIFO,
-        LIFO,
-        RAND
-    }
     private final int size;
     private final QueueingType type;
     private List<Client> queuedClients;
@@ -54,7 +49,7 @@ public class Queue {
     }
     public Client pullNextClientFromQueue(double currentTime) {
         if( queuedClients.size() != occupation ){
-           logger.warning("Error: Queue size mismatch! " + queuedClients.size() + " > " + occupation);
+            logger.warning("Error: Queue size mismatch! " + queuedClients.size() + " > " + occupation);
         }
         else if ( occupation == 0 ) {
             logger.warning("Error: Cannot pull a Client from empty Queue!");
@@ -68,7 +63,6 @@ public class Queue {
         if( occupation < 0 ){
             logger.warning("Error: There are less than zero clients left in the queue!");
             return null;
-            //} else if (occupation==0) { System.out.println("Queue is empty again :-)");
         }
         return nextClient;
     }

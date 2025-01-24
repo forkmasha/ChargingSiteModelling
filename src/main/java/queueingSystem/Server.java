@@ -1,15 +1,11 @@
 package queueingSystem;
 
 import chargingSite.ChargingPoint;
-import chargingSite.Simulation;
 import exceptions.ServerException;
-
-import java.util.List;
 
 public class Server {
     double serviceTime;
     ChargingPoint chargingPoint;
-    private List<Double> serviceTimes;
     Client servedClient;
 
     public Server(QueueingSystem mySystem, Client myClient){
@@ -29,6 +25,6 @@ public class Server {
         }
     }
     public Client getClient() {
-       return this.servedClient;
+        return this.servedClient;
     }
 }

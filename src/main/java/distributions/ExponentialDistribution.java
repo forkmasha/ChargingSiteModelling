@@ -12,7 +12,6 @@ public class ExponentialDistribution extends Distribution {
 
     @Override
     public double getSample(double mean) {
-        //
         return mean * (-Math.log(1 - random.nextDouble()));
     }
 
@@ -30,7 +29,6 @@ public class ExponentialDistribution extends Distribution {
         return samples;
     }
 
-
     public double[][] getPDF(double mean, double xMax) {
         // Implement PDF calculation for Exponential distribution
         double lambda = 1.0 / mean;
@@ -40,15 +38,9 @@ public class ExponentialDistribution extends Distribution {
 
         for (int i = 0; i < numBins; i++) {
             double x = i * binWidth;
-            pdf[0][i]=x;
+            pdf[0][i] = x;
             pdf[1][i] = lambda * Math.exp(-lambda * x) ;//* binWidth;
         }
         return pdf;
-    }
-
-
-    private double exponentialDistribution(double mean) {
-        Random random = new Random();
-        return mean * (-Math.log(1 - random.nextDouble()));
     }
 }

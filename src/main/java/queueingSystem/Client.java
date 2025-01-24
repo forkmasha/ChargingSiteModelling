@@ -1,7 +1,6 @@
 package queueingSystem;
 
 import chargingSite.ElectricVehicle;
-import chargingSite.Simulation;
 import distributions.Distribution;
 import distributions.DistributionType;
 
@@ -26,8 +25,8 @@ public class Client {
         this.arrivalTime = arrivalTime;
         this.meanServiceTime = car.getMeanServiceTime();
         this.system = system;
-        this.addServiceTimeDistribution(car.getSimParameters().getSERVICE_TYPE());
-        this.car = car; // new ElectricVehicle(car.getSim(),"car", Simulation.MAX_EV_POWER,Simulation.batteryCapacity, DistributionType.BETA);  // change to new EV(CarType)
+        this.addServiceTimeDistribution(car.getSimParameters().getServiceType());
+        this.car = car; // change to new EV(CarType)
         this.car.setQueueingSystem(system);
         this.car.setMeanServiceTime(meanServiceTime);
     }
@@ -65,7 +64,6 @@ public class Client {
 
     public void processClient(double deltaTime) {
         if (car==null) {System.out.println("ERROR in processClient: Client without Car!");}
-        //this.car.updateChargingPower();
         this.car.addEnergyCharged(deltaTime);
         this.car.updateChargingPower();
         this.getSystem().getSitePowers().add(this.getSystem().getChargingSite().getSitePower());

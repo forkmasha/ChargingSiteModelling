@@ -10,13 +10,11 @@ public class ErlangDistribution extends Distribution {
         this.level=k;
     }
 
-
     public ErlangDistribution(DistributionType type) {
         super(type);
     }
 
     public double getSample(double mean) {
-        Random random = new Random();
         double sample = 0;
         for (int i = 0; i < this.level; i++) {
             sample += exponentialDistribution(mean);
@@ -25,7 +23,6 @@ public class ErlangDistribution extends Distribution {
     }
 
     public static double createSample(double mean) {
-        Random random = new Random();
         double sample = exponentialDistribution(mean);
         return sample;
     }
@@ -61,7 +58,6 @@ public class ErlangDistribution extends Distribution {
     }
 
     // Helper method to calculate the factorial of a number
-
     private static double exponentialDistribution(double mean) {
         Random random = new Random();
         return mean * (-Math.log(1 - random.nextDouble()));

@@ -1,10 +1,7 @@
 package distributions;
 
-import java.util.Random;
-
 public abstract class Distribution {
     private DistributionType type;
-    private static Random random = new Random();
 
     public double getSample(double mean) {
         return 0;
@@ -84,7 +81,6 @@ public abstract class Distribution {
         if (type.equals("EXPONENTIAL")) {
             return "M";
         } else if (type.equals("ERLANG")) {
-            //String type1 = "E"+ ErlangDistribution.level;
             return "E";
         } else if (type.equals("DETERMINISTIC")) {
             return "D";

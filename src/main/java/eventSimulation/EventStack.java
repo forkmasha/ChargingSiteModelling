@@ -15,24 +15,13 @@ public class EventStack {
     public void addEvent(Event event) {
         events.add(event);
         events.sort(Comparator.comparingDouble(Event::getExecTime));
-        /*if (event.getEventType() == EventType.ARRIVAL) {
-            EventSimulation.incNumberOfEvents();
-        }*/
     }
 
     public void removeEvent(Event event) {
-        //int id = -1;
         int size = events.size();
         if (events.isEmpty()) {
             System.out.println("ERROR: Cannot remove event from empty EventStack!");
         } else {
-            /*int id = events.indexOf(event);
-            if (id < 0) { // returned by indexOf in case event is not found
-                System.out.println("ERROR: Event " + event.getIndex() + " to be removed was not found in EventStack!");
-            } else {
-                removeEvent(id); // is index correct?
-                //events.remove(event);
-            }*/
             events.remove(event);
         }
         size -= events.size();
@@ -40,6 +29,7 @@ public class EventStack {
             System.out.println("ERROR: Event to be removed was not removed from EventStack!");
         }
     }
+
     public void removeFirstEvent() {
         int size = events.size();
         events.remove(0);
@@ -48,6 +38,7 @@ public class EventStack {
             System.out.println("ERROR: First Event was not removed from EventStack!");
         }
     }
+
     public void removeEvent(int index) {
         int size = events.size();
         events.remove(index);
@@ -59,8 +50,6 @@ public class EventStack {
 
     public void removeEvent(double execTime) {
         int size = events.size();
-        int id = 0;
-        Event event;
         Iterator<Event> iterator = events.iterator();
         while (iterator.hasNext()) {
             if (iterator.next().getExecTime() == execTime) {
@@ -73,7 +62,6 @@ public class EventStack {
         } else if (size > 1) {
             System.out.println("ERROR: " + size + " Events were removed -- only one should be removed!");
         }
-        //System.out.println("ERROR: Event to be removed was not found in EventStack!");
     }
 
     public Event getNextEvent() {
@@ -91,6 +79,7 @@ public class EventStack {
     public int getEventID(Event event) {
         return events.indexOf(event);
     }
+
     public List<Event> getEvents() {
         return events;
     }

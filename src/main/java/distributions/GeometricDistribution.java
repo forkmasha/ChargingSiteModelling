@@ -9,12 +9,10 @@ public class GeometricDistribution extends Distribution {
     }
 
     public double getSample(double mean) {
-        Random random = new Random();
         return Math.round(exponentialDistribution(mean));
     }
 
     public static double createSample(double mean) {
-        Random random = new Random();
         return Math.round(exponentialDistribution(mean));
     }
 
@@ -26,7 +24,6 @@ public class GeometricDistribution extends Distribution {
         }
         return samples;
     }
-
 
     public  double[][] getPDF(double mean, double xMax) {
         int numBins = 100; // Adjust the number of bins as needed

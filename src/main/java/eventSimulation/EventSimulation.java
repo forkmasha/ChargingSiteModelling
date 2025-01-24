@@ -17,7 +17,6 @@ public class EventSimulation {
         EventSimulation.numberOfEvents = 0;
         EventSimulation.currentTime = 0;
         EventProcessor.reset();
-
     }
 
     public static void incNumberOfEvents() {
@@ -40,26 +39,21 @@ public class EventSimulation {
         EventSimulation.currentTime = currentTime;
     }
     public static double getBlockingRate(){
-        return ((double)EventProcessor.k)/EventProcessor.i;
+        return ((double)EventProcessor.blockingCounter)/EventProcessor.arrivalCounter;
     }
 
     public static EventProcessor eventProcessor = new EventProcessor();
     public static EventStack eventStack = new EventStack();
 
-    //public static QueueingSystem system = new QueueingSystem();
     public static void run(Client[] myClients, Simulation mySim) {
         EventSimulation.reset();
         Event.resetEventCounter();
         for(Client myClient : myClients) {
-            //Event initialEvent =
             new Event(0.0, EventType.ARRIVAL, myClient);
-            //initialEvent.setEventType(EventType.ARRIVAL);
-            //initialEvent.setClient(myClient);
             numberOfEvents++;
         }
         new Event(EventProcessor.tick, EventType.CLOCK, mySim);
         numberOfEvents++;
-        //maxEvents = 1000;
         while (!eventStack.isEmpty()) {
             eventProcessor.processEvent(eventStack.getNextEvent());
         }
@@ -68,35 +62,4 @@ public class EventSimulation {
         myClients[0].getSystem().setBlockingRate(getBlockingRate());
         eventProcessor.printCounters();
     }
-
- /*   public static void main(String[] args) {
-        QueueingSystem mySystem = new QueueingSystem();
-        mySystem.setNumberOfServers(5);
-        mySystem.setDistributionType(DistributionType.EXPONENTIAL);
-        mySystem.setMeanInterArrivalTime(0.1); //mean inter-arrival time
-        mySystem.setQueueSize(10);
-        Client myClient = new Client(0.5);  // mean service time
-        myClient.setServiceTimeDistribution(DistributionType.UNIFORM);
-        myClient.setSystem(mySystem);
-        Event firstEvent = new Event(0.0); // execution time
-        firstEvent.setEventType(EventType.ARRIVAL);
-        firstEvent.setClient(myClient);
-        eventStack.addEvent(firstEvent);
-        maxEvents = 1000;
-        while (!eventStack.isEmpty()) {
-            eventProcessor.processEvent(eventStack.getNextEvent());
-        }
-        eventProcessor.printCounters();
-        Statistics calc = new Statistics();
-        System.out.println("Service Time: "+calc.getMean(mySystem.getTimesInService()) + "/"
-                + calc.getStd(mySystem.getTimesInService()) + "/"
-                + calc.getConfidenceInterval(mySystem.getTimesInService(),95));
-        System.out.println("Queueing Time: "+calc.getMean(mySystem.getTimesInQueue()) + "/"
-                + calc.getStd(mySystem.getTimesInQueue()) + "/"
-                + calc.getConfidenceInterval(mySystem.getTimesInQueue(),95));
-        System.out.println("System Time: "+calc.getMean(mySystem.getTimesInSystem()) + "/"
-                + calc.getStd(mySystem.getTimesInSystem()) + "/"
-                + calc.getConfidenceInterval(mySystem.getTimesInSystem(),95));
-
-    }*/
 }

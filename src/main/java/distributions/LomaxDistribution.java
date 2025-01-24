@@ -10,14 +10,11 @@ public class LomaxDistribution extends Distribution {
 
     public LomaxDistribution(DistributionType type) {
         super(DistributionType.LOMAX);
-        //   this.scale = scale;
-        //   this.shape = shape;
     }
 
     @Override
     public double getSample(double mean) {
         double u = random.nextDouble();
-        //mean=scale/(shape-1)
         return mean * (shape - 1) * (Math.pow(1 - u, -1.0 / shape) - 1);
     }
 
@@ -46,8 +43,6 @@ public class LomaxDistribution extends Distribution {
     }
 
     private double lomaxDistributionPDF(double x, double mean, double scale, double shape) {
-        //double pdfValue = (shape / scale) * Math.pow(1 + (x - mean) / scale, -1 - shape);
-        //double pdfValue = (shape / scale) * Math.pow(1 + x / scale, -1 - shape);
         double newScale = mean * ( shape - 1 );
         double pdfValue = shape * Math.pow( newScale , shape ) / Math.pow( x + newScale , shape + 1 );
         return pdfValue;

@@ -1,7 +1,7 @@
 package results;
 
+import chargingSite.DefaultPictureSizes;
 import chargingSite.Simulation;
-import chargingSite.SimulationGUI;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.*;
@@ -35,7 +35,6 @@ public class Monitor extends Graph {
     private Statistics calc = new Statistics();
     private JFreeChart MyChart;
     private QueueingSystem source;
-    private String name;
     private int confLevel;
     private List<Double> steps = new ArrayList<>();
     public List<Double> values = new ArrayList<>();
@@ -59,10 +58,6 @@ public class Monitor extends Graph {
 
     public void setSource(QueueingSystem source) {
         this.source = source;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Monitor() {
@@ -133,7 +128,7 @@ public class Monitor extends Graph {
         confidencesChargingDeviation.add(calc.getConfidenceInterval(source.getChargingDeviations(), confLevel));
     }
 
-    public void addGraphsEnergyCharacteristics(XYSeriesCollection dataset) {
+    public void addGraphsEnergyCharacteristics(XYSeriesCollection dataset, XYSeriesCollection dataset2) {
 
         XYSeries meanSeries = new XYSeries("Mean");
         XYSeries stdSeries = new XYSeries("Std");
@@ -182,18 +177,18 @@ public class Monitor extends Graph {
             confBars[i].add(step, mean + conf);
             dataset.addSeries(confBars[i]);
 
-            meanSitePowersSeries.add(step, meanSP / source.getNumberOfServers());
-            stdSitePowersSeries.add(step, stdSP / source.getNumberOfServers());
-            maxSitePowersSeries.add(step, maxSP / source.getNumberOfServers());
-            confBarsSitePowerSeries[i].add(step, (meanSP - confSP) / source.getNumberOfServers());
-            confBarsSitePowerSeries[i].add(step, (meanSP + confSP) / source.getNumberOfServers());
-            dataset.addSeries(confBarsSitePowerSeries[i]);
-
             meanChargingDeviationSeries.add(step, meanCD); //WHY 0.5*?
             stdChargingDeviationSeries.add(step, stdCD);
             confBarsChargingDeviation[i].add(step, (meanCD - confCD));
             confBarsChargingDeviation[i].add(step, (meanCD + confCD));
             dataset.addSeries(confBarsChargingDeviation[i]);
+
+            meanSitePowersSeries.add(step, meanSP); // / source.getNumberOfServers());
+            stdSitePowersSeries.add(step, stdSP); // / source.getNumberOfServers());
+            maxSitePowersSeries.add(step, maxSP); // / source.getNumberOfServers());
+            confBarsSitePowerSeries[i].add(step, (meanSP - confSP)); // / source.getNumberOfServers());
+            confBarsSitePowerSeries[i].add(step, (meanSP + confSP)); // / source.getNumberOfServers());
+            dataset2.addSeries(confBarsSitePowerSeries[i]);
         }
 
         dataset.addSeries(meanSeries);
@@ -201,12 +196,12 @@ public class Monitor extends Graph {
         dataset.addSeries(max90Series);
         dataset.addSeries(min10Series);
 
-        dataset.addSeries(meanSitePowersSeries);
-        dataset.addSeries(stdSitePowersSeries);
-        dataset.addSeries(maxSitePowersSeries);
-
         dataset.addSeries(meanChargingDeviationSeries);
         dataset.addSeries(stdChargingDeviationSeries);
+
+        dataset2.addSeries(meanSitePowersSeries);
+        dataset2.addSeries(stdSitePowersSeries);
+        dataset2.addSeries(maxSitePowersSeries);
     }
 
     public static JFrame energyCharacteristicsFrame;
@@ -222,12 +217,12 @@ public class Monitor extends Graph {
         openWindows.clear();
     }
 
-    public void drawGraphEnergyCharacteristics(Simulation mySim) {
+    public void drawGraphEnergyCharacteristics(Simulation mySim, Boolean runWithGui) {
         String kendallName = mySim.getKendallName();
-        int maxEvents = mySim.getParameters().getMAX_EVENTS();
+        int maxEvents = mySim.getParameters().getMaxEvents();
 
         String title = "Charging site Energy Characteristics \n"
-                + kendallName + " Energy System"
+                + kendallName + " Charging Site Model"
                 + " (" + maxEvents + " samples per evaluation point)";
 
         String[] titleParts = title.split("\n");
@@ -239,12 +234,13 @@ public class Monitor extends Graph {
         textSubtitle.setFont(new Font("Arial", Font.PLAIN, 14));
 
         XYSeriesCollection dataset = new XYSeriesCollection();
-        mySim.chargingMonitor.addGraphsEnergyCharacteristics(dataset);
+        XYSeriesCollection dataset2 = new XYSeriesCollection();
+        mySim.chargingMonitor.addGraphsEnergyCharacteristics(dataset,dataset2);
 
         MyChart = createXYLineChart(
                 "",
                 "Arrival Rate [1/h]",
-                "Mean and Std [kW/server, kWh/car]",
+                "Mean and Std [kWh/EV]",
                 dataset,
                 PlotOrientation.VERTICAL,
                 true,
@@ -255,15 +251,29 @@ public class Monitor extends Graph {
         MyChart.addSubtitle(textTitle);
         MyChart.addSubtitle(textSubtitle);
         XYPlot plot = MyChart.getXYPlot();
-        NumberAxis x_Axis = (NumberAxis) plot.getDomainAxis();
+        plot.setDataset(0, dataset);
+        plot.setDataset(1, dataset2);
+
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        plot.setRangeAxis(0, yAxis);
+        NumberAxis yAxis2 = new NumberAxis("Site Power [kW]");
+        yAxis2.setRange(0, 1.01 * mySim.getParameters().MAX_SITE_POWER);
+        yAxis2.setLabelFont(new Font("Arial", Font.BOLD, 12));
+        yAxis2.setLabelPaint(Color.magenta.darker().darker());
+        yAxis2.setLabelAngle(Math.toRadians(180));
+        plot.setRangeAxis(1, yAxis2);
+
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        plot.setRenderer(0,renderer);
+        XYLineAndShapeRenderer renderer2 = new XYLineAndShapeRenderer();
+        plot.setRenderer(1,renderer2);
+
+        plot.mapDatasetToRangeAxis(0, 0);
+        plot.mapDatasetToRangeAxis(1, 1);
 
         int i = 0;
-        while (i < 3 * mySim.getParameters().getSIM_STEPS()) {
+        while (i < 2 * mySim.getParameters().getSteps()) {
             renderer.setSeriesPaint(i, Color.BLUE);
-            renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
-            i++;
-            renderer.setSeriesPaint(i, Color.MAGENTA);
             renderer.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
             i++;
             renderer.setSeriesPaint(i, Color.RED);
@@ -279,28 +289,31 @@ public class Monitor extends Graph {
         renderer.setSeriesShape(i++, ShapeUtilities.createDownTriangle(2.25f));
         renderer.setSeriesPaint(i, Color.BLUE);
         renderer.setSeriesShape(i++, ShapeUtilities.createUpTriangle(2.25f));
-        plot.setRenderer(renderer);
-
-
-        renderer.setSeriesPaint(i, Color.MAGENTA);
-        renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
-        renderer.setSeriesPaint(i, Color.MAGENTA);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
-
-        renderer.setSeriesPaint(i, Color.MAGENTA);
-        renderer.setSeriesShape(i++, ShapeUtilities.createDownTriangle(1.75f));
-
 
         renderer.setSeriesPaint(i, Color.RED);
         renderer.setSeriesStroke(i++, new BasicStroke(2.4f));
         renderer.setSeriesPaint(i, Color.RED);
         renderer.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
 
+        i = 0;
+        Color powerColor = Color.MAGENTA.darker();
+        while (i < mySim.getParameters().getSteps()) {
+            renderer2.setSeriesPaint(i, powerColor);
+            renderer2.setSeriesShape(i, ShapeUtilities.createRegularCross(0.5f, 1.5f));
+            i++;
+        }
+        renderer2.setSeriesPaint(i, powerColor);
+        renderer2.setSeriesStroke(i++, new BasicStroke(2.4f));
+        renderer2.setSeriesPaint(i, powerColor);
+        renderer2.setSeriesShape(i++, ShapeUtilities.createDiamond(0.75f));
+
+        renderer2.setSeriesPaint(i, powerColor);
+        renderer2.setSeriesShape(i++, ShapeUtilities.createDownTriangle(1.75f));
 
         LegendItemCollection legendItems = new LegendItemCollection();
         legendItems.add(new LegendItem("Energy per charged EV", Color.BLUE));
-        legendItems.add(new LegendItem("EV Charging Deviation", Color.RED));
-        legendItems.add(new LegendItem("Average Power per Charging Point", Color.MAGENTA));
+        legendItems.add(new LegendItem("EV-charging deviation", Color.RED));
+        legendItems.add(new LegendItem("Site Power Demand", powerColor));
 
 
         LegendItemSource source = () -> legendItems;
@@ -335,19 +348,6 @@ public class Monitor extends Graph {
         Monitor.addWindow(frame);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        /* frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                int result = JOptionPane.showConfirmDialog(frame, "Do you want to save your work before exiting?", "Save before exit", JOptionPane.YES_NO_CANCEL_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    saveSVGDialogue();
-                    frame.dispose();
-                } else if (result == JOptionPane.NO_OPTION) {
-                    frame.dispose();
-                }
-            }
-        });*/
-
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -358,14 +358,11 @@ public class Monitor extends Graph {
         energyCharacteristicsFrame = frame;
         frame.setContentPane(chartPanel);
         frame.pack();
-       // frame.setLocation(largestBounds.x + xOffset, yOffset);
-        frame.setLocation(largestBounds.x + xOffset, yOffset);
-        frame.setVisible(true);
+        frame.setLocation(largestBounds.x + xOffset, largestBounds.y + yOffset);
+        frame.setVisible(runWithGui);
         chartPanel.repaint();
     }
-    public static JFrame getEnergyCharacteristicsFrame() {
-        return energyCharacteristicsFrame;
-    }
+
     private void promptSaveOnCloseEnergyCharacteristics(JFrame frame) {
         Object[] options = {"Save", "Cancel", "Close"};
         int choice = JOptionPane.showOptionDialog(frame, "Do you want to save the chart before closing?", "Save or Close",
@@ -430,7 +427,7 @@ public class Monitor extends Graph {
                 if (fileExtension.equals(".svg")) {
                     saveEnergyCharacteristicsGraphAsSVG(MyChart, fileToSave.getAbsolutePath(), width, height);
                 } else if (fileExtension.equals(".csv")) {
-                    saveEnergyCharacteristicsGraphToCSV(fileToSave.getAbsolutePath());
+                    saveEnergyCharacteristicsGraphAsCSV(fileToSave.getAbsolutePath());
                 } else if (fileExtension.equals(".png")) {
                     saveEnergyCharacteristicsGraphToPNG(MyChart, fileToSave.getAbsolutePath(), width, height);
                 }
@@ -457,7 +454,7 @@ public class Monitor extends Graph {
         }
     }
 
-     public void saveEnergyCharacteristicsGraphAsSVG(int wi, int hi, File svgFile) throws IOException {
+    public void saveEnergyCharacteristicsGraphAsSVG(int wi, int hi, File svgFile) {
 
         DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
         Document document = domImpl.createDocument(null, "svg", null);
@@ -466,16 +463,20 @@ public class Monitor extends Graph {
 
         MyChart.draw(svgGenerator, new Rectangle2D.Double(0, 0, wi, hi));
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
-            svgGenerator.stream(writer, true);
+        try {
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(svgFile), StandardCharsets.UTF_8)) {
+                svgGenerator.stream(writer, true);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
 
-    public void saveEnergyCharacteristicsGraphToPNG(String filePath) {
+    public void saveEnergyCharacteristicsGraphAsPNG(String filePath) {
         try {
-            int width = SimulationGUI.WIDTH_OF_PNG_PICTURE;
-            int height = SimulationGUI.HEIGHT_OF_PNG_PICTURE;
+            int width = DefaultPictureSizes.PNG_WIDTH;
+            int height = DefaultPictureSizes.PNG_HEIGTH;
             File PNGFile = new File(filePath);
             ChartUtilities.saveChartAsPNG(PNGFile, MyChart, width, height);
         } catch (IOException e) {
@@ -494,7 +495,7 @@ public class Monitor extends Graph {
     private String formatDouble(DecimalFormat df, Double value) {
         return df.format(value);
     }
-    public void saveEnergyCharacteristicsGraphToCSV(String filePath) {
+    public void saveEnergyCharacteristicsGraphAsCSV(String filePath) {
         DecimalFormat df = new DecimalFormat("#.####################");
         df.setDecimalSeparatorAlwaysShown(false);
         try (FileWriter writer = new FileWriter(filePath)) {
@@ -519,6 +520,7 @@ public class Monitor extends Graph {
             System.out.println("Error writing to CSV: " + e.getMessage());
         }
     }
+
     public void saveSVGDialogue() {
         Object[] options = {"SVG", "CSV"};
         int formatResult = JOptionPane.showOptionDialog(
@@ -536,13 +538,9 @@ public class Monitor extends Graph {
             boolean inputValid = getUserInput() && chooseFile();
 
             if (inputValid) {
-                try {
-                    int imageWidth = Integer.parseInt(getWidthField().getText());
-                    int imageHeight = Integer.parseInt(getHeightField().getText());
-                    saveEnergyCharacteristicsGraphAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
-                } catch (IOException ex) {
-                    System.out.println("Error: " + ex.getMessage());
-                }
+                int imageWidth = Integer.parseInt(getWidthField().getText());
+                int imageHeight = Integer.parseInt(getHeightField().getText());
+                saveEnergyCharacteristicsGraphAsSVG(imageWidth, imageHeight, new File(getChosenFile() + ".svg"));
             }
         } else if (formatResult == JOptionPane.NO_OPTION) {
             JFileChooser csvFileChooser = new JFileChooser();
@@ -556,104 +554,15 @@ public class Monitor extends Graph {
                 if (!csvFilePath.endsWith(".csv")) {
                     csvFilePath += ".csv";
                 }
-                saveEnergyCharacteristicsGraphToCSV(csvFilePath);
+                saveEnergyCharacteristicsGraphAsCSV(csvFilePath);
             }
+        }
+    }
+
+    public static void disposeEnergyCharacteristicsFrame() {
+        if (energyCharacteristicsFrame != null) {
+            energyCharacteristicsFrame.dispose();
+            energyCharacteristicsFrame = null;
         }
     }
 }
-  /*public void saveSVGDialogue() {
-        boolean inputValid = false;
-
-        while (!inputValid) {
-            JPanel panel = new JPanel(new GridLayout(3, 2));
-            JLabel heightLabel = new JLabel("Height:");
-            JTextField heightField = new JTextField("730");
-            JLabel widthLabel = new JLabel("Width:");
-            JTextField widthField = new JTextField("1200");
-            JLabel fileLabel = new JLabel("File:");
-            JTextField fileField = new JTextField("simulation.svg");
-
-            panel.add(heightLabel);
-            panel.add(heightField);
-            panel.add(widthLabel);
-            panel.add(widthField);
-            panel.add(fileLabel);
-            panel.add(fileField);
-
-            int result = JOptionPane.showConfirmDialog(null, panel, "Save as SVG",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-            if (result == JOptionPane.OK_OPTION) {
-                try {
-                    int imageWidth = Integer.parseInt(widthField.getText());
-                    int imageHeight = Integer.parseInt(heightField.getText());
-
-                    if (imageWidth <= 0 || imageHeight <= 0) {
-                        JOptionPane.showMessageDialog(null, "Width and height must be positive integers.");
-                    } else {
-                        inputValid = true;
-
-                        JFileChooser fileChooser = new JFileChooser();
-                        fileChooser.setSelectedFile(new File(fileField.getText()));
-
-                        int fileChooserResult = fileChooser.showSaveDialog(null);
-
-                        if (fileChooserResult == JFileChooser.APPROVE_OPTION) {
-                            File chosenFile = fileChooser.getSelectedFile();
-
-                            try {
-                                SaveAsSVG(imageWidth, imageHeight, chosenFile);
-                            } catch (IOException ex) {
-                                System.out.println("Error: " + ex.getMessage());
-                            }
-                        }
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid width or height value. Please enter positive integers.");
-                }
-            } else {
-                inputValid = true; // User canceled the dialog, exit the loop.
-            }
-        }
-    }*/
-
-
-    /*public void addPDFData(XYSeriesCollection dataset, double mean) {
-        for (DistributionType distributionType : DistributionType.values()) {
-            double[][] pdfData = getPDFDataForDistribution(distributionType, mean);
-            XYSeries pdfSeries = createXYSeriesForPDF(distributionType, pdfData);
-            dataset.addSeries(pdfSeries);
-        }
-    }
-
-    private double[][] getPDFDataForDistribution(DistributionType distributionType, double mean) {
-        switch (distributionType) {
-            case GEOMETRIC:
-                return GeometricDistribution.getPDF(mean, 100.0);
-            case EXPONENTIAL:
-                return ExponentialDistribution.getPDF(mean, 100.0);
-            case BETA:
-                return BetaDistribution.getPDF(mean, 1.0);
-            case ERLANG:
-                return ErlangDistribution.getPDF(mean, 100.0);
-            case ERLANGD:
-                return DiscreteErlangDistribution.getPDF(mean, 100.0);
-            case UNIFORM:
-                return UniformDistribution.getPDF(mean, 2 * mean);
-            case DETERMINISTIC:
-                return DetermanisticDistribution.getPDF(mean, 2 * mean);
-            default:
-                System.out.println("Distribution type is not defined!");
-        }
-        return null;
-    }
-
-    private XYSeries createXYSeriesForPDF(DistributionType distributionType, double[][] pdfData) {
-        XYSeries pdfSeries = new XYSeries(distributionType.toString() + " PDF");
-        for (int i = 0; i < pdfData.length; i++) {
-            pdfSeries.add(pdfData[0][i], pdfData[1][i]);
-        }
-        return pdfSeries;
-    }
-
-*/

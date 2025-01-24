@@ -1,10 +1,10 @@
 package results;
 
-import org.jfree.chart.ChartPanel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+
+
 
 public class Graph {
     private String chosenFile;
@@ -77,13 +77,4 @@ public class Graph {
         }
         return false;
     }
-
-    private void configureChartPanel(ChartPanel chartPanel) {
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
-        chartPanel.setDomainZoomable(true);
-        chartPanel.setRangeZoomable(true);
-        chartPanel.setMouseWheelEnabled(true);
-    }
-
-
 }

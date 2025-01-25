@@ -6,8 +6,6 @@
     <version>1.0-SNAPSHOT</version>
     <name>Archetype - ChargingSiteModelling</name>
     <url>http://maven.apache.org</url>
-
-
     <!-- Define the repository where Jzy3d dependencies can be found -->
     <repositories>
         <repository>
@@ -15,30 +13,17 @@
             <name>Jzy3d Releases</name>
             <url>https://maven.jzy3d.org/releases/</url>
         </repository>
-
         <repository>
             <id>jzy3d-snapshots</id>
             <name>Jzy3d Snapshots</name>
             <url>https://maven.jzy3d.org/snapshots/</url>
-        </repository>
-        <repository>
-            <id>jzy3d-snapshots</id>
-            <name>Jzy3d Snapshots</name>
-            <url>https://maven.jzy3d.org/snapshots/</url>
-        </repository>
-        <repository>
-            <id>jzy3d-releases</id>
-            <name>Jzy3d Releases</name>
-            <url>https://maven.jzy3d.org/releases/</url>
         </repository>
         <repository>
             <id>clojars</id>
             <name>Clojars</name>
             <url>https://repo.clojars.org/</url>
         </repository>
-
     </repositories>
-
     <dependencies>
         <!-- https://mvnrepository.com/artifact/com.object-refinery/orsoncharts -->
         <dependency>
@@ -46,48 +31,28 @@
             <artifactId>orsoncharts</artifactId>
             <version>1.7</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.jzy3d</groupId>
-            <artifactId>jzy3d-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.object-refinery/orsoncharts -->
-        <dependency>
-            <groupId>com.object-refinery</groupId>
-            <artifactId>orsoncharts</artifactId>
-            <version>1.7</version>
-        </dependency>
-
-
         <!-- https://mvnrepository.com/artifact/org.jfree/jfreesvg -->
         <dependency>
             <groupId>org.jfree</groupId>
             <artifactId>jfreesvg</artifactId>
             <version>3.4.3</version>
         </dependency>
-
-
         <!-- https://mvnrepository.com/artifact/java3d/vecmath -->
         <dependency>
             <groupId>java3d</groupId>
             <artifactId>vecmath</artifactId>
             <version>1.3.1</version>
         </dependency>
-
-
         <dependency>
             <groupId>jfree</groupId>
             <artifactId>jfreechart</artifactId>
             <version>1.0.13</version>
         </dependency>
-
         <dependency>
             <groupId>org.jzy3d</groupId>
             <artifactId>jzy3d-everything</artifactId>
             <version>2.1.1-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.tukaani</groupId>
             <artifactId>xz</artifactId>
@@ -98,14 +63,11 @@
             <artifactId>batik-dom</artifactId>
             <version>1.6-1</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
-        <!-- Thanks for using https://jar-download.com -->
-
         <!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
         <dependency>
             <groupId>org.jfree</groupId>
@@ -117,7 +79,6 @@
             <artifactId>batik-svggen</artifactId>
             <version>1.14</version>
         </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-all -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
@@ -125,7 +86,6 @@
             <version>1.17</version>
             <type>pom</type>
         </dependency>
-
         <dependency>
             <groupId>batik</groupId>
             <artifactId>batik-svggen</artifactId>
@@ -136,20 +96,11 @@
             <artifactId>user.java.lang</artifactId>
             <version>2020.164.33984</version>
         </dependency>
-
         <dependency>
             <groupId>org.jzy3d</groupId>
             <artifactId>jzy3d-api</artifactId>
             <version>0.9.1</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/jfree/jfreechart -->
-        <dependency>
-            <groupId>jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.0.13</version>
-        </dependency>
-
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xerces</artifactId>
@@ -158,47 +109,20 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.11.0</version>
+            <version>2.12.2</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jfree/jfreesvg -->
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreesvg</artifactId>
-            <version>3.4.3</version>
-        </dependency>
-
-
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xerces</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xerces</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-        <!-- Thanks for using https://jar-download.com -->
-
-
         <!-- https://mvnrepository.com/artifact/org.knowm.xchart/xchart -->
         <dependency>
             <groupId>org.knowm.xchart</groupId>
             <artifactId>xchart</artifactId>
             <version>3.8.7</version>
         </dependency>
-
-
-
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <version>3.12.1</version>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -209,6 +133,38 @@
                     <source>14</source>
                     <target>14</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>entryPoints.SimulationApp</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>entryPoints.SimulationApp</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

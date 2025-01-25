@@ -6,7 +6,7 @@ public class ExponentialTest {
     public static void main(String[] args) {
         int numSamples = 25000;
         int numBins = 25;
-        double mean=0.5;
+        double mean = 2.0;
         double maxX=1;
 
         ExponentialDistribution exponentialDistribution = new ExponentialDistribution(DistributionType.EXPONENTIAL);

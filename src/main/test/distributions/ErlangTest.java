@@ -8,8 +8,8 @@ public class ErlangTest {
     public static void main(String[] args) {
         int numSamples = 25000;
         int numBins = 25;
-        double mean = 2.0;
-        int k = 2;
+        double mean = 10.0;
+        int k = 5;
         double maxX = 0.0;
 
         ErlangDistribution erlangDistribution = new ErlangDistribution(DistributionType.ERLANG);

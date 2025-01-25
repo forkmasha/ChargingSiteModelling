@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class ErlangDistribution extends Distribution {
 
-    private int level = 2;
+    private int level = 5;
 
     public void setLevel(int k) {
         this.level=k;

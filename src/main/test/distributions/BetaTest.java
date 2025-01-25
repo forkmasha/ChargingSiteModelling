@@ -6,7 +6,7 @@ public class BetaTest {
     public static void main(String[] args) {
         int numSamples = 250000;
         int numBins = 25;
-        double mean = 0.80;
+        double mean = 0.5;
 
         BetaDistribution betaDistribution = new BetaDistribution(DistributionType.BETA);
         double[] samples = betaDistribution.getSamples(mean, numSamples);

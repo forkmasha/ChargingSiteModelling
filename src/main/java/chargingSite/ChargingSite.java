@@ -171,10 +171,6 @@ public class ChargingSite {
         return newSitePower;
     }
 
-    public XYSeries getSitePowerSeries() {
-        return sitePowerSeries;
-    }
-
     private double[] convertXYSeriesToDoubleArray(XYSeries series) {
         double[] data = new double[series.getItemCount()];
         for (int i = 0; i < series.getItemCount(); i++) {
@@ -438,17 +434,7 @@ public class ChargingSite {
     }
 
     public static void savePowerOverTimeToSVG(String filePath) {
-        int width = DefaultPictureSizes.SVG_WIDTH;
-        int height = DefaultPictureSizes.SVG_HEIGTH;
-        SVGGraphics2D g2 = new SVGGraphics2D(width, height);
-        Rectangle r = new Rectangle(0, 0, width, height);
-        powerOverTimeChart.getChart().draw(g2, r);
-
-        try {
-            SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        savePowerOverTimeToSVG(filePath, DefaultPictureSizes.SVG_WIDTH, DefaultPictureSizes.SVG_HEIGTH);
     }
 
     public static void savePowerOverTimeToSVG(String filePath, int width, int height) {
@@ -463,18 +449,7 @@ public class ChargingSite {
     }
 
     public void savePowerOverTimeGraphAsPNG(String filePath) {
-        if (powerOverTimeChart != null && powerOverTimeChart.getChart() != null) {
-            try {
-                int width = DefaultPictureSizes.PNG_WIDTH;
-                int height = DefaultPictureSizes.PNG_HEIGTH;
-                File outFile = new File(filePath);
-                ChartUtils.saveChartAsPNG(outFile, powerOverTimeChart.getChart(), width, height);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Chart or ChartPanel is null.");
-        }
+        savePowerOverTimeGraphToPNG(filePath, DefaultPictureSizes.PNG_WIDTH, DefaultPictureSizes.PNG_HEIGTH);
     }
 
     public static void savePowerOverTimeGraphToPNG(String filePath, int width, int height) {
@@ -492,7 +467,7 @@ public class ChargingSite {
     private static DefaultCategoryDataset histogramDataset = new DefaultCategoryDataset();
     private static int seriesCounter = 0;
     public static JFrame histogramFrame;
-    private static JPanel mainPanel;
+    private static JPanel histogramPanel;
 
     public static void initializeHistogram(boolean withGui) {
         if (histogramFrame != null) {
@@ -511,18 +486,18 @@ public class ChargingSite {
                 promptSaveOnCloseHistogram();
             }
         });
-        mainPanel = new JPanel(new BorderLayout());
-        histogramFrame.setContentPane(mainPanel);
+        histogramPanel = new JPanel(new BorderLayout());
+        histogramFrame.setContentPane(histogramPanel);
 
         JButton toggleLegendButton = new JButton("Toggle Legend");
         toggleLegendButton.addActionListener(e -> {
 
-            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+            ChartPanel chartPanel = (ChartPanel) histogramPanel.getComponent(1);
             JFreeChart chart = chartPanel.getChart();
             chart.getLegend().setVisible(!chart.getLegend().isVisible());
             chartPanel.repaint();
         });
-        mainPanel.add(toggleLegendButton, BorderLayout.SOUTH);
+        histogramPanel.add(toggleLegendButton, BorderLayout.SOUTH);
 
         histogramFrame.setSize(getPreferredFrameSize());
         histogramFrame.setLocation(getPreferredFrameLocation());
@@ -539,12 +514,12 @@ public class ChargingSite {
         ChartPanel chartPanel = new ChartPanel(chart);
         configureChartPanel(chartPanel);
 
-        if (mainPanel.getComponentCount() > 1) {
-            mainPanel.remove(1);
+        if (histogramPanel.getComponentCount() > 1) {
+            histogramPanel.remove(1);
         }
-        mainPanel.add(chartPanel, BorderLayout.CENTER);
-        mainPanel.revalidate();
-        mainPanel.repaint();
+        histogramPanel.add(chartPanel, BorderLayout.CENTER);
+        histogramPanel.revalidate();
+        histogramPanel.repaint();
     }
 
     private static void updateDataset(ArrayList<Double> data, int numBins, SimulationParameters parameters) {
@@ -850,12 +825,14 @@ public class ChargingSite {
 
             int width = originalWidth * 3;
             int height = originalHeight * 3;
+            double scaleX = 3.0;
+            double scaleY = 3.0;
+
 
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2 = image.createGraphics();
 
-            g2.scale(3.0, 3.0);
-
+            g2.scale(scaleX, scaleY);
             chartPanel.paint(g2);
             g2.dispose();
 
@@ -874,15 +851,15 @@ public class ChargingSite {
                 && histogram3dFrame.getContentPane().getComponent(0) instanceof Chart3DPanel) {
             Chart3DPanel chartPanel = (Chart3DPanel) histogram3dFrame.getContentPane().getComponent(0);
 
+            // Масштабування зображення залежно від заданих параметрів ширини та висоти
+            double scaleX = (double) width / chartPanel.getWidth();
+            double scaleY = (double) height / chartPanel.getHeight();
+
             // Використання заданих параметрів ширини та висоти для створення зображення
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2 = image.createGraphics();
 
-            // Масштабування зображення залежно від заданих параметрів ширини та висоти
-            double scaleX = (double) width / chartPanel.getWidth();
-            double scaleY = (double) height / chartPanel.getHeight();
             g2.scale(scaleX, scaleY);
-
             chartPanel.paint(g2);
             g2.dispose();
 
@@ -901,7 +878,6 @@ public class ChargingSite {
         try (FileWriter writer = new FileWriter(filePath)) {
 
             writer.append("X Value,Y Value,Z Value\n");
-
             for (int seriesIndex = 0; seriesIndex < histogram3dDataset.getSeriesCount(); seriesIndex++) {
                 XYZSeries<String> series = histogram3dDataset.getSeries(seriesIndex);
 
@@ -921,28 +897,12 @@ public class ChargingSite {
     }
 
     public void saveHistogram3DAsSVG(String filePath) {
-        if (histogram3dFrame.getContentPane().getComponentCount() > 0
-                && histogram3dFrame.getContentPane().getComponent(0) instanceof Chart3DPanel) {
-            Chart3DPanel chartPanel = (Chart3DPanel) histogram3dFrame.getContentPane().getComponent(0);
-
-            int width = 1200;
-            int height = 720;
-
-            SVGGraphics2D g2 = new SVGGraphics2D(width, height);
-
-            chartPanel.getChart().draw(g2, new Rectangle(0, 0, width, height));
-
-            try {
-                SVGUtils.writeToSVG(new File(filePath), g2.getSVGElement());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.err.println("Не знайдено Chart3DPanel.");
-        }
+        int width = 1200;
+        int height = 720;
+        saveHistogram3DAsSVG(filePath, width, height);
     }
 
-    public static void saveHistogram3DToSVG(String filePath, int width, int height) {
+    public static void saveHistogram3DAsSVG(String filePath, int width, int height) {
         if (histogram3dFrame.getContentPane().getComponentCount() > 0
                 && histogram3dFrame.getContentPane().getComponent(0) instanceof Chart3DPanel) {
             Chart3DPanel chartPanel = (Chart3DPanel) histogram3dFrame.getContentPane().getComponent(0);
@@ -1036,9 +996,9 @@ public class ChargingSite {
                 if (formatChoice == 0) {
                     saveHistogramAsCSV(fileToSave.getAbsolutePath());
                 } else if (formatChoice == 1) {
-                    saveHistogramToSVG(fileToSave.getAbsolutePath(), width, height);
+                    saveHistogramAsSVG(fileToSave.getAbsolutePath(), width, height);
                 } else if (formatChoice == 2) {
-                    saveHistogramToPNG(fileToSave.getAbsolutePath(), width, height);
+                    saveHistogramAsPNG(fileToSave.getAbsolutePath(), width, height);
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(histogramFrame, "Error saving file: " + e.getMessage(), "Save Error",
@@ -1047,51 +1007,28 @@ public class ChargingSite {
         }
     }
 
-    public static void saveHistogramToSVG(String filePath, int width, int height) {
-        if (histogramFrame == null) {
-            System.err.println("Histogram frame not initialized");
-            return;
-        }
-
-        if (mainPanel.getComponentCount() > 1) {
-            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
-            JFreeChart chart = chartPanel.getChart();
-
-            SVGGraphics2D g2 = new SVGGraphics2D(width, height);
-            Rectangle2D chartArea = new Rectangle2D.Double(0, 0, width, height);
-
-            chart.draw(g2, chartArea);
-
-            File svgFile = new File(filePath);
-            try {
-                SVGUtils.writeToSVG(svgFile, g2.getSVGElement());
-                System.out.println("Histogram saved to SVG successfully.");
-            } catch (IOException e) {
-                System.err.println("Error saving histogram to SVG: " + e.getMessage());
-            }
-        } else {
-            System.err.println("ChartPanel not found in mainPanel");
-        }
+    public void saveHistogramAsSVG(String filePath) {
+        saveHistogramAsSVG(filePath, DefaultPictureSizes.SVG_WIDTH, DefaultPictureSizes.SVG_HEIGTH);
     }
 
-    public void saveHistogramAsSVG(String filePath) {
-
+    public static void saveHistogramAsSVG(String filePath, int width, int height) {
         if (histogramFrame == null) {
             System.err.println("Histogram frame not initialized");
             return;
         }
-        if (mainPanel.getComponentCount() > 1) {
-            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+
+        if (histogramPanel.getComponentCount() > 1) {
+            ChartPanel chartPanel = (ChartPanel) histogramPanel.getComponent(1);
             JFreeChart chart = chartPanel.getChart();
 
-            SVGGraphics2D g2 = new SVGGraphics2D(DefaultPictureSizes.SVG_WIDTH, DefaultPictureSizes.SVG_HEIGTH);
-            Rectangle2D chartArea = new Rectangle2D.Double(0, 0, DefaultPictureSizes.SVG_WIDTH, DefaultPictureSizes.SVG_HEIGTH);
+            SVGGraphics2D svgGraphics = new SVGGraphics2D(width, height);
+            Rectangle2D chartArea = new Rectangle2D.Double(0, 0, width, height);
 
-            chart.draw(g2, chartArea);
+            chart.draw(svgGraphics, chartArea);
 
             File svgFile = new File(filePath);
             try {
-                SVGUtils.writeToSVG(svgFile, g2.getSVGElement());
+                SVGUtils.writeToSVG(svgFile, svgGraphics.getSVGElement());
                 System.out.println("Histogram saved to SVG successfully.");
             } catch (IOException e) {
                 System.err.println("Error saving histogram to SVG: " + e.getMessage());
@@ -1105,8 +1042,8 @@ public class ChargingSite {
         DecimalFormat df = new DecimalFormat("#.######################");
         df.setDecimalSeparatorAlwaysShown(false);
 
-        try {
-            FileWriter csvWriter = new FileWriter(filePath);
+        try(FileWriter csvWriter = new FileWriter(filePath)) {
+
             csvWriter.append("Arrival Rate");
 
             // Отримання кількості рядів та стовпців даних
@@ -1117,6 +1054,7 @@ public class ChargingSite {
                 String binRange = histogramDataset.getColumnKey(column).toString();
                 csvWriter.append("; ").append(binRange);
             }
+
             csvWriter.append("\n");
             for (int series = 0; series < seriesCount; series++) {
                 double arrivalRate = (series + 1) * simParameters.getArrivalRateStep();
@@ -1129,49 +1067,27 @@ public class ChargingSite {
             }
 
             csvWriter.flush();
-            csvWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void saveHistogramToPNG(String filePath, int width, int height) {
-        if (histogramFrame == null) {
-            System.err.println("Histogram frame not initialized");
-            return;
-        }
-        Component[] components = histogramFrame.getContentPane().getComponents();
-        for (Component comp : components) {
-            if (comp instanceof ChartPanel) {
-                ChartPanel chartPanel = (ChartPanel) comp;
-                JFreeChart chart = chartPanel.getChart();
-
-                try {
-                    ChartUtilities.saveChartAsPNG(new File(filePath), chart, width, height);
-                    System.out.println("Histogram saved to PNG successfully.");
-                    return;
-                } catch (IOException e) {
-                    System.err.println("Error saving histogram to PNG: " + e.getMessage());
-                    return;
-                }
-            }
-        }
-        System.err.println("ChartPanel not found");
+    public void saveHistogramAsPNG(String filePath) {
+        saveHistogramAsPNG(filePath, DefaultPictureSizes.PNG_WIDTH, DefaultPictureSizes.PNG_HEIGTH);
     }
 
-    public void saveHistogramAsPNG(String filePath) {
+    public static void saveHistogramAsPNG(String filePath, int width, int height) {
         if (histogramFrame == null) {
             System.err.println("Histogram frame not initialized");
             return;
         }
 
-        if (mainPanel.getComponentCount() > 1) {
-            ChartPanel chartPanel = (ChartPanel) mainPanel.getComponent(1);
+        if (histogramPanel.getComponentCount() > 1) {
+            ChartPanel chartPanel = (ChartPanel) histogramPanel.getComponent(1);
             JFreeChart chart = chartPanel.getChart();
 
             try {
-                ChartUtilities.saveChartAsPNG(new File(filePath), chart, DefaultPictureSizes.PNG_WIDTH,
-                        DefaultPictureSizes.PNG_HEIGTH);
+                ChartUtilities.saveChartAsPNG(new File(filePath), chart, width, height);
                 System.out.println("Histogram saved to PNG successfully.");
             } catch (IOException e) {
                 System.err.println("Error saving histogram to PNG: " + e.getMessage());
